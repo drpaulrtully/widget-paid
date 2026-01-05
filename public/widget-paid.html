@@ -162,7 +162,7 @@
     <div class="topbar">
       <div>
         <h1 class="title">FEthink – Lesson Designer</h1>
-        <p class="meta">Explorer / Pro assistant with quality lenses and teacher-ready outputs</p>
+        <p class="meta">Explorer / Pro assistant with activity buttons, packs, and quality lenses</p>
       </div>
       <div class="usage">
         Today: <b><span id="used-count">0</span></b> / <span id="limit-count">—</span>
@@ -200,6 +200,9 @@
       </div>
     </div>
 
+    <label>Output pack (choose one)</label>
+    <div class="chip-grid" id="packChips"></div>
+
     <label>Quality lenses (optional but recommended)</label>
     <div class="lens-row">
       <label class="lens"><input type="checkbox" id="lens-send"> SEND / EAL scaffolding</label>
@@ -219,17 +222,17 @@
     <div id="chat"></div>
 
     <div class="note">
-      This page reads tier + token from the iframe URL (e.g. <b>?tier=explorer&amp;token=...</b>).
+      This widget reads tier + token from the iframe URL (e.g. <b>?tier=explorer&amp;token=...</b>).
     </div>
   </div>
 
   <script>
-    // Read tier/token from query string (THIS is what fixes your access check problem)
+    // Read tier/token from query string
     const params = new URLSearchParams(window.location.search);
     const tier = params.get("tier") || "explorer";
     const token = params.get("token") || "";
 
-    // Activity buttons (A–Z-ish, user-friendly)
+    // Activity buttons
     const activities = [
       "10-minute tasks",
       "Assessment Task",
@@ -268,6 +271,31 @@
       });
     }
     renderActivityChips();
+
+    // Output packs (Teacher Pack / Assessment & Marking Pack)
+    const packs = [
+      "Standard output",
+      "Teacher Pack",
+      "Assessment & Marking Pack"
+    ];
+
+    const packChips = document.getElementById("packChips");
+    let selectedPack = packs[0];
+
+    function renderPackChips() {
+      packChips.innerHTML = "";
+      packs.forEach(p => {
+        const btn = document.createElement("div");
+        btn.className = "chip" + (p === selectedPack ? " selected" : "");
+        btn.textContent = p;
+        btn.onclick = () => {
+          selectedPack = p;
+          renderPackChips();
+        };
+        packChips.appendChild(btn);
+      });
+    }
+    renderPackChips();
 
     const input = document.getElementById("input");
     const chat = document.getElementById("chat");
@@ -353,19 +381,55 @@
 
       const lensText = lenses.length ? lenses.join(", ") : "None selected";
 
-      const message =
-`Subject: ${subject}
-Activity: ${selectedActivity}
-Quality lenses: ${lensText}
-User request: ${question}
-
+      // Pack-specific response formats
+      let responseFormat = `
 Response format:
 - Title
 - Purpose (1–2 sentences)
 - Steps / guidance in bullet points
 - Differentiation (if lenses include SEND/EAL)
 - Assessment notes (if assessment lens is selected)
-- Optional extension / variation`;
+- Optional extension / variation
+`.trim();
+
+      if (selectedPack === "Teacher Pack") {
+        responseFormat = `
+Response format (Teacher Pack):
+- Lesson title + overview
+- Learning aims (student-friendly)
+- Starter (5 mins)
+- Main teaching sequence (timed steps)
+- Practice / application task (with instructions)
+- Differentiation: SEND/EAL scaffolds + stretch challenge
+- Resources list (what teacher needs)
+- Slide-ready summary (5–8 bullet points)
+- Exit ticket (3 questions)
+`.trim();
+      }
+
+      if (selectedPack === "Assessment & Marking Pack") {
+        responseFormat = `
+Response format (Assessment & Marking Pack):
+- Assessment title + purpose
+- Task brief (student-facing) + timings
+- Success criteria (bullet points)
+- Mark scheme / rubric (levels or points)
+- Model answer (high-quality)
+- Common misconceptions
+- Feedback stems (what to write on student work)
+- Improvement tasks (DIRT / feedforward)
+- Optional variation for lower/higher ability
+`.trim();
+      }
+
+      const message =
+`Subject: ${subject}
+Activity: ${selectedActivity}
+Output pack: ${selectedPack}
+Quality lenses: ${lensText}
+User request: ${question}
+
+${responseFormat}`;
 
       chat.innerHTML += `<div class="msg"><b>You:</b> ${escapeHTML(question)}</div>`;
       input.value = "";
