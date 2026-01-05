@@ -7,16 +7,10 @@
 
   <style>
     * { box-sizing: border-box; }
-
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 12px;
-      background: #fff;
-    }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 12px; background: #fff; }
 
     .wrap {
-      max-width: 760px;
+      max-width: 860px;
       margin: 0 auto;
       border: 1px solid #e6e6e6;
       border-radius: 14px;
@@ -32,33 +26,12 @@
       margin-bottom: 12px;
     }
 
-    .title {
-      margin: 0;
-      font-size: 18px;
-      font-weight: 800;
-    }
-
-    .meta {
-      margin: 4px 0 0 0;
-      font-size: 12px;
-      color: #666;
-    }
-
-    .usage {
-      text-align: right;
-      font-size: 12px;
-      color: #444;
-      white-space: nowrap;
-    }
-
+    .title { margin: 0; font-size: 18px; font-weight: 800; }
+    .meta { margin: 4px 0 0 0; font-size: 12px; color: #666; }
+    .usage { text-align: right; font-size: 12px; color: #444; white-space: nowrap; }
     .usage b { font-weight: 800; }
 
-    label {
-      display: block;
-      font-size: 12px;
-      color: #555;
-      margin: 10px 0 6px;
-    }
+    label { display: block; font-size: 12px; color: #555; margin: 10px 0 6px; }
 
     select, textarea {
       width: 100%;
@@ -75,29 +48,56 @@
       box-shadow: 0 0 0 3px rgba(111,45,189,0.12);
     }
 
-    textarea {
-      resize: vertical;
-      min-height: 78px; /* ~3 lines */
-      line-height: 1.4;
-    }
+    textarea { resize: vertical; min-height: 78px; line-height: 1.4; }
 
-    .row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
+    .row { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    @media (min-width: 720px) { .row-2 { grid-template-columns: 1fr 1fr; } }
 
-    @media (max-width: 600px) {
-      .row { grid-template-columns: 1fr; }
-      .usage { text-align: left; }
-    }
-
-    .actions {
+    .chip-grid {
       display: flex;
-      gap: 10px;
-      margin-top: 10px;
-      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
     }
+
+    .chip {
+      border: 1px solid #ddd;
+      background: #fff;
+      border-radius: 999px;
+      padding: 8px 10px;
+      font-size: 13px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .chip:hover { background: #f6f6f6; }
+    .chip.selected {
+      border-color: #6f2dbd;
+      background: rgba(111,45,189,0.10);
+      font-weight: 700;
+    }
+
+    .lens-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .lens {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 8px 10px;
+      font-size: 13px;
+      background: #fff;
+    }
+
+    .lens input { transform: scale(1.05); }
+
+    .actions { display: flex; gap: 10px; margin-top: 10px; align-items: center; }
 
     .btn {
       border: 1px solid #ddd;
@@ -108,24 +108,11 @@
       background: #fff;
     }
 
-    .btn-primary {
-      background: #6f2dbd;
-      color: #fff;
-      border-color: #6f2dbd;
-    }
-
+    .btn-primary { background: #6f2dbd; color: #fff; border-color: #6f2dbd; }
     .btn-primary:hover { opacity: 0.92; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-    .btn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-
-    #chat {
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px solid #eee;
-    }
+    #chat { margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee; }
 
     .msg {
       margin: 16px 0;
@@ -133,7 +120,6 @@
       padding-bottom: 12px;
       border-bottom: 1px solid #eee;
     }
-
     .msg:last-child { border-bottom: none; }
 
     .ai-header {
@@ -144,10 +130,7 @@
       margin-bottom: 6px;
     }
 
-    .ai-actions {
-      display: flex;
-      gap: 8px;
-    }
+    .ai-actions { display: flex; gap: 8px; }
 
     .mini-btn {
       border: 1px solid #ddd;
@@ -158,37 +141,19 @@
       background: #fff;
     }
 
-    .save-btn {
-      background: #3a3a3a;
-      color: #fff;
-      border-color: #3a3a3a;
-    }
+    .save-btn { background: #3a3a3a; color: #fff; border-color: #3a3a3a; }
     .save-btn:hover { background: #d9d9d9; color: #000; border-color: #d9d9d9; }
 
     .copy-btn:hover { background: #f2f2f2; }
 
-    .word-btn {
-      background: #111;
-      color: #fff;
-      border-color: #111;
-    }
+    .word-btn { background: #111; color: #fff; border-color: #111; }
     .word-btn:hover { opacity: 0.9; }
 
     .ai-content { margin-top: 4px; }
-
-    /* Clean heading spacing in AI output */
-    .ai-h {
-      display: block;
-      font-weight: 800;
-      margin: 10px 0 6px 0;
-    }
+    .ai-h { display: block; font-weight: 800; margin: 10px 0 6px 0; }
     .ai-gap { height: 8px; }
 
-    .note {
-      font-size: 12px;
-      color: #666;
-      margin-top: 10px;
-    }
+    .note { font-size: 12px; color: #666; margin-top: 10px; }
   </style>
 </head>
 
@@ -197,18 +162,17 @@
     <div class="topbar">
       <div>
         <h1 class="title">FEthink – Lesson Designer</h1>
-        <p class="meta">Paid educator assistant (Explorer / Pro)</p>
+        <p class="meta">Explorer / Pro assistant with quality lenses and teacher-ready outputs</p>
       </div>
       <div class="usage">
         Today: <b><span id="used-count">0</span></b> / <span id="limit-count">—</span>
       </div>
     </div>
 
-    <div class="row">
+    <div class="row row-2">
       <div>
         <label for="subject">Subject</label>
         <select id="subject">
-          <!-- Core + extra subjects you requested -->
           <option>Biology</option>
           <option>Business</option>
           <option>Chemistry</option>
@@ -231,32 +195,21 @@
       </div>
 
       <div>
-        <label for="activity">Activity type</label>
-        <select id="activity">
-          <option>10-minute tasks</option>
-          <option>Assessment Task</option>
-          <option>Blended Learning</option>
-          <option>CPD activity</option>
-          <option>Field trip</option>
-          <option>Group Activity</option>
-          <option>Icebreaker</option>
-          <option>Learning game</option>
-          <option>Lesson Closer</option>
-          <option>Lesson Plan</option>
-          <option>Presentation slides</option>
-          <option>Practice Tasks</option>
-          <option>Progress review</option>
-          <option>Questioning</option>
-          <option>Research Project</option>
-          <option>Revision Support</option>
-          <option>Scheme of Work</option>
-          <option>Theory Class</option>
-        </select>
+        <label>Activity type (choose one)</label>
+        <div class="chip-grid" id="activityChips"></div>
       </div>
     </div>
 
+    <label>Quality lenses (optional but recommended)</label>
+    <div class="lens-row">
+      <label class="lens"><input type="checkbox" id="lens-send"> SEND / EAL scaffolding</label>
+      <label class="lens"><input type="checkbox" id="lens-assess"> Assessment alignment</label>
+      <label class="lens"><input type="checkbox" id="lens-cog"> Cognitive load clarity</label>
+      <label class="lens"><input type="checkbox" id="lens-access"> Plain language &amp; accessibility</label>
+    </div>
+
     <label for="input">What do you want to generate?</label>
-    <textarea id="input" placeholder="Example: Create a 50-minute lesson plan on social class and education, with SEND scaffolds and an exit ticket."></textarea>
+    <textarea id="input" placeholder="Example: Create a 50-minute lesson plan on social class and education with a starter, main tasks, differentiation, and a 5-minute exit ticket."></textarea>
 
     <div class="actions">
       <button class="btn btn-primary" id="sendBtn">Send</button>
@@ -266,18 +219,55 @@
     <div id="chat"></div>
 
     <div class="note">
-      Tip: Explorer = 50/day, Pro = 200/day. (Tier is set by the embed code you use in Payhip.)
+      This page reads tier + token from the iframe URL (e.g. <b>?tier=explorer&amp;token=...</b>).
     </div>
   </div>
 
   <script>
-    // -------------------------
-    // SET THESE FROM PAYHIP EMBED
-    // -------------------------
-    // The Payhip embed will set: window.FETHINK_TIER = "explorer" or "pro"
-    // and optionally: window.FETHINK_TOKEN = "...." (if you enable tokens)
-    const getTier = () => (window.FETHINK_TIER || "explorer");
-    const getToken = () => (window.FETHINK_TOKEN || "");
+    // Read tier/token from query string (THIS is what fixes your access check problem)
+    const params = new URLSearchParams(window.location.search);
+    const tier = params.get("tier") || "explorer";
+    const token = params.get("token") || "";
+
+    // Activity buttons (A–Z-ish, user-friendly)
+    const activities = [
+      "10-minute tasks",
+      "Assessment Task",
+      "Blended Learning",
+      "CPD activity",
+      "Field trip",
+      "Group Activity",
+      "Icebreaker",
+      "Learning game",
+      "Lesson Closer",
+      "Lesson Plan",
+      "Presentation slides",
+      "Practice Tasks",
+      "Progress review",
+      "Questioning",
+      "Research Project",
+      "Revision Support",
+      "Scheme of Work",
+      "Theory Class"
+    ];
+
+    const activityChips = document.getElementById("activityChips");
+    let selectedActivity = activities[0];
+
+    function renderActivityChips() {
+      activityChips.innerHTML = "";
+      activities.forEach(a => {
+        const btn = document.createElement("div");
+        btn.className = "chip" + (a === selectedActivity ? " selected" : "");
+        btn.textContent = a;
+        btn.onclick = () => {
+          selectedActivity = a;
+          renderActivityChips();
+        };
+        activityChips.appendChild(btn);
+      });
+    }
+    renderActivityChips();
 
     const input = document.getElementById("input");
     const chat = document.getElementById("chat");
@@ -292,10 +282,7 @@
     }
 
     function formatAI(markdownText) {
-      // Escape first so user content can’t inject HTML
       const safe = escapeHTML(markdownText);
-
-      // Convert markdown-ish headings to styled blocks with controlled spacing
       return safe
         .replace(/^### (.*)$/gm, '<span class="ai-h">$1</span>')
         .replace(/^## (.*)$/gm, '<span class="ai-h">$1</span>')
@@ -312,9 +299,7 @@
     function copyAIResponse(btn) {
       const msg = btn.closest(".ai-msg");
       const content = msg.querySelector(".ai-content");
-      const text = content.innerText;
-
-      navigator.clipboard.writeText(text).then(() => {
+      navigator.clipboard.writeText(content.innerText).then(() => {
         btn.textContent = "Copied";
         setTimeout(() => (btn.textContent = "Copy"), 900);
       });
@@ -323,9 +308,7 @@
     function saveAIResponse(btn) {
       const msg = btn.closest(".ai-msg");
       const content = msg.querySelector(".ai-content");
-      const text = content.innerText;
-
-      const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+      const blob = new Blob([content.innerText], { type: "text/plain;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -359,14 +342,30 @@
 
     async function send() {
       const subject = document.getElementById("subject").value;
-      const activity = document.getElementById("activity").value;
       const question = input.value.trim();
       if (!question) return;
 
-      const tier = getTier();
-      const token = getToken();
+      const lenses = [];
+      if (document.getElementById("lens-send").checked) lenses.push("SEND/EAL scaffolding");
+      if (document.getElementById("lens-assess").checked) lenses.push("Assessment alignment");
+      if (document.getElementById("lens-cog").checked) lenses.push("Cognitive load clarity");
+      if (document.getElementById("lens-access").checked) lenses.push("Plain language & accessibility");
 
-      const text = `Subject: ${subject}\nActivity: ${activity}\nUser request: ${question}`;
+      const lensText = lenses.length ? lenses.join(", ") : "None selected";
+
+      const message =
+`Subject: ${subject}
+Activity: ${selectedActivity}
+Quality lenses: ${lensText}
+User request: ${question}
+
+Response format:
+- Title
+- Purpose (1–2 sentences)
+- Steps / guidance in bullet points
+- Differentiation (if lenses include SEND/EAL)
+- Assessment notes (if assessment lens is selected)
+- Optional extension / variation`;
 
       chat.innerHTML += `<div class="msg"><b>You:</b> ${escapeHTML(question)}</div>`;
       input.value = "";
@@ -376,7 +375,7 @@
         const res = await fetch("/ask", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: text, tier, token })
+          body: JSON.stringify({ message, tier, token })
         });
 
         const data = await res.json();
@@ -385,7 +384,7 @@
           updateUsage(data.used, data.limit);
         }
 
-        const formattedReply = formatAI(data.reply || "");
+        const formatted = formatAI(data.reply || "");
 
         chat.innerHTML += `
           <div class="msg ai-msg">
@@ -397,7 +396,7 @@
                 <button class="mini-btn word-btn" onclick="downloadWord(this)">Word</button>
               </div>
             </div>
-            <div class="ai-content">${formattedReply}</div>
+            <div class="ai-content">${formatted}</div>
           </div>
         `;
       } catch (e) {
@@ -409,15 +408,11 @@
 
     sendBtn.addEventListener("click", send);
     input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        send();
-      }
+      if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
     });
 
     clearBtn.addEventListener("click", () => {
       chat.innerHTML = "";
-      updateUsage(0, document.getElementById("limit-count").textContent === "—" ? "—" : Number(document.getElementById("limit-count").textContent));
     });
   </script>
 </body>
