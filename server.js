@@ -5,7 +5,7 @@
 // - /pptx (PowerPoint export)
 // - Professional slide background
 // - 24pt body text, 34pt titles
-// - Optional uploaded logo support for PPTX (adds logo to title + content slides)
+// - Optional logo data (from widget) embedded into PPTX
 
 import express from "express";
 import path from "path";
@@ -50,9 +50,8 @@ function isSafeImageDataUrl(dataUrl) {
   if (!dataUrl || typeof dataUrl !== "string") return false;
   const okPrefix = /^data:image\/(png|jpeg|jpg|webp);base64,/i.test(dataUrl);
   if (!okPrefix) return false;
-
+  // keep comfortably within JSON limits
   if (dataUrl.length > 900_000) return false;
-
   return true;
 }
 
@@ -91,12 +90,15 @@ async function buildPptx(slides, logoDataUrl = null) {
   function addOptionalLogo(slide, opts = {}) {
     if (!logoDataUrl) return;
     try {
+      // Wide slides are 13.333" x 7.5"
       const x = typeof opts.x === "number" ? opts.x : 11.6;
       const y = typeof opts.y === "number" ? opts.y : 0.55;
       const w = typeof opts.w === "number" ? opts.w : 1.5;
       const h = typeof opts.h === "number" ? opts.h : 0.85;
       slide.addImage({ data: logoDataUrl, x, y, w, h });
-    } catch {}
+    } catch {
+      // silently continue if logo cannot be embedded
+    }
   }
 
   // ---- Title slide ----
@@ -197,7 +199,6 @@ app.post("/pptx", async (req, res) => {
       return res.status(400).json({ error: "No slides detected" });
 
     const logoDataUrl = isSafeImageDataUrl(logoData) ? logoData : null;
-
     const buffer = await buildPptx(slides, logoDataUrl);
 
     res.setHeader(

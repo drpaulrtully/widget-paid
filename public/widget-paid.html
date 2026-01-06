@@ -8,17 +8,15 @@
 
   <style>
     * { box-sizing: border-box; }
-
-    body { font-family: Arial, sans-serif; margin: 0; padding: 12px; background: #f6f7fb; }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 12px; background: #fff; }
 
     .wrap {
       max-width: 920px;
       margin: 0 auto;
-      border: 1px solid #e7e7ee;
-      border-radius: 16px;
-      padding: 16px;
+      border: 1px solid #e6e6e6;
+      border-radius: 14px;
+      padding: 14px;
       background: #fff;
-      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
     }
 
     .topbar {
@@ -26,37 +24,19 @@
       align-items: flex-start;
       justify-content: space-between;
       gap: 12px;
-      margin-bottom: 14px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid #f0f0f4;
+      margin-bottom: 12px;
     }
 
-    .title { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: 0.1px; }
-    .meta  { margin: 6px 0 0 0; font-size: 12px; color: #667085; line-height: 1.35; }
-
-    .usage {
-      text-align: right;
-      font-size: 12px;
-      color: #344054;
-      white-space: nowrap;
-      border: 1px solid #e7e7ee;
-      border-radius: 999px;
-      padding: 8px 10px;
-      background: #fbfbfe;
-    }
+    .title { margin: 0; font-size: 18px; font-weight: 800; }
+    .meta { margin: 4px 0 0 0; font-size: 12px; color: #666; }
+    .usage { text-align: right; font-size: 12px; color: #444; white-space: nowrap; }
     .usage b { font-weight: 800; }
 
-    label {
-      display: block;
-      font-size: 12px;
-      color: #475467;
-      margin: 12px 0 6px;
-      font-weight: 700;
-    }
+    label { display: block; font-size: 12px; color: #555; margin: 10px 0 6px; }
 
     select, textarea {
       width: 100%;
-      border: 1px solid #dfe1ea;
+      border: 1px solid #ddd;
       border-radius: 12px;
       padding: 10px 12px;
       font-size: 14px;
@@ -64,14 +44,12 @@
       outline: none;
     }
 
-    select:hover, textarea:hover { border-color: #cfd3e2; }
-
     select:focus, textarea:focus {
       border-color: #6f2dbd;
-      box-shadow: 0 0 0 3px rgba(111,45,189,0.14);
+      box-shadow: 0 0 0 3px rgba(111,45,189,0.12);
     }
 
-    textarea { resize: vertical; min-height: 92px; line-height: 1.45; }
+    textarea { resize: vertical; min-height: 84px; line-height: 1.4; }
 
     .row { display: grid; grid-template-columns: 1fr; gap: 10px; }
     @media (min-width: 760px) { .row-2 { grid-template-columns: 1fr 1fr; } }
@@ -79,20 +57,18 @@
     .chip-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
 
     .chip {
-      border: 1px solid #dfe1ea;
+      border: 1px solid #ddd;
       background: #fff;
       border-radius: 999px;
-      padding: 8px 12px;
+      padding: 8px 10px;
       font-size: 13px;
       cursor: pointer;
       user-select: none;
       white-space: nowrap;
-      transition: background 120ms ease, border-color 120ms ease, transform 60ms ease;
     }
 
-    .chip:hover { background: #f6f7fb; border-color: #cfd3e2; }
-    .chip:active { transform: translateY(1px); }
-    .chip.selected { border-color: #6f2dbd; background: rgba(111,45,189,0.10); font-weight: 800; }
+    .chip:hover { background: #f6f6f6; }
+    .chip.selected { border-color: #6f2dbd; background: rgba(111,45,189,0.10); font-weight: 700; }
 
     .lens-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
 
@@ -100,46 +76,41 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      border: 1px solid #e7e7ee;
+      border: 1px solid #ddd;
       border-radius: 12px;
-      padding: 9px 10px;
+      padding: 8px 10px;
       font-size: 13px;
       background: #fff;
     }
 
     .lens input { transform: scale(1.05); }
 
-    .actions { display: flex; gap: 10px; margin-top: 12px; align-items: center; flex-wrap: wrap; }
+    .actions { display: flex; gap: 10px; margin-top: 10px; align-items: center; flex-wrap: wrap; }
 
     .btn {
-      border: 1px solid #dfe1ea;
+      border: 1px solid #ddd;
       border-radius: 12px;
       padding: 10px 14px;
       font-size: 14px;
       cursor: pointer;
       background: #fff;
-      transition: transform 60ms ease, opacity 120ms ease, background 120ms ease;
     }
 
-    .btn:hover { background: #f6f7fb; }
-    .btn:active { transform: translateY(1px); }
+    .btn-primary { background: #6f2dbd; color: #fff; border-color: #6f2dbd; }
+    .btn-primary:hover { opacity: 0.92; }
     .btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-    .btn-primary { background: #6f2dbd; color: #fff; border-color: #6f2dbd; }
-    .btn-primary:hover { opacity: 0.94; background: #6f2dbd; }
+    #chat { margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee; }
 
-    #chat { margin-top: 14px; padding-top: 14px; border-top: 1px solid #f0f0f4; }
-
-    .msg { margin: 16px 0; line-height: 1.55; padding-bottom: 12px; border-bottom: 1px solid #f0f0f4; }
+    .msg { margin: 16px 0; line-height: 1.5; padding-bottom: 12px; border-bottom: 1px solid #eee; }
     .msg:last-child { border-bottom: none; }
 
     .ai-pack {
-      border: 1px solid #eef0f6;
-      border-radius: 16px;
+      border: 1px solid #eee;
+      border-radius: 14px;
       padding: 12px;
       background: #fff;
       margin-top: 10px;
-      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
     }
 
     .ai-pack-title {
@@ -147,88 +118,89 @@
       align-items: center;
       justify-content: space-between;
       gap: 10px;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
-    .ai-pack-title b { font-weight: 900; color: #101828; }
-    .ai-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .ai-pack-title b { font-weight: 800; }
+    .ai-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 
     .mini-btn {
-      border: 1px solid #dfe1ea;
+      border: 1px solid #ddd;
       border-radius: 10px;
-      padding: 7px 10px;
+      padding: 6px 10px;
       font-size: 12px;
       cursor: pointer;
       background: #fff;
     }
 
-    .mini-btn:hover { background: #f6f7fb; }
-
     .save-btn { background: #3a3a3a; color: #fff; border-color: #3a3a3a; }
-    .save-btn:hover { background: #2e2e2e; color: #fff; border-color: #2e2e2e; }
+    .save-btn:hover { background: #d9d9d9; color: #000; border-color: #d9d9d9; }
+
+    .copy-btn:hover { background: #f2f2f2; }
 
     .word-btn { background: #111; color: #fff; border-color: #111; }
-    .word-btn:hover { opacity: 0.92; }
+    .word-btn:hover { opacity: 0.9; }
 
     .ppt-btn { background: #0a0a0a; color: #fff; border-color: #0a0a0a; }
-    .ppt-btn:hover { opacity: 0.92; }
+    .ppt-btn:hover { opacity: 0.9; }
 
-    .ai-content { margin-top: 4px; color: #101828; }
-    .ai-h { display: block; font-weight: 900; margin: 12px 0 6px 0; }
+    .ai-content { margin-top: 4px; }
+    .ai-h { display: block; font-weight: 800; margin: 10px 0 6px 0; }
     .ai-gap { height: 8px; }
 
-    .micro { font-size: 11px; color: #667085; margin-top: 6px; line-height: 1.3; }
-    .micro-inline { font-size: 11px; color: #667085; margin-left: 6px; line-height: 1.25; }
-    .note { font-size: 12px; color: #667085; margin-top: 12px; }
+    .micro { font-size: 11px; color: #666; margin-top: 4px; line-height: 1.25; }
+    .micro-inline { font-size: 11px; color: #666; margin-left: 6px; line-height: 1.25; }
+    .note { font-size: 12px; color: #666; margin-top: 10px; }
 
-    /* Branding / Logo upload (additive) */
-    .brand-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 10px;
-      padding: 12px;
-      border: 1px solid #eef0f6;
+    /* --- Branding/Logo upload (additive, does not remove anything) --- */
+    .brand-row{
+      display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;
+      margin: 8px 0 4px 0;
+      padding: 10px;
+      border: 1px solid #eee;
       border-radius: 14px;
-      background: #fbfbfe;
+      background: #fff;
     }
-
-    .brand-left { min-width: 240px; }
-    .brand-title { font-size: 12px; font-weight: 800; color: #344054; margin: 0; }
-    .brand-sub { font-size: 11px; color: #667085; margin: 4px 0 0 0; line-height: 1.35; }
-
-    .brand-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .brand-preview {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
+    .brand-left{ min-width: 240px; }
+    .brand-title{ margin:0; font-size:12px; font-weight:800; color:#333; }
+    .brand-sub{ margin:4px 0 0 0; font-size:11px; color:#666; line-height:1.3; }
+    .brand-actions{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .brand-preview{
+      display:inline-flex; align-items:center; gap:10px;
       padding: 6px 10px;
-      border: 1px dashed #d0d5dd;
+      border: 1px dashed #ddd;
       border-radius: 12px;
-      background: #fff;
-      max-width: 100%;
+      background:#fff;
+      max-width:100%;
     }
-    .brand-preview img {
-      max-height: 44px;
-      max-width: 160px;
-      display: none;
+    .brand-preview img{ max-height:44px; max-width:160px; display:none; }
+    .brand-preview .brand-empty{ font-size:11px; color:#666; white-space:nowrap; }
+    .btn-danger{
+      border:1px solid #f2b8b5;
+      color:#8a1c14;
+      background:#fff;
     }
-    .brand-preview .brand-empty {
-      font-size: 11px;
-      color: #667085;
-      white-space: nowrap;
-    }
+    .btn-danger:hover{ background:#fff5f5; }
 
-    .btn-secondary { border: 1px solid #dfe1ea; background: #fff; color: #101828; }
-
-    .btn-danger {
-      border: 1px solid #fda29b;
-      background: #fff;
-      color: #b42318;
+    /* --- RAFT tooltip icon (additive) --- */
+    .tip{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:18px;
+      height:18px;
+      border-radius:999px;
+      border:1px solid #ddd;
+      font-size:11px;
+      font-weight:800;
+      cursor:help;
+      user-select:none;
+      margin-left:8px;
+      color:#444;
+      background:#fff;
+      line-height:1;
     }
-    .btn-danger:hover { background: #fff5f5; }
+    .tip:hover { background:#f6f6f6; }
   </style>
 </head>
 
@@ -244,13 +216,12 @@
       </div>
     </div>
 
-    <!-- Branding / Logo upload (additive; does not remove anything) -->
+    <!-- Branding / Logo upload (additive) -->
     <div class="brand-row">
       <div class="brand-left">
         <p class="brand-title">Branding (optional)</p>
-        <p class="brand-sub">Upload a school logo to appear on Word handouts and PPT slides exports.</p>
+        <p class="brand-sub">Upload a school logo to appear on Word handouts and PPT slide exports.</p>
       </div>
-
       <div class="brand-actions">
         <div class="brand-preview" title="Logo preview">
           <img id="logoPreview" alt="School logo preview" />
@@ -258,8 +229,7 @@
         </div>
 
         <input type="file" id="logoFile" accept="image/*" style="display:none" />
-
-        <button class="btn btn-secondary" id="uploadLogoBtn" type="button">Upload logo</button>
+        <button class="btn" id="uploadLogoBtn" type="button">Upload logo</button>
         <button class="btn btn-danger" id="clearLogoBtn" type="button">Remove logo</button>
       </div>
     </div>
@@ -351,34 +321,29 @@
 
     // -------------------- Logo upload (additive) --------------------
     const LOGO_STORAGE_KEY = "fethink_school_logo_dataurl";
-    const MAX_LOGO_BYTES = 450 * 1024; // ~450KB raw target
+    const MAX_LOGO_BYTES = 450 * 1024; // ~450KB
 
     function getStoredLogo() {
       try { return localStorage.getItem(LOGO_STORAGE_KEY) || ""; } catch { return ""; }
     }
-
     function setStoredLogo(dataUrl) {
       try { localStorage.setItem(LOGO_STORAGE_KEY, dataUrl || ""); } catch {}
     }
-
     function clearStoredLogo() {
       try { localStorage.removeItem(LOGO_STORAGE_KEY); } catch {}
     }
-
     function estimateBytesFromDataUrl(dataUrl) {
       if (!dataUrl) return 0;
       const comma = dataUrl.indexOf(",");
       const b64 = comma >= 0 ? dataUrl.slice(comma + 1) : dataUrl;
       return Math.floor(b64.length * 0.75);
     }
-
     function isSafeLogoDataUrl(dataUrl) {
       if (!dataUrl || typeof dataUrl !== "string") return false;
       if (!/^data:image\/(png|jpeg|jpg|webp);base64,/i.test(dataUrl)) return false;
       const bytes = estimateBytesFromDataUrl(dataUrl);
       return bytes > 0 && bytes <= MAX_LOGO_BYTES;
     }
-
     function updateLogoUI(dataUrl) {
       const img = document.getElementById("logoPreview");
       const empty = document.getElementById("logoEmpty");
@@ -392,12 +357,10 @@
         empty.style.display = "inline";
       }
     }
-
     function currentLogoDataUrl() {
       const stored = getStoredLogo();
       return (stored && isSafeLogoDataUrl(stored)) ? stored : "";
     }
-
     updateLogoUI(currentLogoDataUrl());
 
     const uploadLogoBtn = document.getElementById("uploadLogoBtn");
@@ -405,11 +368,7 @@
     const logoFile = document.getElementById("logoFile");
 
     uploadLogoBtn.addEventListener("click", () => logoFile.click());
-
-    clearLogoBtn.addEventListener("click", () => {
-      clearStoredLogo();
-      updateLogoUI("");
-    });
+    clearLogoBtn.addEventListener("click", () => { clearStoredLogo(); updateLogoUI(""); });
 
     logoFile.addEventListener("change", async () => {
       const file = logoFile.files && logoFile.files[0];
@@ -454,12 +413,8 @@
         ctx.drawImage(img, 0, 0, w, h);
 
         let out = canvas.toDataURL("image/png");
-        if (!isSafeLogoDataUrl(out)) {
-          out = canvas.toDataURL("image/jpeg", 0.82);
-        }
-        if (!isSafeLogoDataUrl(out)) {
-          out = canvas.toDataURL("image/jpeg", 0.70);
-        }
+        if (!isSafeLogoDataUrl(out)) out = canvas.toDataURL("image/jpeg", 0.82);
+        if (!isSafeLogoDataUrl(out)) out = canvas.toDataURL("image/jpeg", 0.70);
 
         if (!isSafeLogoDataUrl(out)) {
           alert("Logo too large. Please upload a smaller image (ideally a simple PNG under ~450KB).");
@@ -522,16 +477,114 @@ You must create a complete, end-to-end lesson build. Include:
       // (Other activity specs omitted here because your existing prompt already enforces structure via packs)
     };
 
+    // -------------------- NEW: richer presets (3+ lines each) --------------------
+    const activityPresetLines = {
+      "Full lesson": [
+        "- Duration: 60 minutes, FE mixed ability (include SEND/EAL scaffolds + stretch & challenge)",
+        "- Include: measurable outcomes, starter, 2+ main tasks, guided + independent practice",
+        "- Add AfL checkpoints (hinge questions) + exit ticket + teacher notes"
+      ],
+      "10-minute tasks": [
+        "- Create 3 short tasks (~10 mins each) with exact instructions and expected learner output",
+        "- Include answers/model responses + a 1-question check for each task",
+        "- Add differentiation: support prompts + stretch variant"
+      ],
+      "Assessment Task": [
+        "- Write a student-facing brief with scenario/context and clear submission format",
+        "- Provide success criteria + rubric/marking guidance (what good looks like + pitfalls)",
+        "- Include 1 high exemplar + 1 mid exemplar with short commentary"
+      ],
+      "Blended Learning": [
+        "- Structure: pre-learning online, in-class active learning, post-lesson consolidation task",
+        "- Keep tasks platform-agnostic (works in any LMS/Teams/Google Classroom)",
+        "- Include AfL checkpoint and a short independent follow-up"
+      ],
+      "CPD activity": [
+        "- Create a 45–60 minute staff CPD session with outcomes and timings",
+        "- Include 2 interactive activities (discussion protocol + application task)",
+        "- End with action planning + implementation checklist"
+      ],
+      "Field trip": [
+        "- Plan pre-visit learning, on-site tasks, and post-visit assessment/reflection",
+        "- Include a worksheet-style task list (observations/questions/evidence capture)",
+        "- Add differentiation + brief behaviour/risk reminders"
+      ],
+      "Group Activity": [
+        "- Use defined roles (facilitator/scribe/reporter/checker) and accountability",
+        "- Provide step-by-step instructions + success criteria for the group output",
+        "- Include a mini-plenary share-out + quick assessment checkpoint"
+      ],
+      "Icebreaker": [
+        "- 5–8 minutes: fast, low-stakes, subject-relevant starter task",
+        "- Include debrief prompts that link directly to the lesson objective",
+        "- Provide an adaptation for quieter learners/SEND/EAL"
+      ],
+      "Learning game": [
+        "- Explain rules, setup, resources needed and timing (15–25 mins)",
+        "- Include scoring/win condition + sample question/task cards",
+        "- Add differentiation: easier/harder rounds + teacher control tips"
+      ],
+      "Lesson Closer": [
+        "- Provide 3 plenary options (teacher chooses one) + a short debrief",
+        "- Include an exit ticket with 3 prompts and quick marking guidance",
+        "- Add misconceptions to check for"
+      ],
+      "Lesson Plan": [
+        "- 60-minute plan with timings, teacher script, learner activities and resources list",
+        "- Include differentiation, AfL checkpoints, and a short retrieval starter",
+        "- End with exit ticket + optional homework/follow-up"
+      ],
+      "Presentation slides": [
+        "- Produce Slide 1–10 (or 8–12 if needed) in format: Slide X: Title",
+        "- For each slide: concise bullets + visual suggestion + speaker notes",
+        "- Keep slides classroom-ready and aligned to the learning sequence"
+      ],
+      "Practice Tasks": [
+        "- Provide 3 tiers (foundation/core/stretch) with clear instructions",
+        "- Include answers/model responses + common errors/misconceptions",
+        "- Add a quick self-check rubric or checklist"
+      ],
+      "Progress review": [
+        "- Provide a structured review script (teacher questions + student prompts)",
+        "- Include a simple progress rubric + targets + next-step actions",
+        "- Add a short written reflection task for the learner"
+      ],
+      "Questioning": [
+        "- Provide tiered questions: recall → understanding → application → evaluation",
+        "- Include 2 hinge questions with expected answers + misconceptions",
+        "- Add optional prompts for cold-call/no-hands checks"
+      ],
+      "Research Project": [
+        "- Provide a project question, milestones, timeline (2–4 weeks) and deliverables",
+        "- Include success criteria and recommended sources/types of evidence",
+        "- Add differentiation: scaffolded planning template + stretch extension"
+      ],
+      "Revision Support": [
+        "- Create a knowledge organiser (key terms + concepts + examples)",
+        "- Add a retrieval quiz (10 questions) + answers + misconceptions",
+        "- Include a 15-minute revision routine students can follow"
+      ],
+      "Scheme of Work": [
+        "- Provide weekly objectives, lesson sequence and assessment points (4 weeks)",
+        "- Include key resources, homework/follow-up and differentiation notes",
+        "- Add a simple tracking/checkpoint plan for progress"
+      ],
+      "Theory Class": [
+        "- Chunk content into 3–5 short sections with guided practice after each chunk",
+        "- Include checks for understanding and a worked example/model response",
+        "- Add an independent application task with success criteria"
+      ]
+    };
+
     function getPresetPrompt(subject, activity) {
-      if (activity === "Full lesson") {
-        return `Create a FULL LESSON for ${subject}.
-- Audience: FE mixed ability with SEND/EAL scaffolds + stretch & challenge
-- Duration: 60 minutes
-- Include AfL checkpoints, hinge questions, exit ticket
-- Provide step-by-step teacher instructions and expected learner outputs.`;
+      const lines = activityPresetLines[activity];
+      if (lines && lines.length) {
+        return `Generate a ${activity} for ${subject}.\n${lines.join("\n")}`;
       }
+      // fallback (keeps original behaviour if ever needed)
       return `Generate a ${activity} for ${subject}. Make it specific and classroom-ready.`;
     }
+    // -------------------- END richer presets --------------------
 
     const packs = ["Standard output","Teacher Pack","Assessment & Marking Pack"];
     const packDescriptions = {
@@ -700,10 +753,23 @@ You must create a complete, end-to-end lesson build. Include:
       }
     }
 
-    // NEW (additive): attempt to extract "Slide X:" blocks from plain text
     function isLikelySlidesText(text) {
       return /^Slide\s+\d+/im.test(text || "");
     }
+
+    // -------------------- NEW: RAFT tooltip helper (additive) --------------------
+    const RAFT_TOOLTIP_TEXT =
+      "RAFT = Reflect, Amend, Fix, Try again — post-feedback improvement tasks where students act on feedback.";
+
+    function addRaftTooltipIfNeeded(label, containerEl) {
+      if (!/raft/i.test(label || "")) return;
+      const tip = document.createElement("span");
+      tip.className = "tip";
+      tip.textContent = "?";
+      tip.title = RAFT_TOOLTIP_TEXT;
+      containerEl.appendChild(tip);
+    }
+    // -------------------- END RAFT tooltip helper --------------------
 
     function renderArtefactCard(label, contentText, subtitle) {
       const formatted = formatAI(contentText);
@@ -715,13 +781,25 @@ You must create a complete, end-to-end lesson build. Include:
 
       const header = document.createElement("div");
       header.className = "ai-pack-title";
-      header.innerHTML = `<b>${escapeHTML(label)}</b>`;
+
+      const titleWrap = document.createElement("div");
+      titleWrap.style.display = "flex";
+      titleWrap.style.alignItems = "center";
+
+      const title = document.createElement("b");
+      title.textContent = label;
+      titleWrap.appendChild(title);
+
+      // Add tooltip only when the label includes RAFT (additive)
+      addRaftTooltipIfNeeded(label, titleWrap);
+
+      header.appendChild(titleWrap);
 
       const actions = document.createElement("div");
       actions.className = "ai-actions";
 
       const copyBtn = document.createElement("button");
-      copyBtn.className = "mini-btn";
+      copyBtn.className = "mini-btn copy-btn";
       copyBtn.textContent = "Copy";
 
       const saveBtn = document.createElement("button");
@@ -736,6 +814,7 @@ You must create a complete, end-to-end lesson build. Include:
       actions.appendChild(saveBtn);
       actions.appendChild(wordBtn);
 
+      // PPT button only for Slides artefact
       const isSlidesArtefact = /slides/i.test(label);
       let pptBtn = null;
       if (isSlidesArtefact) {
@@ -852,8 +931,8 @@ High exemplar + mid exemplar + short commentary.
 Fast marking process + moderation + checklist.
 [[/ARTEFACT]]
 
-[[ARTEFACT: Student improvement tasks (DIRT)]]
-3 short improvement tasks.
+[[ARTEFACT: Student improvement tasks (RAFT – Reflect, Amend, Fix, Try again)]]
+3 short post-feedback improvement tasks that require students to act on feedback.
 [[/ARTEFACT]]
 `.trim();
       }
@@ -925,8 +1004,6 @@ ${responseFormat}
           const formatted = formatAI(reply);
           const wrapper = document.createElement("div");
           wrapper.className = "msg ai-msg";
-
-          // Existing buttons
           wrapper.innerHTML = `
             <div class="ai-pack-title">
               <b>AI:</b>
@@ -940,15 +1017,12 @@ ${responseFormat}
           `;
 
           const body = wrapper.querySelector(".ai-content");
-          const copyBtn = wrapper.querySelector(".copy-btn");
-          const saveBtn = wrapper.querySelector(".save-btn");
-          const wordBtn = wrapper.querySelector(".word-btn");
-
+          const [copyBtn, saveBtn, wordBtn] = wrapper.querySelectorAll("button");
           copyBtn.onclick = () => copyFromElementText(copyBtn, body);
           saveBtn.onclick = () => downloadTextAsFile("FEthink-response.txt", body.innerText);
           wordBtn.onclick = () => downloadWordFromText("FEthink-response.doc", body.innerText);
 
-          // NEW (additive): If activity is "Presentation slides", add a PPT button to the non-artefact output
+          // Keep PPT button behaviour for Presentation slides activity (additive; no removals)
           if (selectedActivity === "Presentation slides") {
             const actions = wrapper.querySelector(".ai-actions");
             const pptBtn = document.createElement("button");
@@ -983,7 +1057,12 @@ ${responseFormat}
     });
 
     sendBtn.addEventListener("click", send);
-    input.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } });
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        send();
+      }
+    });
     clearBtn.addEventListener("click", () => { chat.innerHTML = ""; });
   </script>
 </body>
