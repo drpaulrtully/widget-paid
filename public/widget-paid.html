@@ -10,7 +10,7 @@
     body { font-family: Arial, sans-serif; margin: 0; padding: 12px; background: #fff; }
 
     .wrap {
-      max-width: 860px;
+      max-width: 920px;
       margin: 0 auto;
       border: 1px solid #e6e6e6;
       border-radius: 14px;
@@ -48,10 +48,10 @@
       box-shadow: 0 0 0 3px rgba(111,45,189,0.12);
     }
 
-    textarea { resize: vertical; min-height: 78px; line-height: 1.4; }
+    textarea { resize: vertical; min-height: 84px; line-height: 1.4; }
 
     .row { display: grid; grid-template-columns: 1fr; gap: 10px; }
-    @media (min-width: 720px) { .row-2 { grid-template-columns: 1fr 1fr; } }
+    @media (min-width: 760px) { .row-2 { grid-template-columns: 1fr 1fr; } }
 
     .chip-grid {
       display: flex;
@@ -68,6 +68,7 @@
       font-size: 13px;
       cursor: pointer;
       user-select: none;
+      white-space: nowrap;
     }
 
     .chip:hover { background: #f6f6f6; }
@@ -97,7 +98,7 @@
 
     .lens input { transform: scale(1.05); }
 
-    .actions { display: flex; gap: 10px; margin-top: 10px; align-items: center; }
+    .actions { display: flex; gap: 10px; margin-top: 10px; align-items: center; flex-wrap: wrap; }
 
     .btn {
       border: 1px solid #ddd;
@@ -122,15 +123,26 @@
     }
     .msg:last-child { border-bottom: none; }
 
-    .ai-header {
+    /* AI artefact cards */
+    .ai-pack {
+      border: 1px solid #eee;
+      border-radius: 14px;
+      padding: 12px;
+      background: #fff;
+      margin-top: 10px;
+    }
+
+    .ai-pack-title {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 10px;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
 
-    .ai-actions { display: flex; gap: 8px; }
+    .ai-pack-title b { font-weight: 800; }
+
+    .ai-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
     .mini-btn {
       border: 1px solid #ddd;
@@ -150,8 +162,24 @@
     .word-btn:hover { opacity: 0.9; }
 
     .ai-content { margin-top: 4px; }
+
+    /* Formatting */
     .ai-h { display: block; font-weight: 800; margin: 10px 0 6px 0; }
     .ai-gap { height: 8px; }
+
+    /* Micro helper text (small, unobtrusive) */
+    .micro {
+      font-size: 11px;
+      color: #666;
+      margin-top: 4px;
+      line-height: 1.25;
+    }
+    .micro-inline {
+      font-size: 11px;
+      color: #666;
+      margin-left: 6px;
+      line-height: 1.25;
+    }
 
     .note { font-size: 12px; color: #666; margin-top: 10px; }
   </style>
@@ -162,7 +190,7 @@
     <div class="topbar">
       <div>
         <h1 class="title">FEthink – Lesson Designer</h1>
-        <p class="meta">Explorer / Pro assistant with activity buttons, packs, and quality lenses</p>
+        <p class="meta">Explorer / Pro assistant with activity buttons, packs, quality lenses & artefact outputs</p>
       </div>
       <div class="usage">
         Today: <b><span id="used-count">0</span></b> / <span id="limit-count">—</span>
@@ -197,25 +225,47 @@
       <div>
         <label>Activity type (choose one)</label>
         <div class="chip-grid" id="activityChips"></div>
+        <div class="micro" id="activityMicro"></div>
       </div>
     </div>
 
     <label>Output pack (choose one)</label>
     <div class="chip-grid" id="packChips"></div>
+    <div class="micro" id="packMicro"></div>
 
     <label>Quality lenses (optional but recommended)</label>
     <div class="lens-row">
-      <label class="lens"><input type="checkbox" id="lens-send"> SEND / EAL scaffolding</label>
-      <label class="lens"><input type="checkbox" id="lens-assess"> Assessment alignment</label>
-      <label class="lens"><input type="checkbox" id="lens-cog"> Cognitive load clarity</label>
-      <label class="lens"><input type="checkbox" id="lens-access"> Plain language &amp; accessibility</label>
+      <label class="lens">
+        <input type="checkbox" id="lens-send">
+        SEND / EAL scaffolding
+        <span class="micro-inline">— scaffolds + glossary + sentence starters</span>
+      </label>
+
+      <label class="lens">
+        <input type="checkbox" id="lens-assess">
+        Assessment alignment
+        <span class="micro-inline">— success criteria + checkpoints</span>
+      </label>
+
+      <label class="lens">
+        <input type="checkbox" id="lens-cog">
+        Cognitive load clarity
+        <span class="micro-inline">— chunking + reduced overload</span>
+      </label>
+
+      <label class="lens">
+        <input type="checkbox" id="lens-access">
+        Plain language &amp; accessibility
+        <span class="micro-inline">— readable formatting + shorter sentences</span>
+      </label>
     </div>
 
     <label for="input">What do you want to generate?</label>
-    <textarea id="input" placeholder="Example: Create a 50-minute lesson plan on social class and education with a starter, main tasks, differentiation, and a 5-minute exit ticket."></textarea>
+    <textarea id="input" placeholder="Example: Generate materials for a lesson on social class and education. Include a starter, main tasks, differentiation and a 5-minute exit ticket."></textarea>
 
     <div class="actions">
       <button class="btn btn-primary" id="sendBtn">Send</button>
+      <button class="btn" id="presetBtn">Use activity preset</button>
       <button class="btn" id="clearBtn">Clear</button>
     </div>
 
@@ -232,8 +282,11 @@
     const tier = params.get("tier") || "explorer";
     const token = params.get("token") || "";
 
-    // Activity buttons
+    // ----------------------------
+    // Activity buttons (include Full lesson)
+    // ----------------------------
     const activities = [
+      "Full lesson",
       "10-minute tasks",
       "Assessment Task",
       "Blended Learning",
@@ -254,8 +307,245 @@
       "Theory Class"
     ];
 
+    // Micro descriptions for activities (small, non-disruptive)
+    const activityDescriptions = {
+      "Full lesson": "A complete session build: outcomes → teaching sequence → tasks → differentiation → checks.",
+      "10-minute tasks": "Short, focused tasks with quick checks and answers.",
+      "Assessment Task": "A full assessment task brief (student-facing) with marking guidance.",
+      "Blended Learning": "Online + in-class + follow-up structure.",
+      "CPD activity": "Staff CPD session plan with outcomes and action planning.",
+      "Field trip": "Pre / during / post visit learning plan.",
+      "Group Activity": "Structured collaborative task with roles and accountability.",
+      "Icebreaker": "Fast starter activity with debrief prompts.",
+      "Learning game": "Rules-based learning game with differentiation.",
+      "Lesson Closer": "Plenary options + exit ticket.",
+      "Lesson Plan": "Standard lesson plan structure and timings.",
+      "Presentation slides": "Slides-only output (copy-ready) with speaker notes.",
+      "Practice Tasks": "Three-level practice set with answers and common errors.",
+      "Progress review": "Review conversation script + targets and next steps.",
+      "Questioning": "Tiered questioning set including hinge questions.",
+      "Research Project": "Project brief, milestones, timeline and criteria.",
+      "Revision Support": "Knowledge organiser + retrieval quiz + misconceptions.",
+      "Scheme of Work": "4-week mini SOW with sequencing and assessment point.",
+      "Theory Class": "Chunked instruction + guided practice + independent application."
+    };
+
+    // Force distinct outputs by activity (specific requirements per button)
+    const activitySpecs = {
+      "Full lesson": `
+You must create a complete, end-to-end lesson build. Include:
+- A clear topic focus and level/assumed prior knowledge
+- Learning outcomes (3–5, measurable)
+- Starter (5–10 mins) with exact instructions
+- Main learning sequence with at least 2 core learning tasks
+- Guided practice and independent practice
+- Differentiation (SEND/EAL and Stretch & Challenge)
+- Check for understanding during lesson (hinge questions / mini checkpoint)
+- Lesson closer + exit ticket
+- Resources list and teacher notes
+`.trim(),
+
+      "Lesson Plan": `
+Deliver a full lesson plan with:
+- Timings for each phase
+- Teacher talk vs student task clarity
+- Materials/resources list
+- Differentiation and checks for understanding
+`.trim(),
+
+      "Scheme of Work": `
+Deliver a mini scheme of work (4 weeks) with:
+- Weekly focus and sequencing
+- Core knowledge and skills each week
+- Homework / independent study suggestions
+- Assessment point(s) and a review week
+`.trim(),
+
+      "Assessment Task": `
+Deliver an assessment-ready task with:
+- Student brief and instructions
+- Success criteria
+- Marking guidance / rubric outline
+- Model answer or exemplar outline
+`.trim(),
+
+      "Blended Learning": `
+Deliver a blended plan with:
+- Online pre-task (10–15 mins)
+- In-class active learning task
+- Post-task reflection or quiz
+- Clear tech/tools assumptions (keep generic)
+`.trim(),
+
+      "Questioning": `
+Deliver a questioning set with:
+- 10 questions from recall → analysis
+- 2 hinge questions
+- Misconceptions to probe
+- Suggested follow-ups based on common answers
+`.trim(),
+
+      "Group Activity": `
+Deliver a structured group task with:
+- Group roles
+- Step-by-step instructions
+- Expected outputs (what students produce)
+- Accountability check (how teacher verifies participation)
+`.trim(),
+
+      "Revision Support": `
+Deliver a revision resource with:
+- Key knowledge organiser bullets
+- Retrieval quiz (10 questions) with answers
+- 3 common misconceptions
+- A 10-minute recap routine
+`.trim(),
+
+      "Theory Class": `
+Deliver a theory lesson sequence with:
+- Direct instruction chunking
+- Guided practice
+- Independent application
+- Short assessment checkpoint
+`.trim(),
+
+      "Icebreaker": `
+Deliver a fast icebreaker with:
+- Setup (1 minute)
+- Activity steps (5–8 minutes)
+- Debrief questions (2–3)
+- Variation for shy learners
+`.trim(),
+
+      "Lesson Closer": `
+Deliver a lesson closer with:
+- Purpose (1 sentence)
+- Two closing activity choices (teacher picks one)
+- Exit ticket (3 prompts)
+- Teacher script (2–4 lines)
+`.trim(),
+
+      "Practice Tasks": `
+Deliver 3 practice tasks:
+- Task 1 (easy) + answers
+- Task 2 (medium) + answers
+- Task 3 (challenge) + answers
+Include common errors and fixes.
+`.trim(),
+
+      "Research Project": `
+Deliver a structured research project brief with:
+- Research question
+- Milestones and timeline
+- Sources guidance (types, not specific links)
+- Assessment criteria
+`.trim(),
+
+      "10-minute tasks": `
+Deliver 3 independent 10-minute tasks:
+For each:
+- Task + instructions
+- Expected student output
+- Quick check answer key
+`.trim(),
+
+      "Field trip": `
+Deliver a field trip learning plan with:
+- Pre-visit preparation
+- On-visit tasks (observations/questions)
+- Post-visit learning check or assessment
+- Risk/behaviour considerations (brief)
+`.trim(),
+
+      "Progress review": `
+Deliver a progress review structure with:
+- Learner self-review prompts
+- Teacher checklist
+- Next-step target setting
+- 5-minute script for the conversation
+`.trim(),
+
+      "Presentation slides": `
+Deliver slide content ONLY (no handout) with:
+- Slide-by-slide titles and bullets
+- Speaker notes
+Keep to 8–10 slides max.
+`.trim(),
+
+      "Learning game": `
+Deliver a classroom learning game with:
+- Objective
+- Rules
+- Setup time (max 5 mins)
+- Scoring/win conditions
+- Differentiation variation
+`.trim(),
+
+      "CPD activity": `
+Deliver a CPD session plan for staff with:
+- Outcomes for staff
+- Agenda and timings (45–60 mins)
+- Activity steps
+- Reflection and action planning
+`.trim()
+    };
+
+    // Preset prompts: clicking “Use activity preset” fills the text box with a detailed prompt
+    function getPresetPrompt(subject, activity) {
+      // We keep this detailed only for Full lesson as requested; others stay concise so teachers can customise quickly.
+      if (activity === "Full lesson") {
+        return `Create a FULL LESSON for ${subject}.
+
+Context / constraints:
+- Audience: FE learners (mixed ability), include SEND/EAL scaffolds and stretch & challenge.
+- Duration: 60 minutes (adjust if needed but keep it realistic for FE).
+- Teaching style: active learning, clear instructions, low cognitive load.
+- Include assessment-for-learning checkpoints.
+
+Must include:
+- Lesson title + topic focus
+- 3–5 measurable learning outcomes
+- Starter (5–10 mins) with exact instructions and expected learner output
+- Main sequence with at least 2 core learning tasks (step-by-step)
+- Guided practice + independent practice
+- Differentiation: SEND/EAL + stretch & challenge
+- Check for understanding during the lesson (include hinge questions + what to do with answers)
+- Lesson closer + exit ticket
+- Resources list (generic, no external links required)
+- Teacher notes: misconceptions, pacing tips, what to look for in student work
+
+Also: keep everything ready-to-use in a classroom (no long essays).`;
+      }
+
+      // Default preset for other activities
+      return `Generate a ${activity} for ${subject}. Make it specific, classroom-ready, and include clear steps, timings where appropriate, and differentiation.`;
+    }
+
+    // ----------------------------
+    // Output packs
+    // ----------------------------
+    const packs = [
+      "Standard output",
+      "Teacher Pack",
+      "Assessment & Marking Pack"
+    ];
+
+    const packDescriptions = {
+      "Standard output": "Fast structured support for the selected activity.",
+      "Teacher Pack": "Premium artefacts: outcomes + activity task + slides + handout + checks + teacher notes.",
+      "Assessment & Marking Pack": "Premium artefacts: brief + rubric + exemplars + feedback bank + marking workflow."
+    };
+
+    // ----------------------------
+    // UI state
+    // ----------------------------
     const activityChips = document.getElementById("activityChips");
+    const packChips = document.getElementById("packChips");
+    const activityMicro = document.getElementById("activityMicro");
+    const packMicro = document.getElementById("packMicro");
+
     let selectedActivity = activities[0];
+    let selectedPack = packs[0];
 
     function renderActivityChips() {
       activityChips.innerHTML = "";
@@ -269,18 +559,9 @@
         };
         activityChips.appendChild(btn);
       });
+
+      if (activityMicro) activityMicro.textContent = activityDescriptions[selectedActivity] || "";
     }
-    renderActivityChips();
-
-    // Output packs (Teacher Pack / Assessment & Marking Pack)
-    const packs = [
-      "Standard output",
-      "Teacher Pack",
-      "Assessment & Marking Pack"
-    ];
-
-    const packChips = document.getElementById("packChips");
-    let selectedPack = packs[0];
 
     function renderPackChips() {
       packChips.innerHTML = "";
@@ -294,14 +575,22 @@
         };
         packChips.appendChild(btn);
       });
+
+      if (packMicro) packMicro.textContent = packDescriptions[selectedPack] || "";
     }
+
+    renderActivityChips();
     renderPackChips();
 
     const input = document.getElementById("input");
     const chat = document.getElementById("chat");
     const sendBtn = document.getElementById("sendBtn");
+    const presetBtn = document.getElementById("presetBtn");
     const clearBtn = document.getElementById("clearBtn");
 
+    // ----------------------------
+    // Helpers
+    // ----------------------------
     function escapeHTML(s) {
       return (s || "")
         .replace(/&/g, "&amp;")
@@ -324,50 +613,269 @@
       if (typeof limit === "number") document.getElementById("limit-count").textContent = limit;
     }
 
-    function copyAIResponse(btn) {
-      const msg = btn.closest(".ai-msg");
-      const content = msg.querySelector(".ai-content");
-      navigator.clipboard.writeText(content.innerText).then(() => {
+    function copyFromElementText(btn, el) {
+      navigator.clipboard.writeText(el.innerText).then(() => {
         btn.textContent = "Copied";
         setTimeout(() => (btn.textContent = "Copy"), 900);
       });
     }
 
-    function saveAIResponse(btn) {
-      const msg = btn.closest(".ai-msg");
-      const content = msg.querySelector(".ai-content");
-      const blob = new Blob([content.innerText], { type: "text/plain;charset=utf-8" });
+    function downloadTextAsFile(filename, text) {
+      const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "FEthink-response.txt";
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
     }
 
-    function downloadWord(btn) {
-      const msg = btn.closest(".ai-msg");
-      const content = msg.querySelector(".ai-content");
-      const plain = content.innerText;
-
+    function downloadWordFromText(filename, plainText) {
       const html =
         `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>` +
-        `<pre style="font-family:Arial; white-space:pre-wrap;">${escapeHTML(plain)}</pre>` +
+        `<pre style="font-family:Arial; white-space:pre-wrap;">${escapeHTML(plainText)}</pre>` +
         `</body></html>`;
 
       const blob = new Blob([html], { type: "application/msword;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "FEthink-response.doc";
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
     }
 
+    // Parse artefacts from AI output using wrappers:
+    // [[ARTEFACT: NAME]] ... [[/ARTEFACT]]
+    function parseArtefacts(rawText) {
+      const text = rawText || "";
+      const re = /\[\[ARTEFACT:\s*([^\]]+)\]\]([\s\S]*?)\[\[\/ARTEFACT\]\]/g;
+      const artefacts = [];
+      let match;
+      while ((match = re.exec(text)) !== null) {
+        const name = (match[1] || "").trim();
+        const content = (match[2] || "").trim();
+        if (name && content) artefacts.push({ name, content });
+      }
+      return artefacts;
+    }
+
+    function safeFileStem(s) {
+      return (s || "artefact")
+        .toLowerCase()
+        .replace(/&/g, "and")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "")
+        .slice(0, 48);
+    }
+
+    function renderArtefactCard(label, contentText) {
+      const formatted = formatAI(contentText);
+      const stem = safeFileStem(label);
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "ai-pack";
+
+      const header = document.createElement("div");
+      header.className = "ai-pack-title";
+      header.innerHTML = `<b>${escapeHTML(label)}</b>`;
+
+      const actions = document.createElement("div");
+      actions.className = "ai-actions";
+
+      const copyBtn = document.createElement("button");
+      copyBtn.className = "mini-btn copy-btn";
+      copyBtn.textContent = "Copy";
+
+      const saveBtn = document.createElement("button");
+      saveBtn.className = "mini-btn save-btn";
+      saveBtn.textContent = "Save";
+
+      const wordBtn = document.createElement("button");
+      wordBtn.className = "mini-btn word-btn";
+      wordBtn.textContent = "Word";
+
+      actions.appendChild(copyBtn);
+      actions.appendChild(saveBtn);
+      actions.appendChild(wordBtn);
+
+      header.appendChild(actions);
+
+      const body = document.createElement("div");
+      body.className = "ai-content";
+      body.innerHTML = formatted;
+
+      // Bind buttons
+      copyBtn.onclick = () => copyFromElementText(copyBtn, body);
+      saveBtn.onclick = () => downloadTextAsFile(`FEthink-${stem}.txt`, body.innerText);
+      wordBtn.onclick = () => downloadWordFromText(`FEthink-${stem}.doc`, body.innerText);
+
+      wrapper.appendChild(header);
+      wrapper.appendChild(body);
+
+      return wrapper;
+    }
+
+    // ----------------------------
+    // Build message for server (premium artefacts)
+    // ----------------------------
+    function buildMessage(subject, question, lensText) {
+      const activitySpec = activitySpecs[selectedActivity] || "Follow the selected activity type with appropriate structure.";
+
+      // Base instruction: keep it usable, no fluff
+      const baseRules = `
+You are FEthink’s Lesson Designer for educators.
+GLOBAL RULES:
+- Be specific to the subject and activity selected (do not produce generic output)
+- Use clear headings and short sections (no long paragraphs)
+- Provide step-by-step classroom-ready instructions
+- Avoid vague statements; include examples where useful
+- Keep language plain and accessible
+`.trim();
+
+      // STANDARD output stays as single structured response (no artefact wrappers needed)
+      let responseFormat = `
+Response format:
+- Title
+- Purpose (1–2 sentences)
+- Steps / guidance in bullet points
+- Differentiation (SEND/EAL + stretch/challenge)
+- Quick check for understanding
+- Optional extension / variation
+`.trim();
+
+      // TEACHER PACK: premium artefacts (must be wrapped so the UI can split them)
+      if (selectedPack === "Teacher Pack") {
+        responseFormat = `
+Return EXACTLY these artefacts using the wrappers shown (do not add extra wrappers):
+
+[[ARTEFACT: Learning outcomes]]
+- 3–5 measurable, student-facing outcomes (Bloom verbs), aligned to the activity.
+[[/ARTEFACT]]
+
+[[ARTEFACT: Activity task]]
+Create the core activity task aligned to the selected activity type, including:
+- Timings
+- Exact learner instructions
+- Expected learner output (what they will produce)
+- Teacher guidance (what to look for)
+[[/ARTEFACT]]
+
+[[ARTEFACT: Slides (copy-ready)]]
+SLIDES – PROFESSIONAL FORMAT
+For EACH slide include:
+- Slide number + title
+- Layout (e.g., Title + Content, Two-column, Diagram slide)
+- Slide bullets (max 4–5)
+- Visual suggestion (icon/diagram/photo idea)
+- Speaker notes (teacher-only)
+Keep to 8–12 slides unless activity is “Presentation slides” (then 8–10).
+[[/ARTEFACT]]
+
+[[ARTEFACT: Student handout (print-ready)]]
+Include:
+- Plain-language explanation
+- Key terms box
+- Short tasks/questions
+- Space for answers/notes
+[[/ARTEFACT]]
+
+[[ARTEFACT: Checks for understanding]]
+Include:
+- In-lesson checkpoint (hinge questions or mini task) + what to do with responses
+- Exit ticket (3 prompts) + quick marking guidance
+[[/ARTEFACT]]
+
+[[ARTEFACT: Teacher notes]]
+Include:
+- Likely misconceptions
+- Differentiation: SEND/EAL scaffolds + stretch/challenge
+- Pacing tips and classroom management notes for this activity
+[[/ARTEFACT]]
+`.trim();
+      }
+
+      // ASSESSMENT & MARKING PACK: more artefacts (premium)
+      if (selectedPack === "Assessment & Marking Pack") {
+        responseFormat = `
+Return EXACTLY these artefacts using the wrappers shown (do not add extra wrappers):
+
+[[ARTEFACT: Assessment learning outcomes]]
+State 3–5 measurable outcomes that the assessment is designed to measure.
+[[/ARTEFACT]]
+
+[[ARTEFACT: Student assessment brief]]
+Student-facing brief including:
+- Context and purpose
+- Task instructions
+- What to submit / output format
+- Time guidance
+- Academic integrity / expectations (short)
+[[/ARTEFACT]]
+
+[[ARTEFACT: Mark scheme / rubric]]
+Provide a clear rubric with levels/bands or points:
+- Criteria
+- What “good” looks like
+- Common pitfalls
+[[/ARTEFACT]]
+
+[[ARTEFACT: Exemplars]]
+Provide:
+- One high-quality exemplar response
+- One mid-level exemplar response
+- Brief commentary explaining why each sits at that level
+[[/ARTEFACT]]
+
+[[ARTEFACT: Feedback bank (copy/paste)]]
+Provide:
+- Strength statements (10)
+- Improvement statements (10)
+- Next-step targets (10)
+Write them as reusable marking comments.
+[[/ARTEFACT]]
+
+[[ARTEFACT: Marking workflow (teacher guide)]]
+Provide:
+- A fast marking process (steps)
+- How to moderate / standardise
+- A simple checklist for consistency
+[[/ARTEFACT]]
+
+[[ARTEFACT: Student improvement tasks (DIRT)]]
+Provide 3 short improvement tasks students do after feedback:
+- Task instructions
+- What success looks like
+[[/ARTEFACT]]
+`.trim();
+      }
+
+      return `
+${baseRules}
+
+Context:
+Subject: ${subject}
+Activity: ${selectedActivity}
+Output pack: ${selectedPack}
+Quality lenses: ${lensText}
+
+ACTIVITY REQUIREMENTS (must follow):
+${activitySpec}
+
+User request:
+${question}
+
+${responseFormat}
+`.trim();
+    }
+
+    // ----------------------------
+    // Main send
+    // ----------------------------
     async function send() {
       const subject = document.getElementById("subject").value;
       const question = input.value.trim();
@@ -378,62 +886,15 @@
       if (document.getElementById("lens-assess").checked) lenses.push("Assessment alignment");
       if (document.getElementById("lens-cog").checked) lenses.push("Cognitive load clarity");
       if (document.getElementById("lens-access").checked) lenses.push("Plain language & accessibility");
-
       const lensText = lenses.length ? lenses.join(", ") : "None selected";
 
-      // Pack-specific response formats
-      let responseFormat = `
-Response format:
-- Title
-- Purpose (1–2 sentences)
-- Steps / guidance in bullet points
-- Differentiation (if lenses include SEND/EAL)
-- Assessment notes (if assessment lens is selected)
-- Optional extension / variation
-`.trim();
+      const message = buildMessage(subject, question, lensText);
 
-      if (selectedPack === "Teacher Pack") {
-        responseFormat = `
-Response format (Teacher Pack):
-- Lesson title + overview
-- Learning aims (student-friendly)
-- Starter (5 mins)
-- Main teaching sequence (timed steps)
-- Practice / application task (with instructions)
-- Differentiation: SEND/EAL scaffolds + stretch challenge
-- Resources list (what teacher needs)
-- Slide-ready summary (5–8 bullet points)
-- Exit ticket (3 questions)
-`.trim();
-      }
-
-      if (selectedPack === "Assessment & Marking Pack") {
-        responseFormat = `
-Response format (Assessment & Marking Pack):
-- Assessment title + purpose
-- Task brief (student-facing) + timings
-- Success criteria (bullet points)
-- Mark scheme / rubric (levels or points)
-- Model answer (high-quality)
-- Common misconceptions
-- Feedback stems (what to write on student work)
-- Improvement tasks (DIRT / feedforward)
-- Optional variation for lower/higher ability
-`.trim();
-      }
-
-      const message =
-`Subject: ${subject}
-Activity: ${selectedActivity}
-Output pack: ${selectedPack}
-Quality lenses: ${lensText}
-User request: ${question}
-
-${responseFormat}`;
-
+      // User line
       chat.innerHTML += `<div class="msg"><b>You:</b> ${escapeHTML(question)}</div>`;
       input.value = "";
       sendBtn.disabled = true;
+      presetBtn.disabled = true;
 
       try {
         const res = await fetch("/ask", {
@@ -448,36 +909,78 @@ ${responseFormat}`;
           updateUsage(data.used, data.limit);
         }
 
-        const formatted = formatAI(data.reply || "");
+        const reply = data.reply || "";
+        const artefacts = parseArtefacts(reply);
 
-        chat.innerHTML += `
-          <div class="msg ai-msg">
-            <div class="ai-header">
+        // If artefacts exist, render as separate cards (premium feel)
+        if (artefacts.length > 0) {
+          const container = document.createElement("div");
+          container.className = "msg";
+
+          // A small header for the pack
+          const header = document.createElement("div");
+          header.innerHTML = `<b>AI:</b> ${escapeHTML(selectedPack)} (${escapeHTML(selectedActivity)})`;
+          header.style.marginBottom = "8px";
+          container.appendChild(header);
+
+          artefacts.forEach(a => {
+            container.appendChild(renderArtefactCard(a.name, a.content));
+          });
+
+          chat.appendChild(container);
+        } else {
+          // Fallback (standard single response)
+          const formatted = formatAI(reply);
+
+          const wrapper = document.createElement("div");
+          wrapper.className = "msg ai-msg";
+
+          wrapper.innerHTML = `
+            <div class="ai-pack-title">
               <b>AI:</b>
               <div class="ai-actions">
-                <button class="mini-btn copy-btn" onclick="copyAIResponse(this)">Copy</button>
-                <button class="mini-btn save-btn" onclick="saveAIResponse(this)">Save</button>
-                <button class="mini-btn word-btn" onclick="downloadWord(this)">Word</button>
+                <button class="mini-btn copy-btn">Copy</button>
+                <button class="mini-btn save-btn">Save</button>
+                <button class="mini-btn word-btn">Word</button>
               </div>
             </div>
             <div class="ai-content">${formatted}</div>
-          </div>
-        `;
+          `;
+
+          const body = wrapper.querySelector(".ai-content");
+          const [copyBtn, saveBtn, wordBtn] = wrapper.querySelectorAll("button");
+
+          copyBtn.onclick = () => copyFromElementText(copyBtn, body);
+          saveBtn.onclick = () => downloadTextAsFile("FEthink-response.txt", body.innerText);
+          wordBtn.onclick = () => downloadWordFromText("FEthink-response.doc", body.innerText);
+
+          chat.appendChild(wrapper);
+        }
       } catch (e) {
         chat.innerHTML += `<div class="msg"><b>AI:</b> Temporary error. Please try again shortly.</div>`;
       } finally {
         sendBtn.disabled = false;
+        presetBtn.disabled = false;
       }
     }
 
+    // Preset button fills input
+    presetBtn.addEventListener("click", () => {
+      const subject = document.getElementById("subject").value;
+      input.value = getPresetPrompt(subject, selectedActivity);
+      input.focus();
+    });
+
+    // Send button
     sendBtn.addEventListener("click", send);
+
+    // Enter to send, Shift+Enter for newline
     input.addEventListener("keydown", (e) => {
       if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
     });
 
-    clearBtn.addEventListener("click", () => {
-      chat.innerHTML = "";
-    });
+    // Clear
+    clearBtn.addEventListener("click", () => { chat.innerHTML = ""; });
   </script>
 </body>
 </html>
