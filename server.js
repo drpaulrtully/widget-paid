@@ -1,373 +1,296 @@
-// server.js — FEthink Lesson Designer (Paid)
-// FULL FILE
-// Adds:
-// - PPT themes (light/dark): pass { theme: "light" | "dark" } to /pptx
-// - Logo upload: pass { logoDataUrl } to /pptx (optional)
-// - Speaker notes pane: reads "Speaker notes:" from slide text and attaches to slide notes
-
 import express from "express";
-import path from "path";
-import { fileURLToPath } from "url";
-import OpenAI from "openai";
+import cors from "cors";
 import crypto from "crypto";
 import PptxGenJS from "pptxgenjs";
+import OpenAI from "openai";
 
 const app = express();
-app.use(express.json({ limit: "6mb" })); // increased for logoDataUrl payload
 
-// -------------------- Paths --------------------
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const PUBLIC_DIR = path.join(__dirname, "public");
+app.use(cors());
+app.use(express.json({ limit: "15mb" })); // allow base64 logo
 
-// -------------------- OpenAI --------------------
-const OPENAI_API_KEY = (process.env.OPENAI_API_KEY || "").trim();
-if (!OPENAI_API_KEY) console.error("ERROR: Missing OPENAI_API_KEY in environment.");
-const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 // -------------------- Config --------------------
-const WIDGET_TOKEN_EXPLORER = (process.env.WIDGET_TOKEN_EXPLORER || "").trim();
-const EXPLORER_DAILY_LIMIT = Number(process.env.EXPLORER_DAILY_LIMIT || 50);
-const MAX_MESSAGE_CHARS = Number(process.env.MAX_MESSAGE_CHARS || 8000);
+const LIMITS = {
+  free: 5,
+  explorer: 50,
+  pro: 200
+};
 
-// PPT safety caps
-const MAX_PPTX_INPUT_CHARS = Number(process.env.MAX_PPTX_INPUT_CHARS || 30000);
-const PPTX_MAX_SLIDES = Number(process.env.PPTX_MAX_SLIDES || 20);
+const TOKENS = {
+  free: process.env.WIDGET_TOKEN_FREE || "",
+  explorer: process.env.WIDGET_TOKEN_EXPLORER || "",
+  pro: process.env.WIDGET_TOKEN_PRO || ""
+};
 
-// -------------------- In-memory store (daily usage) --------------------
-const usage = new Map(); // YYYY-MM-DD::clientId -> count
+// In-memory daily usage (resets if server restarts)
+const usage = new Map();
 
 // -------------------- Helpers --------------------
-function dayKey() {
-  return new Date().toISOString().slice(0, 10);
+function todayKey() {
+  const d = new Date();
+  const yyyy = d.getUTCFullYear();
+  const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const dd = String(d.getUTCDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
 }
 
-function getClientIp(req) {
-  const xf = (req.headers["x-forwarded-for"] || "").toString();
-  return xf.split(",")[0].trim() || req.socket.remoteAddress || "unknown";
+function getClientId(req, res) {
+  // Cookie-based stable id
+  const cookie = req.headers.cookie || "";
+  const match = cookie.match(/fethink_cid=([^;]+)/);
+  if (match && match[1]) return match[1];
+
+  const id = crypto.randomBytes(16).toString("hex");
+  res.setHeader("Set-Cookie", `fethink_cid=${id}; Path=/; Max-Age=31536000; SameSite=Lax; Secure`);
+  return id;
 }
 
-function clientId(req) {
-  const ip = getClientIp(req);
-  const ua = (req.headers["user-agent"] || "").toString().slice(0, 120);
-  return crypto.createHash("sha256").update(`${ip}::${ua}`).digest("hex").slice(0, 24);
+function deny(res, msg = "Access check failed. Please open this assistant from your paid FEthink page.") {
+  return res.status(403).json({ reply: msg, used: null, limit: null });
 }
 
-function isAllowedExplorer(token) {
-  if (!WIDGET_TOKEN_EXPLORER) return false; // fail closed
-  return (token || "").trim() === WIDGET_TOKEN_EXPLORER;
+function checkAccess(req, res, tier, token) {
+  const expected = TOKENS[tier] || "";
+  if (!expected) return deny(res, "Server token is not configured for this tier.");
+  if (!token || token !== expected) return deny(res);
+  return null;
 }
 
-// -------------------- Static --------------------
-app.use(express.static(PUBLIC_DIR, { extensions: ["html"] }));
-app.get("/", (_, res) => res.sendFile(path.join(PUBLIC_DIR, "widget-paid.html")));
+function bumpUsage(req, res, tier) {
+  const limit = LIMITS[tier] ?? 0;
+  if (!limit) return { used: null, limit: null, ok: true };
 
-// -------------------- Slide parsing --------------------
-/**
-Expected slide text style (your widget already prompts this):
-Slide 1: Title
-Layout: ...
-- bullet
-- bullet
-Visual suggestion: ...
-Speaker notes: ...
-(more notes lines...)
-Slide 2: ...
-*/
-function parseSlidesWithNotes(raw) {
-  const text = (raw || "").replace(/\r\n/g, "\n").trim();
-  if (!text) return [];
+  const cid = getClientId(req, res);
+  const key = `${todayKey()}::${tier}::${cid}`;
+  const current = usage.get(key) || 0;
 
-  const lines = text.split("\n");
-
-  const starts = [];
-  for (let i = 0; i < lines.length; i++) {
-    if (/^\s*Slide\s+\d+\b/i.test(lines[i])) starts.push(i);
+  if (current >= limit) {
+    return { ok: false, used: current, limit };
   }
-  if (!starts.length) return [];
+
+  const next = current + 1;
+  usage.set(key, next);
+  return { ok: true, used: next, limit };
+}
+
+function parseSlides(slidesText) {
+  // Expect blocks like:
+  // Slide 1: Title
+  // - bullet
+  // Speaker notes: ...
+  const blocks = slidesText
+    .split(/\n(?=Slide\s+\d+\s*:)/i)
+    .map(s => s.trim())
+    .filter(Boolean);
 
   const slides = [];
-  for (let s = 0; s < starts.length; s++) {
-    const start = starts[s];
-    const end = s === starts.length - 1 ? lines.length : starts[s + 1];
-    const block = lines.slice(start, end);
+  for (const b of blocks) {
+    const lines = b.split("\n").map(l => l.trim());
+    const head = lines.shift() || "";
+    const m = head.match(/^Slide\s+(\d+)\s*:\s*(.*)$/i);
+    if (!m) continue;
 
-    const header = (block[0] || "").trim();
-    let title = header.replace(/^\s*Slide\s+\d+\s*[:\-]?\s*/i, "").trim();
-    if (!title) title = `Slide ${s + 1}`;
-
+    const title = (m[2] || "").trim() || `Slide ${m[1]}`;
     const bullets = [];
-    const notes = [];
-    const layoutHints = [];
-    let inNotes = false;
+    let notes = "";
 
-    for (let i = 1; i < block.length; i++) {
-      const lineRaw = block[i] || "";
-      const line = lineRaw.trim();
-      if (!line) continue;
-
-      // Speaker notes begin
-      if (/^Speaker notes\b/i.test(line)) {
-        inNotes = true;
-        const after = line.split(":").slice(1).join(":").trim();
-        if (after) notes.push(after);
+    for (const line of lines) {
+      const noteMatch = line.match(/^Speaker\s*notes\s*:\s*(.*)$/i);
+      if (noteMatch) {
+        notes += (notes ? "\n" : "") + (noteMatch[1] || "");
         continue;
       }
-
-      if (inNotes) {
-        notes.push(lineRaw.trimEnd());
-        continue;
+      if (/^-\s+/.test(line)) bullets.push(line.replace(/^-+\s*/, ""));
+      else if (line) {
+        // treat as plain bullet
+        bullets.push(line);
       }
-
-      // layout hints
-      if (/^(Layout|Visual suggestion|Visual)\s*:/i.test(line)) {
-        layoutHints.push(line);
-        continue;
-      }
-
-      // bullets
-      if (/^[-•*]\s+/.test(line)) {
-        bullets.push(line.replace(/^[-•*]\s+/, "").trim());
-        continue;
-      }
-
-      // fallback: treat as bullet
-      bullets.push(line);
     }
 
-    slides.push({
-      title,
-      bullets: bullets.slice(0, 12),
-      notes: notes.join("\n").trim(),
-      layoutHints: layoutHints.join("\n").trim()
-    });
+    slides.push({ title, bullets, notes });
   }
-
-  return slides.slice(0, PPTX_MAX_SLIDES);
+  return slides;
 }
 
-// -------------------- PPT building --------------------
-function themeTokens(themeName) {
-  // Hex without '#', pptxgenjs style
-  if ((themeName || "").toLowerCase() === "dark") {
-    return {
-      name: "dark",
-      bg: "111216",
-      accent: "6F2DBD",
-      title: "FFFFFF",
-      body: "F2F2F2",
-      muted: "B8B8B8",
-      rule: "2A2A2A"
-    };
-  }
-  // default light
-  return {
-    name: "light",
-    bg: "F7F7F9",
-    accent: "6F2DBD",
-    title: "111111",
-    body: "111111",
-    muted: "555555",
-    rule: "E6E6E6"
-  };
+function dataUrlToImage(dataUrl) {
+  // data:image/png;base64,....
+  if (!dataUrl || typeof dataUrl !== "string") return null;
+  const m = dataUrl.match(/^data:(image\/png|image\/jpeg);base64,(.+)$/);
+  if (!m) return null;
+  const ext = m[1] === "image/png" ? "png" : "jpg";
+  const b64 = m[2];
+  return { ext, b64 };
 }
 
-// Adds background + top bar + optional logo to a slide
-function applyBranding(slide, pptx, t, logoDataUrl) {
-  slide.background = { fill: t.bg };
+// -------------------- Routes --------------------
+app.get("/health", (req, res) => res.json({ ok: true }));
 
-  // Accent bar
-  slide.addShape(pptx.ShapeType.rect, {
-    x: 0, y: 0, w: "100%", h: 0.35,
-    fill: { color: t.accent }
-  });
-
-  // Optional logo (top-right)
-  // Works with PNG/JPEG DataURL like "data:image/png;base64,..."
-  if (logoDataUrl && typeof logoDataUrl === "string" && logoDataUrl.startsWith("data:image/")) {
-    slide.addImage({
-      data: logoDataUrl,
-      x: 11.55, y: 0.08, w: 1.65, h: 0.65,
-      sizing: { type: "contain", w: 1.65, h: 0.65 }
-    });
-  }
-}
-
-async function buildPptxBuffer({ deckTitle, subtitle, slides, theme, logoDataUrl }) {
-  const t = themeTokens(theme);
-  const pptx = new PptxGenJS();
-  pptx.layout = "LAYOUT_WIDE";
-  pptx.author = "FEthink";
-  pptx.company = "FEthink";
-
-  const FONT = "Calibri";
-
-  // Title slide
-  {
-    const s = pptx.addSlide();
-    applyBranding(s, pptx, t, logoDataUrl);
-
-    s.addText(deckTitle || "FEthink – Lesson Slides", {
-      x: 0.9, y: 2.0, w: 11.6, h: 1.0,
-      fontFace: FONT, fontSize: 40, bold: true, color: t.title
-    });
-
-    if (subtitle) {
-      s.addText(subtitle, {
-        x: 0.9, y: 3.1, w: 11.6, h: 0.6,
-        fontFace: FONT, fontSize: 18, color: t.muted
-      });
-    }
-
-    s.addText(`Theme: ${t.name}`, {
-      x: 0.9, y: 6.9, w: 11.6, h: 0.3,
-      fontFace: FONT, fontSize: 12, color: t.muted
-    });
-  }
-
-  // Content slides
-  for (const sl of slides) {
-    const s = pptx.addSlide();
-    applyBranding(s, pptx, t, logoDataUrl);
-
-    // Slide title
-    s.addText(sl.title || "Slide", {
-      x: 0.8, y: 0.6, w: 12.0, h: 0.8,
-      fontFace: FONT, fontSize: 34, bold: true, color: t.title
-    });
-
-    // A subtle divider line under the title
-    s.addShape(pptx.ShapeType.line, {
-      x: 0.8, y: 1.35, w: 11.9, h: 0,
-      line: { color: t.rule, width: 1 }
-    });
-
-    // Body bullets at 24pt
-    const bulletText = (sl.bullets && sl.bullets.length)
-      ? sl.bullets.map(b => `• ${b}`).join("\n")
-      : " ";
-
-    s.addText(bulletText, {
-      x: 1.05, y: 1.55, w: 11.55, h: 4.9,
-      fontFace: FONT, fontSize: 24, color: t.body,
-      valign: "top"
-    });
-
-    // Speaker notes pane (Presenter View)
-    // pptxgenjs supports slide notes via addNotes (string)
-    const notesParts = [];
-    if (sl.layoutHints) notesParts.push(sl.layoutHints);
-    if (sl.notes) notesParts.push(sl.notes);
-
-    const notesText = notesParts.join("\n\n").trim();
-    if (notesText) {
-      s.addNotes(notesText);
-    }
-  }
-
-  return await pptx.write("nodebuffer");
-}
-
-// -------------------- /ask --------------------
 app.post("/ask", async (req, res) => {
   try {
-    const { message, tier, token } = req.body || {};
+    const { message, tier = "explorer", token = "" } = req.body || {};
+    const safeTier = String(tier).toLowerCase();
 
-    if (!message || typeof message !== "string" || !message.trim()) {
-      return res.json({ reply: "Please enter a question." });
-    }
-    if (message.length > MAX_MESSAGE_CHARS) {
-      return res.json({ reply: `Your request is too long (max ${MAX_MESSAGE_CHARS} characters).` });
+    if (!message || typeof message !== "string") {
+      return res.json({ reply: "Please enter a question.", used: null, limit: null });
     }
 
-    // Explorer gating
-    if ((tier || "").toLowerCase() === "explorer") {
-      if (!isAllowedExplorer(token)) {
-        return res.json({ reply: "Access check failed. Please open this assistant from your paid FEthink page." });
-      }
+    // Enforce access for paid tiers (and for free if you want)
+    // Here we enforce for explorer/pro; free can be open if you prefer.
+    if (safeTier === "explorer" || safeTier === "pro") {
+      const denyResp = checkAccess(req, res, safeTier, token);
+      if (denyResp) return;
+    }
 
-      const id = clientId(req);
-      const key = `${dayKey()}::${id}`;
-      const used = usage.get(key) || 0;
-
-      if (used >= EXPLORER_DAILY_LIMIT) {
-        return res.json({ reply: "Daily limit reached.", used, limit: EXPLORER_DAILY_LIMIT });
-      }
-
-      usage.set(key, used + 1);
-
-      const ai = await openai.responses.create({
-        model: "gpt-4o-mini",
-        input: message
-      });
-
+    // Usage
+    const u = bumpUsage(req, res, safeTier);
+    if (!u.ok) {
       return res.json({
-        reply: ai.output_text || "No response generated.",
-        used: used + 1,
-        limit: EXPLORER_DAILY_LIMIT
+        reply: `You’ve reached today’s limit (${u.limit}). Please try again tomorrow.`,
+        used: u.used,
+        limit: u.limit
       });
     }
 
-    // If you later add PRO, handle here. For now:
-    return res.json({ reply: "Tier not supported." });
+    const response = await openai.responses.create({
+      model: "gpt-4o-mini",
+      input: message
+    });
+
+    return res.json({
+      reply: response.output_text || "No response generated.",
+      used: u.used,
+      limit: u.limit
+    });
   } catch (err) {
     console.error("ASK ERROR:", err);
-    return res.status(500).json({ reply: "AI error — check server logs." });
+    return res.json({ reply: "Temporary error. Please try again shortly.", used: null, limit: null });
   }
 });
 
-// -------------------- /pptx --------------------
 app.post("/pptx", async (req, res) => {
   try {
-    const { slidesText, tier, token, theme, logoDataUrl, deckTitle, subtitle } = req.body || {};
+    const { tier = "explorer", token = "", slidesText = "", deckTitle = "FEthink Slides", subtitle = "", theme = "light", logoDataUrl = null } = req.body || {};
+    const safeTier = String(tier).toLowerCase();
 
-    // Gate PPT export to Explorer
-    if ((tier || "").toLowerCase() === "explorer") {
-      if (!isAllowedExplorer(token)) {
-        return res.status(403).json({ error: "Access denied" });
-      }
-    } else {
-      return res.status(403).json({ error: "Tier not supported" });
+    if (safeTier === "explorer" || safeTier === "pro") {
+      const denyResp = checkAccess(req, res, safeTier, token);
+      if (denyResp) return;
     }
 
-    if (!slidesText || typeof slidesText !== "string" || !slidesText.trim()) {
-      return res.status(400).json({ error: "Missing slidesText" });
+    // (Optional) count PPT export as usage too
+    const u = bumpUsage(req, res, safeTier);
+    if (!u.ok) {
+      return res.status(429).json({ error: `Daily limit reached (${u.limit}).`, used: u.used, limit: u.limit });
     }
 
-    if (slidesText.length > MAX_PPTX_INPUT_CHARS) {
-      return res.status(400).json({ error: "Slides text is too long for PPT export." });
-    }
-
-    const slides = parseSlidesWithNotes(slidesText);
+    const slides = parseSlides(String(slidesText || ""));
     if (!slides.length) {
-      return res.status(400).json({
-        error: "No slides detected. Ensure the slides include lines like “Slide 1: Title”."
-      });
+      return res.status(400).json({ error: "No slides found. Ensure output contains 'Slide 1:' etc." });
     }
 
-    const buf = await buildPptxBuffer({
-      deckTitle: deckTitle || "FEthink – Lesson Slides",
-      subtitle: subtitle || "",
-      slides,
-      theme: (theme || "light"),
-      logoDataUrl: logoDataUrl || null
-    });
+    const pptx = new PptxGenJS();
+    pptx.layout = "LAYOUT_WIDE";
+    pptx.author = "FEthink";
+    pptx.company = "FEthink";
+    pptx.subject = "Lesson Slides";
+    pptx.title = deckTitle;
 
-    res.setHeader(
-      "Content-Type",
-      "application/vnd.openxmlformats-officedocument.presentationml.presentation"
-    );
-    res.setHeader(
-      "Content-Disposition",
-      `attachment; filename="FEthink-slides-${dayKey()}.pptx"`
-    );
+    // Theme colours
+    const isDark = String(theme).toLowerCase() === "dark";
+    const BG = isDark ? "111111" : "FFFFFF";
+    const TEXT = isDark ? "F3F3F3" : "111111";
+    const MUTED = isDark ? "CFCFCF" : "444444";
+    const ACCENT = "6F2DBD";
+
+    // Logo (optional)
+    const logo = dataUrlToImage(logoDataUrl);
+
+    // Sizes (WIDE)
+    // slide size approx 13.333 x 7.5 inches
+    const SLIDE_W = 13.333;
+    const SLIDE_H = 7.5;
+
+    for (let i = 0; i < slides.length; i++) {
+      const s = slides[i];
+      const slide = pptx.addSlide();
+
+      // Background
+      slide.background = { color: BG };
+
+      // Top accent bar
+      slide.addShape(pptx.ShapeType.rect, {
+        x: 0, y: 0, w: SLIDE_W, h: 0.45,
+        fill: { color: ACCENT },
+        line: { color: ACCENT }
+      });
+
+      // Logo top-right (inside bar area)
+      if (logo) {
+        try {
+          slide.addImage({
+            data: `data:image/${logo.ext};base64,${logo.b64}`,
+            x: SLIDE_W - 1.55,
+            y: 0.07,
+            w: 1.35,
+            h: 0.31
+          });
+        } catch (e) {
+          // ignore logo errors
+        }
+      }
+
+      // Title
+      slide.addText(s.title || `Slide ${i+1}`, {
+        x: 0.6, y: 0.65, w: SLIDE_W - 1.2, h: 0.7,
+        fontFace: "Calibri",
+        fontSize: 36,
+        bold: true,
+        color: TEXT
+      });
+
+      // Subtitle (context line)
+      if (subtitle) {
+        slide.addText(subtitle, {
+          x: 0.6, y: 1.35, w: SLIDE_W - 1.2, h: 0.35,
+          fontFace: "Calibri",
+          fontSize: 16,
+          color: MUTED
+        });
+      }
+
+      // Bullets
+      const bulletText = (s.bullets || []).slice(0, 7).map(b => b.trim()).filter(Boolean);
+      const bulletBlock = bulletText.length ? bulletText.join("\n") : " ";
+      slide.addText(bulletBlock, {
+        x: 0.9, y: 2.0, w: SLIDE_W - 1.6, h: 4.9,
+        fontFace: "Calibri",
+        fontSize: 24,
+        color: TEXT,
+        valign: "top",
+        bullet: { indent: 18 },
+        lineSpacingMultiple: 1.15
+      });
+
+      // Speaker notes (Presenter View)
+      const notes = (s.notes || "").trim();
+      if (notes) {
+        slide.addNotes(notes);
+      }
+    }
+
+    const buf = await pptx.write("nodebuffer");
+
+    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.presentationml.presentation");
+    res.setHeader("Content-Disposition", `attachment; filename="FEthink-slides.pptx"`);
     return res.send(buf);
   } catch (err) {
     console.error("PPTX ERROR:", err);
-    return res.status(500).json({ error: "PPT generation failed" });
+    return res.status(500).json({ error: "PPT export failed. Check server logs." });
   }
 });
 
 // -------------------- Start --------------------
-const PORT = Number(process.env.PORT || 10000);
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => console.log(`FEthink server running on port ${PORT}`));

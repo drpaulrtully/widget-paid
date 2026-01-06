@@ -6,32 +6,20 @@
   <title>FEthink Lesson Designer</title>
   <style>
     * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: #ffffff;
-      color: #111;
-    }
-
+    body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:#fff; color:#111; }
     .wrap { max-width: 980px; margin: 0 auto; padding: 18px; }
-    .card {
-      border: 1px solid #eee;
-      border-radius: 14px;
-      padding: 16px;
-      background: #fff;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-    }
+    .card { border:1px solid #eee; border-radius:14px; padding:16px; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,0.04); }
 
     .title { display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:10px; }
-    .title h1 { font-size: 18px; margin: 0; font-weight: 800; letter-spacing: 0.2px; }
-    .tier-pill { font-size:12px; color:#fff; background:#6F2DBD; padding:6px 10px; border-radius:999px; font-weight:700; }
+    .title h1 { font-size:18px; margin:0; font-weight:900; letter-spacing:0.2px; }
+    .tier-pill { font-size:12px; color:#fff; background:#6F2DBD; padding:6px 10px; border-radius:999px; font-weight:800; }
 
     .row { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
     @media (max-width: 820px) { .row { grid-template-columns: 1fr; } }
 
-    label { display:block; font-size:12px; color:#555; margin-bottom:6px; font-weight:700; }
+    label { display:block; font-size:12px; color:#555; margin-bottom:6px; font-weight:800; }
 
-    select, textarea, input[type="text"] {
+    select, textarea {
       width:100%;
       border:1px solid #ddd;
       border-radius:12px;
@@ -40,12 +28,9 @@
       outline:none;
       background:#fff;
     }
-    select:focus, textarea:focus, input[type="text"]:focus {
-      border-color:#6F2DBD;
-      box-shadow:0 0 0 3px rgba(111,45,189,0.12);
-    }
+    select:focus, textarea:focus { border-color:#6F2DBD; box-shadow:0 0 0 3px rgba(111,45,189,0.12); }
 
-    textarea { min-height: 88px; resize: vertical; line-height: 1.35; }
+    textarea { min-height: 92px; resize: vertical; line-height: 1.35; }
 
     /* Activity buttons */
     .activity-grid { display:flex; flex-wrap:wrap; gap:8px; margin-top:6px; }
@@ -57,141 +42,88 @@
       font-size:12px;
       cursor:pointer;
       user-select:none;
+      position: relative;
     }
     .act-btn:hover { border-color:#bbb; }
-    .act-btn.active {
-      background: rgba(111,45,189,0.10);
-      border-color:#6F2DBD;
-      color:#2b1252;
-      font-weight:800;
+    .act-btn.active { background: rgba(111,45,189,0.10); border-color:#6F2DBD; color:#2b1252; font-weight:900; }
+
+    /* Simple tooltip (micro line) */
+    .act-btn[data-tip]:hover::after{
+      content: attr(data-tip);
+      position: absolute;
+      left: 0;
+      top: calc(100% + 8px);
+      z-index: 10;
+      width: min(320px, 70vw);
+      background: #111;
+      color: #fff;
+      padding: 8px 10px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.25;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+      white-space: normal;
+    }
+    .act-btn[data-tip]:hover::before{
+      content:"";
+      position:absolute;
+      left: 18px;
+      top: calc(100% + 2px);
+      border: 6px solid transparent;
+      border-bottom-color:#111;
     }
 
-    /* Mode buttons */
+    /* Modes */
     .mode-wrap { margin-top:10px; }
     .mode-grid { display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; }
     @media (max-width: 820px) { .mode-grid { grid-template-columns: 1fr; } }
-
-    .mode-btn {
-      border:1px solid #ddd;
-      background:#fff;
-      border-radius:14px;
-      padding:12px;
-      cursor:pointer;
-      text-align:left;
-    }
+    .mode-btn { border:1px solid #ddd; background:#fff; border-radius:14px; padding:12px; cursor:pointer; text-align:left; }
     .mode-btn:hover { border-color:#bbb; }
     .mode-btn.active { border-color:#6F2DBD; box-shadow:0 0 0 3px rgba(111,45,189,0.12); }
     .mode-name { font-weight:900; font-size:13px; margin:0 0 6px 0; display:flex; gap:8px; align-items:center; }
     .mode-sub { font-size:12px; color:#666; margin:0; line-height:1.25; }
-    .mode-tag { font-size:11px; background:#f2f2f2; border-radius:999px; padding:2px 8px; font-weight:800; color:#333; }
+    .mode-tag { font-size:11px; background:#f2f2f2; border-radius:999px; padding:2px 8px; font-weight:900; color:#333; }
 
-    /* Quality lenses */
+    /* Lenses */
     .lens-wrap { margin-top:12px; }
     .lens-grid { display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
     @media (max-width: 820px) { .lens-grid { grid-template-columns: 1fr; } }
-
-    .lens {
-      border:1px solid #eee;
-      border-radius:12px;
-      padding:10px;
-      background:#fafafa;
-      display:flex;
-      align-items:flex-start;
-      gap:10px;
-    }
+    .lens { border:1px solid #eee; border-radius:12px; padding:10px; background:#fafafa; display:flex; align-items:flex-start; gap:10px; }
     .lens input { margin-top:2px; }
     .lens b { font-size:12px; }
     .lens small { display:block; color:#666; margin-top:4px; line-height:1.25; }
 
     /* Actions */
     .actions { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:12px; }
-    .btn {
-      border:1px solid #ddd;
-      background:#fff;
-      border-radius:12px;
-      padding:10px 12px;
-      font-weight:800;
-      cursor:pointer;
-      font-size:13px;
-    }
+    .btn { border:1px solid #ddd; background:#fff; border-radius:12px; padding:10px 12px; font-weight:900; cursor:pointer; font-size:13px; }
     .btn:hover { border-color:#bbb; }
     .btn-primary { background:#6F2DBD; border-color:#6F2DBD; color:#fff; }
     .btn-primary:hover { filter: brightness(0.98); }
     .btn-muted { background:#f6f6f6; }
 
-    /* Presentation options row */
-    .present-row {
-      display:flex;
-      gap:12px;
-      flex-wrap:wrap;
-      align-items:center;
-      margin-top:10px;
-      padding-top:10px;
-      border-top:1px solid #eee;
-    }
-    .present-row .field {
-      display:flex;
-      align-items:center;
-      gap:10px;
-      font-size:12px;
-      color:#555;
-      font-weight:800;
-    }
-    .present-row select {
-      width:auto;
-      padding:8px 10px;
-      border-radius:10px;
-      font-size:12px;
-    }
-    .present-row input[type="file"] { font-size:12px; }
-    #logoStatus { font-size:12px; color:#666; font-weight:700; }
+    /* Presentation row */
+    .present-row { display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-top:10px; padding-top:10px; border-top:1px solid #eee; }
+    .present-row .field { display:flex; align-items:center; gap:10px; font-size:12px; color:#555; font-weight:900; }
+    .present-row select { width:auto; padding:8px 10px; border-radius:10px; font-size:12px; }
+    #logoStatus { font-size:12px; color:#666; font-weight:800; }
 
     /* Usage */
-    .usage {
-      margin-top:10px;
-      font-size:12px;
-      color:#666;
-      display:flex;
-      align-items:center;
-      gap:10px;
-      flex-wrap:wrap;
-    }
+    .usage { margin-top:10px; font-size:12px; color:#666; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
     .bar { width:200px; height:8px; border-radius:999px; background:#eee; overflow:hidden; }
     .bar > div { height:100%; width:0%; background:#6F2DBD; }
 
     /* Chat */
     #chat { margin-top:14px; }
-    .msg {
-      margin:16px 0;
-      line-height:1.5;
-      padding-bottom:12px;
-      border-bottom:1px solid #eee;
-    }
+    .msg { margin:16px 0; line-height:1.5; padding-bottom:12px; border-bottom:1px solid #eee; }
     .msg:last-child { border-bottom:none; }
-
-    .ai-header {
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
-      margin-bottom:8px;
-    }
+    .ai-header { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:8px; }
     .ai-actions { display:flex; gap:8px; flex-wrap:wrap; }
 
-    .mini-btn {
-      border:1px solid #ddd;
-      background:#fff;
-      border-radius:10px;
-      padding:6px 10px;
-      font-size:12px;
-      cursor:pointer;
-      font-weight:800;
-    }
+    .mini-btn { border:1px solid #ddd; background:#fff; border-radius:10px; padding:6px 10px; font-size:12px; cursor:pointer; font-weight:900; }
     .mini-btn:hover { border-color:#bbb; }
-
     .save-btn { background:#2f2f2f; color:#fff; border-color:#2f2f2f; }
     .save-btn:hover { background:#d8d8d8; color:#000; border-color:#d8d8d8; }
-
     .ppt-btn { background:#0a0a0a; color:#fff; border-color:#0a0a0a; }
     .ppt-btn:hover { opacity:0.9; }
 
@@ -262,7 +194,7 @@
       </div>
 
       <div class="usage">
-        <span id="usageText">Usage: <b id="usedCount">0</b>/<b id="limitCount">0</b></span>
+        <span>Usage: <b id="usedCount">0</b>/<b id="limitCount">0</b></span>
         <div class="bar" aria-hidden="true"><div id="usageBar"></div></div>
         <span id="usageNote"></span>
       </div>
@@ -272,25 +204,17 @@
   </div>
 
   <script>
-    // ---------- IMPORTANT: iframe token handling ----------
-    // Payhip scripts do NOT pass into an iframe. So we must read ?tier=...&token=... from the iframe URL.
+    // Query-string first (required for Payhip iframe)
     function readQuery() {
       const p = new URLSearchParams(window.location.search || "");
-      return {
-        tier: (p.get("tier") || "").trim(),
-        token: (p.get("token") || "").trim()
-      };
+      return { tier: (p.get("tier") || "").trim(), token: (p.get("token") || "").trim() };
     }
-
     const q = readQuery();
     const tier = (q.tier || window.FETHINK_TIER || "explorer").toString().toLowerCase();
     const token = (q.token || window.FETHINK_TOKEN || "").toString().trim();
 
-    // UI tier pill
-    const tierPill = document.getElementById("tierPill");
-    tierPill.textContent = tier.toUpperCase();
+    document.getElementById("tierPill").textContent = tier.toUpperCase();
 
-    // -------------------- DOM --------------------
     const subjectEl = document.getElementById("subject");
     const activityGrid = document.getElementById("activityGrid");
     const activitySelectedEl = document.getElementById("activitySelected");
@@ -304,79 +228,73 @@
     const usageBar = document.getElementById("usageBar");
     const usageNote = document.getElementById("usageNote");
 
-    // -------------------- Lists --------------------
+    // PPT options
+    let logoDataUrl = null;
+
     const subjects = [
-      "Art & Design",
-      "Biology",
-      "Business",
-      "Chemistry",
-      "Construction",
-      "Engineering",
-      "English",
-      "Employability",
-      "Environmental Science",
-      "Hair & Beauty",
-      "Health & Social Care",
-      "History",
-      "Maths",
-      "Motor Vehicle",
-      "Public Services",
-      "Psychology",
-      "Sociology",
-      "Special Educational Needs",
-      "Travel & Tourism"
+      "Art & Design","Biology","Business","Chemistry","Construction","Engineering","English","Employability",
+      "Environmental Science","Hair & Beauty","Health & Social Care","History","Maths","Motor Vehicle",
+      "Public Services","Psychology","Sociology","Special Educational Needs","Travel & Tourism"
     ].sort((a,b)=>a.localeCompare(b));
 
+    // Activities (A–Z) + micro tooltips
     const activities = [
-      "10-minute tasks",
-      "Assessment Task",
-      "Blended Learning",
-      "CPD Activity",
-      "Field Trip",
-      "Full Lesson",
-      "Group Activity",
-      "Icebreaker",
-      "Learning Game",
-      "Lesson Closer",
-      "Lesson Plan",
-      "Practice Tasks",
-      "Presentation Slides",
-      "Progress Review",
-      "Questioning",
-      "Research Project",
-      "Revision Support",
-      "Scheme of Work",
-      "Theory Class"
-    ].sort((a,b)=>a.localeCompare(b));
+      { name:"10-minute tasks", tip:"Three tight micro-activities you can drop into any lesson (10 mins each)." },
+      { name:"Assessment Task", tip:"A ready-to-run assessment brief with criteria, mark scheme and misconceptions." },
+      { name:"Blended Learning", tip:"Online + classroom phases with clear student instructions and checks for learning." },
+      { name:"CPD Activity", tip:"A short staff CPD session plan with facilitation steps and reflection prompts." },
+      { name:"Field Trip", tip:"Trip plan: objectives, itinerary, learning tasks, follow-up assessment and logistics prompts." },
+      { name:"Full Lesson", tip:"A complete lesson package: outcomes, plan, slides w/ notes, handout + assessment exit task." },
+      { name:"Group Activity", tip:"Structured group task with roles, resources, timings and accountability." },
+      { name:"Icebreaker", tip:"A topic-linked starter that primes key concepts (not generic)." },
+      { name:"Learning Game", tip:"A classroom-safe game with rules, resources and learning checks." },
+      { name:"Lesson Closer", tip:"A purposeful plenary: synthesis + reflection + exit check." },
+      { name:"Lesson Plan", tip:"A full timed lesson plan with teacher prompts and differentiation." },
+      { name:"Practice Tasks", tip:"Practice set (easy→hard) with answers, scaffolds and extensions." },
+      { name:"Presentation Slides", tip:"A PowerPoint-ready slide sequence with speaker notes." },
+      { name:"Progress Review", tip:"A progress review template: evidence prompts, targets and next steps." },
+      { name:"Questioning", tip:"A questioning plan incl. hinge questions and misconception checks." },
+      { name:"Research Project", tip:"Project brief with milestones, sources guidance and rubric." },
+      { name:"Revision Support", tip:"Revision pack with retrieval, model answers and spacing schedule." },
+      { name:"Scheme of Work", tip:"A 4-lesson mini scheme: sequencing, retrieval and assessment points." },
+      { name:"Theory Class", tip:"Theory-heavy session: explanations, examples, checks and practice." }
+    ].sort((a,b)=>a.name.localeCompare(b.name));
 
     const modes = [
-      { key:"standard", name:"Standard output", tag:"Fast", sub:"One high-quality teaching resource based on subject + activity." },
-      { key:"teacher_pack", name:"Teacher pack", tag:"Artefacts", sub:"Outcomes + slides + handout + assessment materials (ready to use)." },
+      { key:"standard", name:"Standard output", tag:"Fast", sub:"One high-quality teaching resource aligned to your activity." },
+      { key:"teacher_pack", name:"Teacher pack", tag:"Artefacts", sub:"Outcomes + slides (with notes) + handout + assessment materials." },
       { key:"assessment_pack", name:"Assessment & marking pack", tag:"Rigorous", sub:"Assessment + rubric + mark scheme + feedback bank + moderation notes." }
     ];
 
     const lenses = [
       { key:"accessibility", title:"Accessibility & inclusion", desc:"Chunking, scaffolds, SEND-friendly options, clear instructions." },
-      { key:"challenge", title:"Stretch & challenge", desc:"Higher-order thinking, extensions, deeper conceptual prompts." },
+      { key:"challenge", title:"Stretch & challenge", desc:"Higher-order questions, extensions, deeper conceptual prompts." },
       { key:"assessment", title:"Assessment quality", desc:"Hinge questions, misconceptions, success criteria, validity checks." },
       { key:"practicality", title:"Practical delivery", desc:"Timings, routines, resources, differentiation, realistic workload." }
     ];
 
-    // -------------------- State --------------------
     let selectedActivity = "";
     let selectedMode = "standard";
     const selectedLenses = new Set();
 
-    // PPT options
-    let logoDataUrl = null;
+    // Logo upload
+    const logoInput = document.getElementById("logoInput");
+    const logoStatus = document.getElementById("logoStatus");
+    if (logoInput) {
+      logoInput.addEventListener("change", () => {
+        const file = logoInput.files && logoInput.files[0];
+        if (!file) { logoDataUrl = null; logoStatus.textContent = "No logo uploaded"; return; }
+        const reader = new FileReader();
+        reader.onload = () => { logoDataUrl = reader.result; logoStatus.textContent = `Logo loaded: ${file.name}`; };
+        reader.readAsDataURL(file);
+      });
+    }
 
-    // -------------------- Populate UI --------------------
     function fillSubjects() {
       subjectEl.innerHTML = "";
       for (const s of subjects) {
         const opt = document.createElement("option");
-        opt.value = s;
-        opt.textContent = s;
+        opt.value = s; opt.textContent = s;
         subjectEl.appendChild(opt);
       }
       subjectEl.value = "Sociology";
@@ -388,21 +306,20 @@
         const b = document.createElement("button");
         b.type = "button";
         b.className = "act-btn";
-        b.textContent = a;
+        b.textContent = a.name;
+        b.setAttribute("data-tip", a.tip);
         b.onclick = () => {
-          selectedActivity = a;
+          selectedActivity = a.name;
           [...activityGrid.querySelectorAll(".act-btn")].forEach(x => x.classList.remove("active"));
           b.classList.add("active");
-          activitySelectedEl.textContent = a;
+          activitySelectedEl.textContent = a.name;
         };
         activityGrid.appendChild(b);
       });
 
-      // default
-      const defaultAct = "Lesson Plan";
+      const def = "Lesson Plan";
       const btns = [...activityGrid.querySelectorAll(".act-btn")];
-      const found = btns.find(x => x.textContent === defaultAct) || btns[0];
-      found.click();
+      (btns.find(x => x.textContent === def) || btns[0]).click();
     }
 
     function fillModes() {
@@ -431,67 +348,15 @@
         wrap.className = "lens";
         wrap.innerHTML = `
           <input type="checkbox" id="lens_${l.key}" />
-          <div>
-            <b>${l.title}</b>
-            <small>${l.desc}</small>
-          </div>
+          <div><b>${l.title}</b><small>${l.desc}</small></div>
         `;
         const cb = wrap.querySelector("input");
-        cb.onchange = () => {
-          if (cb.checked) selectedLenses.add(l.key);
-          else selectedLenses.delete(l.key);
-        };
+        cb.onchange = () => cb.checked ? selectedLenses.add(l.key) : selectedLenses.delete(l.key);
         lensGrid.appendChild(wrap);
       });
     }
 
-    // -------------------- Logo upload --------------------
-    const logoInput = document.getElementById("logoInput");
-    const logoStatus = document.getElementById("logoStatus");
-
-    if (logoInput) {
-      logoInput.addEventListener("change", () => {
-        const file = logoInput.files && logoInput.files[0];
-        if (!file) {
-          logoDataUrl = null;
-          logoStatus.textContent = "No logo uploaded";
-          return;
-        }
-        const reader = new FileReader();
-        reader.onload = () => {
-          logoDataUrl = reader.result;
-          logoStatus.textContent = `Logo loaded: ${file.name}`;
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-
-    // -------------------- Prompt logic --------------------
-    function activityPreset(activity) {
-      const presets = {
-        "Lesson Plan": "Create a complete lesson plan with timings, teacher prompts, and differentiation.",
-        "Scheme of Work": "Create a mini scheme of work (4 lessons) with sequencing, retrieval, and assessment points.",
-        "Assessment Task": "Create an assessment task with success criteria, mark scheme and misconceptions.",
-        "Blended Learning": "Design a blended lesson with online + classroom phases and clear instructions.",
-        "Questioning": "Create a questioning plan with hinge questions and misconception checks.",
-        "Group Activity": "Design a structured group activity with roles, resources, and accountability checks.",
-        "Revision Support": "Create a revision pack with retrieval questions, model answers and spacing schedule.",
-        "Theory Class": "Design a theory session with explanations, examples, checks for understanding and practice.",
-        "Icebreaker": "Create a topic-linked icebreaker with steps and timings (not generic).",
-        "Lesson Closer": "Create a purposeful lesson closer with reflection, synthesis and an exit-check.",
-        "Practice Tasks": "Create practice tasks (easy→hard) including answers and scaffolds.",
-        "Research Project": "Design a research project brief with milestones, sources guidance and rubric.",
-        "10-minute tasks": "Create 3 x 10-minute micro-activities, each with steps + outputs.",
-        "Field Trip": "Create a field trip plan: objectives, itinerary, tasks, follow-up assessment.",
-        "Progress Review": "Create a progress review: evidence prompts, targets, action plan template.",
-        "Presentation Slides": "Create a slide deck outline with slide-by-slide content and speaker notes.",
-        "Learning Game": "Create a learning game with rules, resources and learning checks.",
-        "CPD Activity": "Create a CPD activity for staff: objectives, facilitation steps, materials and reflection.",
-        "Full Lesson": "Create a full lesson package: outcomes, lesson plan, slides with speaker notes, handout, assessment exit task."
-      };
-      return presets[activity] || "Create a high-quality teaching resource aligned to the chosen activity type.";
-    }
-
+    // Prompt builders
     function lensesBlock() {
       if (!selectedLenses.size) return "";
       const mapping = {
@@ -508,51 +373,56 @@
       if (modeKey === "teacher_pack") {
         return `
 OUTPUT MODE: TEACHER PACK
-You MUST produce these sections, clearly separated:
-1) Learning Outcomes (3–5, measurable)
-2) Teacher-facing lesson plan (timed steps)
-3) Student handout (print-ready content)
-4) Assessment component (task + success criteria)
-5) Slides (PowerPoint-ready) using EXACT structure:
-   Slide 1: Title
-   - bullet
-   - bullet
-   Speaker notes: ...
-   Slide 2: ...
-6) Homework / extension
+You MUST produce these artefacts as distinct sections with headings:
+## 1) Learning Outcomes
+## 2) Teacher Lesson Plan (timed steps)
+## 3) Student Handout (print-ready)
+## 4) Assessment (task + success criteria)
+## 5) Slides (PowerPoint-ready) WITH speaker notes using EXACT format:
+Slide 1: Title
+- bullet
+- bullet
+Speaker notes: ...
+Slide 2: ...
+## 6) Homework / extension
 Rules:
-- Avoid long paragraphs; use headings and bullets.
-- Make the handout visually spaced (short blocks, clear headings).
+- Avoid long paragraphs; use bullets.
+- Handout must be visually spaced, student-friendly.
 `;
       }
       if (modeKey === "assessment_pack") {
         return `
 OUTPUT MODE: ASSESSMENT & MARKING PACK
-You MUST produce these sections:
-1) Assessment task (clear brief)
-2) Success criteria (student-friendly)
-3) Mark scheme / rubric (levels + descriptors)
-4) Model answer or exemplars
-5) Feedback bank (ready-to-use phrases)
-6) Misconceptions + how to address them
-7) Moderation notes (fairness, bias, consistency)
+You MUST produce:
+## 1) Assessment brief
+## 2) Success criteria (student-friendly)
+## 3) Mark scheme / rubric (levels + descriptors)
+## 4) Model exemplar (short but high-quality)
+## 5) Feedback bank (ready-to-use)
+## 6) Misconceptions + fixes
+## 7) Moderation notes
 `;
       }
       return `
 OUTPUT MODE: STANDARD
 Produce:
-- Title
-- Purpose (1 sentence)
-- Steps / guidance (bullets)
-- Differentiation
-- Quick check for understanding
+## Title
+## Purpose (1 sentence)
+## Steps / guidance
+## Differentiation
+## Quick check for understanding
 `;
+    }
+
+    function activityPreset(activity) {
+      // very specific prompts per activity (not generic)
+      const map = Object.fromEntries(activities.map(a => [a.name, a.tip]));
+      return map[activity] || "Create a high-quality teaching resource aligned to the chosen activity type.";
     }
 
     function buildPrompt(userQuestion) {
       const subject = subjectEl.value;
       const activity = selectedActivity || "Lesson Plan";
-      const preset = activityPreset(activity);
 
       const globalRules = `
 You are FEthink Lesson Designer for UK FE/HE educators.
@@ -564,33 +434,26 @@ GLOBAL RESPONSE RULES:
 - Make outputs ready to use in teaching
 `;
 
-      const lens = lensesBlock();
-      const mode = modeRules(selectedMode);
-
       return `${globalRules}
 CONTEXT:
 Subject: ${subject}
 Activity type: ${activity}
 
 TASK:
-${preset}
+${activityPreset(activity)}
 
-${lens}
-${mode}
+${lensesBlock()}
+${modeRules(selectedMode)}
 
 USER REQUEST:
 ${userQuestion}
 `;
     }
 
-    // -------------------- Formatting helpers --------------------
+    // Formatting helpers
     function escapeHtml(s) {
-      return (s || "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
+      return (s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
     }
-
     function formatReplyToHtml(rawEscaped) {
       return rawEscaped
         .replace(/^### (.*)$/gm, `<div class="ai-h">$1</div>`)
@@ -602,70 +465,63 @@ ${userQuestion}
 
     function extractSlidesTextFromReply(replyText) {
       const idx = replyText.search(/^\s*Slide\s+1\b/im);
-      if (idx >= 0) return replyText.slice(idx).trim();
-      return replyText.trim();
+      return (idx >= 0) ? replyText.slice(idx).trim() : "";
     }
 
-    // -------------------- AI card actions --------------------
+    // AI card actions
     function copyAIResponse(btn) {
       const msg = btn.closest(".ai-msg");
       const content = msg.querySelector(".ai-content");
-      const text = content.innerText || "";
-      navigator.clipboard.writeText(text);
+      navigator.clipboard.writeText(content.innerText || "");
       btn.textContent = "Copied";
-      setTimeout(() => (btn.textContent = "Copy"), 900);
+      setTimeout(()=>btn.textContent="Copy", 900);
     }
 
     function saveAIResponse(btn) {
       const msg = btn.closest(".ai-msg");
-      const content = msg.querySelector(".ai-content");
-      const text = content.innerText || "";
-      const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+      const text = msg.querySelector(".ai-content").innerText || "";
+      const blob = new Blob([text], { type:"text/plain;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
       a.download = `FEthink-response-${new Date().toISOString().slice(0,10)}.txt`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
+      document.body.appendChild(a); a.click(); a.remove();
       URL.revokeObjectURL(url);
     }
 
     function downloadWord(btn) {
       const msg = btn.closest(".ai-msg");
-      const content = msg.querySelector(".ai-content");
+      const htmlBody = msg.querySelector(".ai-content").innerHTML;
       const html = `
         <html><head><meta charset="utf-8"></head>
-        <body style="font-family:Calibri,Arial,sans-serif; line-height:1.4;">
-        ${content.innerHTML}
+        <body style="font-family:Calibri,Arial,sans-serif; line-height:1.4; font-size:12pt;">
+          ${htmlBody}
         </body></html>
       `;
-      const blob = new Blob([html], { type: "application/msword" });
+      const blob = new Blob([html], { type:"application/msword" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
       a.download = `FEthink-resource-${new Date().toISOString().slice(0,10)}.doc`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
+      document.body.appendChild(a); a.click(); a.remove();
       URL.revokeObjectURL(url);
     }
 
     async function downloadPptxFromSlides(btn, rawReplyText, subtitle) {
+      const slidesText = extractSlidesTextFromReply(rawReplyText);
+      if (!slidesText) { alert("No slide section found. Use Teacher pack or Presentation Slides."); return; }
+
       const old = btn.textContent;
       btn.textContent = "Building…";
       btn.disabled = true;
 
       try {
-        const slidesText = extractSlidesTextFromReply(rawReplyText);
         const theme = (document.getElementById("pptTheme")?.value || "light");
-
         const res = await fetch("/pptx", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+          method:"POST",
+          headers:{ "Content-Type":"application/json" },
           body: JSON.stringify({
-            tier,
-            token,
+            tier, token,
             slidesText,
             deckTitle: "FEthink – Lesson Slides",
             subtitle: subtitle || "",
@@ -676,10 +532,7 @@ ${userQuestion}
 
         if (!res.ok) {
           let msg = "PPT export failed.";
-          try {
-            const j = await res.json();
-            if (j && (j.error || j.reply)) msg = j.error || j.reply;
-          } catch {}
+          try { const j = await res.json(); msg = j.error || j.reply || msg; } catch {}
           alert(msg);
           return;
         }
@@ -689,9 +542,7 @@ ${userQuestion}
         const a = document.createElement("a");
         a.href = url;
         a.download = `FEthink-slides-${new Date().toISOString().slice(0,10)}.pptx`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
+        document.body.appendChild(a); a.click(); a.remove();
         URL.revokeObjectURL(url);
       } finally {
         btn.textContent = old;
@@ -709,9 +560,7 @@ ${userQuestion}
 
       const header = document.createElement("div");
       header.className = "ai-header";
-
-      const left = document.createElement("div");
-      left.innerHTML = `<b>AI:</b>`;
+      header.innerHTML = `<b>AI:</b>`;
 
       const actions = document.createElement("div");
       actions.className = "ai-actions";
@@ -735,16 +584,16 @@ ${userQuestion}
       actions.appendChild(saveBtn);
       actions.appendChild(wordBtn);
 
+      // Show PPT button when Slide 1 exists anywhere in reply (Teacher pack / Presentation Slides)
       const isSlides = /^\s*Slide\s+1\b/im.test(reply || "");
       if (isSlides) {
         const pptBtn = document.createElement("button");
         pptBtn.className = "mini-btn ppt-btn";
         pptBtn.textContent = "PPT";
-        pptBtn.onclick = () => downloadPptxFromSlides(pptBtn, (wrapper.dataset.raw || ""), meta || "");
+        pptBtn.onclick = () => downloadPptxFromSlides(pptBtn, wrapper.dataset.raw || "", meta || "");
         actions.appendChild(pptBtn);
       }
 
-      header.appendChild(left);
       header.appendChild(actions);
 
       const content = document.createElement("div");
@@ -763,25 +612,17 @@ ${userQuestion}
       chat.appendChild(div);
     }
 
-    // -------------------- Usage UI --------------------
     function updateUsageUI(used, limit) {
       if (typeof used !== "number" || typeof limit !== "number" || limit <= 0) {
-        usedCount.textContent = "0";
-        limitCount.textContent = "0";
-        usageBar.style.width = "0%";
-        usageNote.textContent = "";
-        return;
+        usedCount.textContent="0"; limitCount.textContent="0"; usageBar.style.width="0%"; usageNote.textContent=""; return;
       }
       usedCount.textContent = String(used);
       limitCount.textContent = String(limit);
-
-      const pct = Math.max(0, Math.min(100, Math.round((used / limit) * 100)));
+      const pct = Math.max(0, Math.min(100, Math.round((used/limit)*100)));
       usageBar.style.width = pct + "%";
-
-      usageNote.textContent = (used >= limit) ? "Limit reached for today." : `${limit - used} remaining today.`;
+      usageNote.textContent = (used >= limit) ? "Limit reached for today." : `${limit-used} remaining today.`;
     }
 
-    // -------------------- Send / Clear --------------------
     document.getElementById("sendBtn").onclick = async () => {
       const qText = (input.value || "").trim();
       if (!qText) return;
@@ -796,24 +637,16 @@ ${userQuestion}
 
       try {
         const res = await fetch("/ask", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            message: prompt,
-            tier,
-            token
-          })
+          method:"POST",
+          headers:{ "Content-Type":"application/json" },
+          body: JSON.stringify({ message: prompt, tier, token })
         });
 
         const data = await res.json();
-        console.log("ASK RESPONSE:", data);
-
-        if (typeof data.used === "number" && typeof data.limit === "number") {
-          updateUsageUI(data.used, data.limit);
-        }
+        if (typeof data.used === "number" && typeof data.limit === "number") updateUsageUI(data.used, data.limit);
 
         renderAIMessage(data.reply || "Temporary error. Please try again shortly.", subtitle);
-      } catch (e) {
+      } catch {
         renderAIMessage("Temporary error. Please try again shortly.", subtitle);
       }
     };
@@ -821,18 +654,17 @@ ${userQuestion}
     document.getElementById("clearBtn").onclick = () => {
       input.value = "";
       chat.innerHTML = "";
-      updateUsageUI(0, 0);
+      updateUsageUI(0,0);
     };
 
-    // -------------------- Init --------------------
+    // Init
     fillSubjects();
     fillActivities();
     fillModes();
     fillLenses();
-    updateUsageUI(0, 0);
+    updateUsageUI(0,0);
 
-    // Debug visibility (optional): remove later if you want
-    console.log("Widget tier/token:", { tier, token: token ? "(present)" : "(missing)" });
+    console.log("Paid widget loaded:", { tier, token: token ? "(present)" : "(missing)" });
   </script>
 </body>
 </html>
