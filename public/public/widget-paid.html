@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>FEthink – Lesson Designer (Paid)</title>
+
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 12px; background: #fff; }
+
+    .wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      border: 1px solid #e6e6e6;
+      border-radius: 14px;
+      padding: 14px;
+      background: #fff;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .title { margin: 0; font-size: 18px; font-weight: 800; }
+    .meta { margin: 4px 0 0 0; font-size: 12px; color: #666; }
+    .usage { text-align: right; font-size: 12px; color: #444; white-space: nowrap; }
+    .usage b { font-weight: 800; }
+
+    label { display: block; font-size: 12px; color: #555; margin: 10px 0 6px; }
+
+    select, textarea {
+      width: 100%;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 14px;
+      background: #fff;
+      outline: none;
+    }
+
+    select:focus, textarea:focus {
+      border-color: #6f2dbd;
+      box-shadow: 0 0 0 3px rgba(111,45,189,0.12);
+    }
+
+    textarea { resize: vertical; min-height: 78px; line-height: 1.4; }
+
+    .row { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    @media (min-width: 720px) { .row-2 { grid-template-columns: 1fr 1fr; } }
+
+    .chip-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .chip {
+      border: 1px solid #ddd;
+      background: #fff;
+      border-radius: 999px;
+      padding: 8px 10px;
+      font-size: 13px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .chip:hover { background: #f6f6f6; }
+    .chip.selected {
+      border-color: #6f2dbd;
+      background: rgba(111,45,189,0.10);
+      font-weight: 700;
+    }
+
+    .lens-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .lens {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 8px 10px;
+      font-size: 13px;
+      background: #fff;
+    }
+
+    .lens input { transform: scale(1.05); }
+
+    .actions { display: flex; gap: 10px; margin-top: 10px; align-items: center; }
+
+    .btn {
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 14px;
+      cursor: pointer;
+      background: #fff;
+    }
+
+    .btn-primary { background: #6f2dbd; color: #fff; border-color: #6f2dbd; }
+    .btn-primary:hover { opacity: 0.92; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    #chat { margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee; }
+
+    .msg {
+      margin: 16px 0;
+      line-height: 1.5;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #eee;
+    }
+    .msg:last-child { border-bottom: none; }
+
+    .ai-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .ai-actions { display: flex; gap: 8px; }
+
+    .mini-btn {
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 6px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      background: #fff;
+    }
+
+    .save-btn { background: #3a3a3a; color: #fff; border-color: #3a3a3a; }
+    .save-btn:hover { background: #d9d9d9; color: #000; border-color: #d9d9d9; }
+
+    .copy-btn:hover { background: #f2f2f2; }
+
+    .word-btn { background: #111; color: #fff; border-color: #111; }
+    .word-btn:hover { opacity: 0.9; }
+
+    .ai-content { margin-top: 4px; }
+    .ai-h { display: block; font-weight: 800; margin: 10px 0 6px 0; }
+    .ai-gap { height: 8px; }
+
+    /* Micro helper text (small, unobtrusive) */
+    .micro {
+      font-size: 11px;
+      color: #666;
+      margin-top: 4px;
+      line-height: 1.25;
+    }
+    .micro-inline {
+      font-size: 11px;
+      color: #666;
+      margin-left: 6px;
+      line-height: 1.25;
+    }
+
+    .note { font-size: 12px; color: #666; margin-top: 10px; }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div>
+        <h1 class="title">FEthink – Lesson Designer</h1>
+        <p class="meta">Explorer / Pro assistant with activity buttons, packs, and quality lenses</p>
+      </div>
+      <div class="usage">
+        Today: <b><span id="used-count">0</span></b> / <span id="limit-count">—</span>
+      </div>
+    </div>
+
+    <div class="row row-2">
+      <div>
+        <label for="subject">Subject</label>
+        <select id="subject">
+          <option>Biology</option>
+          <option>Business</option>
+          <option>Chemistry</option>
+          <option>Construction</option>
+          <option>Employability</option>
+          <option>Engineering</option>
+          <option>English</option>
+          <option>Environmental Science</option>
+          <option>Hair &amp; Beauty</option>
+          <option>Health &amp; Social Care</option>
+          <option>History</option>
+          <option>Maths</option>
+          <option>Motor Vehicle</option>
+          <option>Public Services</option>
+          <option>Psychology</option>
+          <option>Sociology</option>
+          <option>Special Educational Needs</option>
+          <option>Travel &amp; Tourism</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Activity type (choose one)</label>
+        <div class="chip-grid" id="activityChips"></div>
+      </div>
+    </div>
+
+    <label>Output pack (choose one)</label>
+    <div class="chip-grid" id="packChips"></div>
+    <div class="micro" id="packMicro"></div>
+
+    <label>Quality lenses (optional but recommended)</label>
+    <div class="lens-row">
+      <label class="lens">
+        <input type="checkbox" id="lens-send">
+        SEND / EAL scaffolding
+        <span class="micro-inline">— scaffolds + glossary + sentence starters</span>
+      </label>
+
+      <label class="lens">
+        <input type="checkbox" id="lens-assess">
+        Assessment alignment
+        <span class="micro-inline">— success criteria + checkpoints</span>
+      </label>
+
+      <label class="lens">
+        <input type="checkbox" id="lens-cog">
+        Cognitive load clarity
+        <span class="micro-inline">— chunking + reduced overload</span>
+      </label>
+
+      <label class="lens">
+        <input type="checkbox" id="lens-access">
+        Plain language &amp; accessibility
+        <span class="micro-inline">— readable formatting + shorter sentences</span>
+      </label>
+    </div>
+
+    <label for="input">What do you want to generate?</label>
+    <textarea id="input" placeholder="Example: Create a 50-minute lesson plan on social class and education with a starter, main tasks, differentiation, and a 5-minute exit ticket."></textarea>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="sendBtn">Send</button>
+      <button class="btn" id="clearBtn">Clear</button>
+    </div>
+
+    <div id="chat"></div>
+
+    <div class="note">
+      This widget reads tier + token from the iframe URL (e.g. <b>?tier=explorer&amp;token=...</b>).
+    </div>
+  </div>
+
+  <script>
+    // Read tier/token from query string
+    const params = new URLSearchParams(window.location.search);
+    const tier = params.get("tier") || "explorer";
+    const token = params.get("token") || "";
+
+    // Activity buttons
+    const activities = [
+      "10-minute tasks",
+      "Assessment Task",
+      "Blended Learning",
+      "CPD activity",
+      "Field trip",
+      "Group Activity",
+      "Icebreaker",
+      "Learning game",
+      "Lesson Closer",
+      "Lesson Plan",
+      "Presentation slides",
+      "Practice Tasks",
+      "Progress review",
+      "Questioning",
+      "Research Project",
+      "Revision Support",
+      "Scheme of Work",
+      "Theory Class"
+    ];
+
+    // Force distinct outputs by activity (specific requirements per button)
+    const activitySpecs = {
+      "Lesson Plan": `
+Deliver a full lesson plan with:
+- Timings for each phase
+- Teacher talk vs student task clarity
+- Materials/resources list
+- Differentiation and checks for understanding
+`.trim(),
+
+      "Scheme of Work": `
+Deliver a mini scheme of work (4 weeks) with:
+- Weekly focus and sequencing
+- Core knowledge and skills each week
+- Homework / independent study suggestions
+- Assessment point(s) and a review week
+`.trim(),
+
+      "Assessment Task": `
+Deliver an assessment-ready task with:
+- Student brief and instructions
+- Success criteria
+- Marking guidance / rubric outline
+- Model answer or exemplar outline
+`.trim(),
+
+      "Blended Learning": `
+Deliver a blended plan with:
+- Online pre-task (10–15 mins)
+- In-class active learning task
+- Post-task reflection or quiz
+- Clear tech/tools assumptions (keep generic)
+`.trim(),
+
+      "Questioning": `
+Deliver a questioning set with:
+- 10 questions from recall → analysis
+- 2 hinge questions
+- Misconceptions to probe
+- Suggested follow-ups based on common answers
+`.trim(),
+
+      "Group Activity": `
+Deliver a structured group task with:
+- Group roles
+- Step-by-step instructions
+- Expected outputs (what students produce)
+- Accountability check (how teacher verifies participation)
+`.trim(),
+
+      "Revision Support": `
+Deliver a revision resource with:
+- Key knowledge organiser bullets
+- Retrieval quiz (10 questions) with answers
+- 3 common misconceptions
+- A 10-minute recap routine
+`.trim(),
+
+      "Theory Class": `
+Deliver a theory lesson sequence with:
+- Direct instruction chunking
+- Guided practice
+- Independent application
+- Short assessment checkpoint
+`.trim(),
+
+      "Icebreaker": `
+Deliver a fast icebreaker with:
+- Setup (1 minute)
+- Activity steps (5–8 minutes)
+- Debrief questions (2–3)
+- Variation for shy learners
+`.trim(),
+
+      "Lesson Closer": `
+Deliver a lesson closer with:
+- Purpose (1 sentence)
+- Two closing activity choices (teacher picks one)
+- Exit ticket (3 prompts)
+- Teacher script (2–4 lines)
+`.trim(),
+
+      "Practice Tasks": `
+Deliver 3 practice tasks:
+- Task 1 (easy) + answers
+- Task 2 (medium) + answers
+- Task 3 (challenge) + answers
+Include common errors and fixes.
+`.trim(),
+
+      "Research Project": `
+Deliver a structured research project brief with:
+- Research question
+- Milestones and timeline
+- Sources guidance (types, not specific links)
+- Assessment criteria
+`.trim(),
+
+      "10-minute tasks": `
+Deliver 3 independent 10-minute tasks:
+For each:
+- Task + instructions
+- Expected student output
+- Quick check answer key
+`.trim(),
+
+      "Field trip": `
+Deliver a field trip learning plan with:
+- Pre-visit preparation
+- On-visit tasks (observations/questions)
+- Post-visit learning check or assessment
+- Risk/behaviour considerations (brief)
+`.trim(),
+
+      "Progress review": `
+Deliver a progress review structure with:
+- Learner self-review prompts
+- Teacher checklist
+- Next-step target setting
+- 5-minute script for the conversation
+`.trim(),
+
+      "Presentation slides": `
+Deliver slide content ONLY (no handout) with:
+- Slide-by-slide titles and bullets
+- Speaker notes
+Keep to 8–10 slides max.
+`.trim(),
+
+      "Learning game": `
+Deliver a classroom learning game with:
+- Objective
+- Rules
+- Setup time (max 5 mins)
+- Scoring/win conditions
+- Differentiation variation
+`.trim(),
+
+      "CPD activity": `
+Deliver a CPD session plan for staff with:
+- Outcomes for staff
+- Agenda and timings (45–60 mins)
+- Activity steps
+- Reflection and action planning
+`.trim()
+    };
+
+    const activityChips = document.getElementById("activityChips");
+    let selectedActivity = activities[0];
+
+    function renderActivityChips() {
+      activityChips.innerHTML = "";
+      activities.forEach(a => {
+        const btn = document.createElement("div");
+        btn.className = "chip" + (a === selectedActivity ? " selected" : "");
+        btn.textContent = a;
+        btn.onclick = () => {
+          selectedActivity = a;
+          renderActivityChips();
+        };
+        activityChips.appendChild(btn);
+      });
+    }
+    renderActivityChips();
+
+    // Output packs
+    const packs = [
+      "Standard output",
+      "Teacher Pack",
+      "Assessment & Marking Pack"
+    ];
+
+    const packDescriptions = {
+      "Standard output": "Fast structured support for the selected activity.",
+      "Teacher Pack": "Outcomes + professionally structured slides + handout + sequence + checks.",
+      "Assessment & Marking Pack": "Student brief + rubric + model answer + feedback bank."
+    };
+
+    const packChips = document.getElementById("packChips");
+    let selectedPack = packs[0];
+
+    function renderPackChips() {
+      packChips.innerHTML = "";
+      packs.forEach(p => {
+        const btn = document.createElement("div");
+        btn.className = "chip" + (p === selectedPack ? " selected" : "");
+        btn.textContent = p;
+        btn.onclick = () => {
+          selectedPack = p;
+          renderPackChips();
+        };
+        packChips.appendChild(btn);
+      });
+
+      const micro = document.getElementById("packMicro");
+      if (micro) micro.textContent = packDescriptions[selectedPack] || "";
+    }
+    renderPackChips();
+
+    const input = document.getElementById("input");
+    const chat = document.getElementById("chat");
+    const sendBtn = document.getElementById("sendBtn");
+    const clearBtn = document.getElementById("clearBtn");
+
+    function escapeHTML(s) {
+      return (s || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
+
+    function formatAI(markdownText) {
+      const safe = escapeHTML(markdownText);
+      return safe
+        .replace(/^### (.*)$/gm, '<span class="ai-h">$1</span>')
+        .replace(/^## (.*)$/gm, '<span class="ai-h">$1</span>')
+        .replace(/^# (.*)$/gm, '<span class="ai-h">$1</span>')
+        .replace(/\n\n/g, '<div class="ai-gap"></div>')
+        .replace(/\n/g, "<br>");
+    }
+
+    function updateUsage(used, limit) {
+      if (typeof used === "number") document.getElementById("used-count").textContent = used;
+      if (typeof limit === "number") document.getElementById("limit-count").textContent = limit;
+    }
+
+    function copyAIResponse(btn) {
+      const msg = btn.closest(".ai-msg");
+      const content = msg.querySelector(".ai-content");
+      navigator.clipboard.writeText(content.innerText).then(() => {
+        btn.textContent = "Copied";
+        setTimeout(() => (btn.textContent = "Copy"), 900);
+      });
+    }
+
+    function saveAIResponse(btn) {
+      const msg = btn.closest(".ai-msg");
+      const content = msg.querySelector(".ai-content");
+      const blob = new Blob([content.innerText], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "FEthink-response.txt";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function downloadWord(btn) {
+      const msg = btn.closest(".ai-msg");
+      const content = msg.querySelector(".ai-content");
+      const plain = content.innerText;
+
+      const html =
+        `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>` +
+        `<pre style="font-family:Arial; white-space:pre-wrap;">${escapeHTML(plain)}</pre>` +
+        `</body></html>`;
+
+      const blob = new Blob([html], { type: "application/msword;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "FEthink-response.doc";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    async function send() {
+      const subject = document.getElementById("subject").value;
+      const question = input.value.trim();
+      if (!question) return;
+
+      const lenses = [];
+      if (document.getElementById("lens-send").checked) lenses.push("SEND/EAL scaffolding");
+      if (document.getElementById("lens-assess").checked) lenses.push("Assessment alignment");
+      if (document.getElementById("lens-cog").checked) lenses.push("Cognitive load clarity");
+      if (document.getElementById("lens-access").checked) lenses.push("Plain language & accessibility");
+      const lensText = lenses.length ? lenses.join(", ") : "None selected";
+
+      // Pack-specific response formats
+      let responseFormat = `
+Response format:
+- Title
+- Purpose (1–2 sentences)
+- Steps / guidance in bullet points
+- Optional extension / variation
+`.trim();
+
+      // Teacher Pack ONLY: professional slide styling + learning outcomes
+      if (selectedPack === "Teacher Pack") {
+        responseFormat = `
+Response format (Teacher Pack – Professional):
+
+1) LEARNING OUTCOMES
+- 3–5 measurable, student-facing outcomes (Bloom verbs)
+- Appropriate to FE/HE level and subject
+
+2) SLIDES – PROFESSIONAL FORMAT (copy-ready)
+For EACH slide include:
+- Slide number + title
+- Layout (e.g., Title + Content, Two-column, Diagram slide)
+- Slide bullets (max 4–5)
+- Visual suggestion (icon/diagram/photo idea)
+- Speaker notes (teacher-only)
+
+3) STUDENT HANDOUT (print-ready)
+- Plain-language explanation
+- Key terms box
+- Short tasks/questions
+- Space for answers/notes
+
+4) TEACHING SEQUENCE & TIMINGS
+- Starter, main, practice, review
+
+5) CHECK FOR UNDERSTANDING
+- Exit ticket or hinge questions aligned to outcomes
+
+6) DIFFERENTIATION (lens-aware)
+- SEND/EAL scaffolds + stretch challenge
+
+7) TEACHER NOTES
+- Misconceptions + delivery tips
+`.trim();
+      }
+
+      if (selectedPack === "Assessment & Marking Pack") {
+        responseFormat = `
+Response format (Assessment & Marking Pack):
+- Assessment title + purpose
+- Student-facing task brief + timings
+- Success criteria (bullet points)
+- Mark scheme / rubric (levels or points)
+- Model answer (high-quality)
+- Common misconceptions
+- Feedback stems (what to write on student work)
+- Improvement tasks (DIRT / feedforward)
+- Optional variation for lower/higher ability
+`.trim();
+      }
+
+      const activitySpec = activitySpecs[selectedActivity] || "Follow the selected activity type with appropriate structure.";
+
+      const message =
+`Subject: ${subject}
+Activity: ${selectedActivity}
+Output pack: ${selectedPack}
+Quality lenses: ${lensText}
+
+ACTIVITY REQUIREMENTS (must follow):
+${activitySpec}
+
+User request:
+${question}
+
+${responseFormat}`;
+
+      chat.innerHTML += `<div class="msg"><b>You:</b> ${escapeHTML(question)}</div>`;
+      input.value = "";
+      sendBtn.disabled = true;
+
+      try {
+        const res = await fetch("/ask", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message, tier, token })
+        });
+
+        const data = await res.json();
+
+        if (typeof data.used === "number" && typeof data.limit === "number") {
+          updateUsage(data.used, data.limit);
+        }
+
+        const formatted = formatAI(data.reply || "");
+
+        chat.innerHTML += `
+          <div class="msg ai-msg">
+            <div class="ai-header">
+              <b>AI:</b>
+              <div class="ai-actions">
+                <button class="mini-btn copy-btn" onclick="copyAIResponse(this)">Copy</button>
+                <button class="mini-btn save-btn" onclick="saveAIResponse(this)">Save</button>
+                <button class="mini-btn word-btn" onclick="downloadWord(this)">Word</button>
+              </div>
+            </div>
+            <div class="ai-content">${formatted}</div>
+          </div>
+        `;
+      } catch (e) {
+        chat.innerHTML += `<div class="msg"><b>AI:</b> Temporary error. Please try again shortly.</div>`;
+      } finally {
+        sendBtn.disabled = false;
+      }
+    }
+
+    sendBtn.addEventListener("click", send);
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
+    });
+
+    clearBtn.addEventListener("click", () => {
+      chat.innerHTML = "";
+    });
+  </script>
+</body>
+</html>
