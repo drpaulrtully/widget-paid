@@ -9,12 +9,7 @@
   <style>
     * { box-sizing: border-box; }
 
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 12px;
-      background: #f6f7fb;
-    }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 12px; background: #f6f7fb; }
 
     .wrap {
       max-width: 920px;
@@ -172,8 +167,6 @@
     .save-btn { background: #3a3a3a; color: #fff; border-color: #3a3a3a; }
     .save-btn:hover { background: #2e2e2e; color: #fff; border-color: #2e2e2e; }
 
-    .copy-btn:hover { background: #f6f7fb; }
-
     .word-btn { background: #111; color: #fff; border-color: #111; }
     .word-btn:hover { opacity: 0.92; }
 
@@ -187,6 +180,55 @@
     .micro { font-size: 11px; color: #667085; margin-top: 6px; line-height: 1.3; }
     .micro-inline { font-size: 11px; color: #667085; margin-left: 6px; line-height: 1.25; }
     .note { font-size: 12px; color: #667085; margin-top: 12px; }
+
+    /* Branding / Logo upload (additive) */
+    .brand-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      padding: 12px;
+      border: 1px solid #eef0f6;
+      border-radius: 14px;
+      background: #fbfbfe;
+    }
+
+    .brand-left { min-width: 240px; }
+    .brand-title { font-size: 12px; font-weight: 800; color: #344054; margin: 0; }
+    .brand-sub { font-size: 11px; color: #667085; margin: 4px 0 0 0; line-height: 1.35; }
+
+    .brand-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .brand-preview {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 10px;
+      border: 1px dashed #d0d5dd;
+      border-radius: 12px;
+      background: #fff;
+      max-width: 100%;
+    }
+    .brand-preview img {
+      max-height: 44px;
+      max-width: 160px;
+      display: none;
+    }
+    .brand-preview .brand-empty {
+      font-size: 11px;
+      color: #667085;
+      white-space: nowrap;
+    }
+
+    .btn-secondary { border: 1px solid #dfe1ea; background: #fff; color: #101828; }
+
+    .btn-danger {
+      border: 1px solid #fda29b;
+      background: #fff;
+      color: #b42318;
+    }
+    .btn-danger:hover { background: #fff5f5; }
   </style>
 </head>
 
@@ -199,6 +241,26 @@
       </div>
       <div class="usage">
         Today: <b><span id="used-count">0</span></b> / <span id="limit-count">—</span>
+      </div>
+    </div>
+
+    <!-- Branding / Logo upload (additive; does not remove anything) -->
+    <div class="brand-row">
+      <div class="brand-left">
+        <p class="brand-title">Branding (optional)</p>
+        <p class="brand-sub">Upload a school logo to appear on Word handouts and PPT slides exports.</p>
+      </div>
+
+      <div class="brand-actions">
+        <div class="brand-preview" title="Logo preview">
+          <img id="logoPreview" alt="School logo preview" />
+          <span class="brand-empty" id="logoEmpty">No logo uploaded</span>
+        </div>
+
+        <input type="file" id="logoFile" accept="image/*" style="display:none" />
+
+        <button class="btn btn-secondary" id="uploadLogoBtn" type="button">Upload logo</button>
+        <button class="btn btn-danger" id="clearLogoBtn" type="button">Remove logo</button>
       </div>
     </div>
 
@@ -286,6 +348,134 @@
     const params = new URLSearchParams(window.location.search);
     const tier = params.get("tier") || "explorer";
     const token = params.get("token") || "";
+
+    // -------------------- Logo upload (additive) --------------------
+    const LOGO_STORAGE_KEY = "fethink_school_logo_dataurl";
+    const MAX_LOGO_BYTES = 450 * 1024; // ~450KB raw target
+
+    function getStoredLogo() {
+      try { return localStorage.getItem(LOGO_STORAGE_KEY) || ""; } catch { return ""; }
+    }
+
+    function setStoredLogo(dataUrl) {
+      try { localStorage.setItem(LOGO_STORAGE_KEY, dataUrl || ""); } catch {}
+    }
+
+    function clearStoredLogo() {
+      try { localStorage.removeItem(LOGO_STORAGE_KEY); } catch {}
+    }
+
+    function estimateBytesFromDataUrl(dataUrl) {
+      if (!dataUrl) return 0;
+      const comma = dataUrl.indexOf(",");
+      const b64 = comma >= 0 ? dataUrl.slice(comma + 1) : dataUrl;
+      return Math.floor(b64.length * 0.75);
+    }
+
+    function isSafeLogoDataUrl(dataUrl) {
+      if (!dataUrl || typeof dataUrl !== "string") return false;
+      if (!/^data:image\/(png|jpeg|jpg|webp);base64,/i.test(dataUrl)) return false;
+      const bytes = estimateBytesFromDataUrl(dataUrl);
+      return bytes > 0 && bytes <= MAX_LOGO_BYTES;
+    }
+
+    function updateLogoUI(dataUrl) {
+      const img = document.getElementById("logoPreview");
+      const empty = document.getElementById("logoEmpty");
+      if (dataUrl && isSafeLogoDataUrl(dataUrl)) {
+        img.src = dataUrl;
+        img.style.display = "block";
+        empty.style.display = "none";
+      } else {
+        img.removeAttribute("src");
+        img.style.display = "none";
+        empty.style.display = "inline";
+      }
+    }
+
+    function currentLogoDataUrl() {
+      const stored = getStoredLogo();
+      return (stored && isSafeLogoDataUrl(stored)) ? stored : "";
+    }
+
+    updateLogoUI(currentLogoDataUrl());
+
+    const uploadLogoBtn = document.getElementById("uploadLogoBtn");
+    const clearLogoBtn = document.getElementById("clearLogoBtn");
+    const logoFile = document.getElementById("logoFile");
+
+    uploadLogoBtn.addEventListener("click", () => logoFile.click());
+
+    clearLogoBtn.addEventListener("click", () => {
+      clearStoredLogo();
+      updateLogoUI("");
+    });
+
+    logoFile.addEventListener("change", async () => {
+      const file = logoFile.files && logoFile.files[0];
+      if (!file) return;
+
+      try {
+        const dataUrl = await new Promise((resolve, reject) => {
+          const r = new FileReader();
+          r.onload = () => resolve(String(r.result || ""));
+          r.onerror = () => reject(new Error("read failed"));
+          r.readAsDataURL(file);
+        });
+
+        if (isSafeLogoDataUrl(dataUrl)) {
+          setStoredLogo(dataUrl);
+          updateLogoUI(dataUrl);
+          logoFile.value = "";
+          return;
+        }
+
+        const img = await new Promise((resolve, reject) => {
+          const i = new Image();
+          i.onload = () => resolve(i);
+          i.onerror = () => reject(new Error("image load failed"));
+          i.src = dataUrl;
+        });
+
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
+        const MAX_W = 720;
+        const MAX_H = 240;
+        let w = img.naturalWidth || 1;
+        let h = img.naturalHeight || 1;
+
+        const scale = Math.min(MAX_W / w, MAX_H / h, 1);
+        w = Math.floor(w * scale);
+        h = Math.floor(h * scale);
+
+        canvas.width = w;
+        canvas.height = h;
+        ctx.drawImage(img, 0, 0, w, h);
+
+        let out = canvas.toDataURL("image/png");
+        if (!isSafeLogoDataUrl(out)) {
+          out = canvas.toDataURL("image/jpeg", 0.82);
+        }
+        if (!isSafeLogoDataUrl(out)) {
+          out = canvas.toDataURL("image/jpeg", 0.70);
+        }
+
+        if (!isSafeLogoDataUrl(out)) {
+          alert("Logo too large. Please upload a smaller image (ideally a simple PNG under ~450KB).");
+          logoFile.value = "";
+          return;
+        }
+
+        setStoredLogo(out);
+        updateLogoUI(out);
+      } catch {
+        alert("Could not process that image. Please try another file.");
+      } finally {
+        logoFile.value = "";
+      }
+    });
+    // ------------------ End logo upload ------------------
 
     const activities = [
       "Full lesson","10-minute tasks","Assessment Task","Blended Learning","CPD activity","Field trip",
@@ -427,8 +617,16 @@ You must create a complete, end-to-end lesson build. Include:
     }
 
     function downloadWordFromText(filename, plainText) {
+      const logo = currentLogoDataUrl();
+      const logoHtml = logo
+        ? `<div style="margin:0 0 10px 0;">
+             <img src="${logo}" alt="School logo" style="max-height:80px; max-width:240px; display:block;" />
+           </div>`
+        : "";
+
       const html =
         `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>` +
+        logoHtml +
         `<pre style="font-family:Calibri,Arial; white-space:pre-wrap; font-size:11pt; line-height:1.35;">${escapeHTML(plainText)}</pre>` +
         `</body></html>`;
       const blob = new Blob([html], { type: "application/msword;charset=utf-8" });
@@ -472,7 +670,8 @@ You must create a complete, end-to-end lesson build. Include:
             token,
             slidesText,
             deckTitle: "FEthink – Slides",
-            subtitle
+            subtitle,
+            logoData: currentLogoDataUrl() || ""
           })
         });
 
@@ -501,6 +700,11 @@ You must create a complete, end-to-end lesson build. Include:
       }
     }
 
+    // NEW (additive): attempt to extract "Slide X:" blocks from plain text
+    function isLikelySlidesText(text) {
+      return /^Slide\s+\d+/im.test(text || "");
+    }
+
     function renderArtefactCard(label, contentText, subtitle) {
       const formatted = formatAI(contentText);
       const stem = safeFileStem(label);
@@ -517,7 +721,7 @@ You must create a complete, end-to-end lesson build. Include:
       actions.className = "ai-actions";
 
       const copyBtn = document.createElement("button");
-      copyBtn.className = "mini-btn copy-btn";
+      copyBtn.className = "mini-btn";
       copyBtn.textContent = "Copy";
 
       const saveBtn = document.createElement("button");
@@ -532,7 +736,6 @@ You must create a complete, end-to-end lesson build. Include:
       actions.appendChild(saveBtn);
       actions.appendChild(wordBtn);
 
-      // PPT button only for Slides artefact
       const isSlidesArtefact = /slides/i.test(label);
       let pptBtn = null;
       if (isSlidesArtefact) {
@@ -722,6 +925,8 @@ ${responseFormat}
           const formatted = formatAI(reply);
           const wrapper = document.createElement("div");
           wrapper.className = "msg ai-msg";
+
+          // Existing buttons
           wrapper.innerHTML = `
             <div class="ai-pack-title">
               <b>AI:</b>
@@ -735,10 +940,32 @@ ${responseFormat}
           `;
 
           const body = wrapper.querySelector(".ai-content");
-          const [copyBtn, saveBtn, wordBtn] = wrapper.querySelectorAll("button");
+          const copyBtn = wrapper.querySelector(".copy-btn");
+          const saveBtn = wrapper.querySelector(".save-btn");
+          const wordBtn = wrapper.querySelector(".word-btn");
+
           copyBtn.onclick = () => copyFromElementText(copyBtn, body);
           saveBtn.onclick = () => downloadTextAsFile("FEthink-response.txt", body.innerText);
           wordBtn.onclick = () => downloadWordFromText("FEthink-response.doc", body.innerText);
+
+          // NEW (additive): If activity is "Presentation slides", add a PPT button to the non-artefact output
+          if (selectedActivity === "Presentation slides") {
+            const actions = wrapper.querySelector(".ai-actions");
+            const pptBtn = document.createElement("button");
+            pptBtn.className = "mini-btn ppt-btn";
+            pptBtn.textContent = "PPT";
+            actions.appendChild(pptBtn);
+
+            pptBtn.onclick = () => {
+              const txt = (reply || "").trim();
+              if (!isLikelySlidesText(txt)) {
+                alert("This response doesn’t look like slide text (missing “Slide 1: …”). Please regenerate and ensure slide format is used.");
+                return;
+              }
+              downloadPptxFromSlides(pptBtn, txt, subtitle);
+            };
+          }
+
           chat.appendChild(wrapper);
         }
       } catch {

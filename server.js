@@ -5,6 +5,7 @@
 // - /pptx (PowerPoint export)
 // - Professional slide background
 // - 24pt body text, 34pt titles
+// - Optional uploaded logo support for PPTX (adds logo to title + content slides)
 
 import express from "express";
 import path from "path";
@@ -45,6 +46,16 @@ function clientId(req) {
   return crypto.createHash("sha256").update(ip + ua).digest("hex").slice(0, 24);
 }
 
+function isSafeImageDataUrl(dataUrl) {
+  if (!dataUrl || typeof dataUrl !== "string") return false;
+  const okPrefix = /^data:image\/(png|jpeg|jpg|webp);base64,/i.test(dataUrl);
+  if (!okPrefix) return false;
+
+  if (dataUrl.length > 900_000) return false;
+
+  return true;
+}
+
 // -------------------- Static --------------------
 app.use(express.static(PUBLIC_DIR, { extensions: ["html"] }));
 app.get("/", (_, res) =>
@@ -69,13 +80,24 @@ function parseSlides(raw) {
   return slides.slice(0, 20);
 }
 
-async function buildPptx(slides) {
+async function buildPptx(slides, logoDataUrl = null) {
   const pptx = new PptxGenJS();
   pptx.layout = "LAYOUT_WIDE";
 
   const BG = "F7F7F9";
   const ACCENT = "6F2DBD";
   const FONT = "Calibri";
+
+  function addOptionalLogo(slide, opts = {}) {
+    if (!logoDataUrl) return;
+    try {
+      const x = typeof opts.x === "number" ? opts.x : 11.6;
+      const y = typeof opts.y === "number" ? opts.y : 0.55;
+      const w = typeof opts.w === "number" ? opts.w : 1.5;
+      const h = typeof opts.h === "number" ? opts.h : 0.85;
+      slide.addImage({ data: logoDataUrl, x, y, w, h });
+    } catch {}
+  }
 
   // ---- Title slide ----
   {
@@ -85,6 +107,8 @@ async function buildPptx(slides) {
     slide.addShape(pptx.ShapeType.rect, {
       x: 0, y: 0, w: "100%", h: 0.4, fill: ACCENT
     });
+
+    addOptionalLogo(slide, { x: 10.9, y: 0.7, w: 2.0, h: 1.1 });
 
     slide.addText("FEthink – Lesson Slides", {
       x: 1, y: 2.2, w: 11, h: 1,
@@ -106,8 +130,10 @@ async function buildPptx(slides) {
       x: 0, y: 0, w: "100%", h: 0.35, fill: ACCENT
     });
 
+    addOptionalLogo(slide, { x: 11.6, y: 0.55, w: 1.5, h: 0.85 });
+
     slide.addText(sl.title || "Slide", {
-      x: 0.8, y: 0.6, w: 11.5, h: 0.9,
+      x: 0.8, y: 0.6, w: 10.6, h: 0.9,
       fontFace: FONT, fontSize: 34, bold: true, color: "111111"
     });
 
@@ -161,7 +187,8 @@ app.post("/ask", async (req, res) => {
 // -------------------- /pptx --------------------
 app.post("/pptx", async (req, res) => {
   try {
-    const { slidesText, tier, token } = req.body;
+    const { slidesText, tier, token, logoData } = req.body;
+
     if (tier === "explorer" && token !== WIDGET_TOKEN_EXPLORER)
       return res.status(403).json({ error: "Access denied" });
 
@@ -169,7 +196,9 @@ app.post("/pptx", async (req, res) => {
     if (!slides.length)
       return res.status(400).json({ error: "No slides detected" });
 
-    const buffer = await buildPptx(slides);
+    const logoDataUrl = isSafeImageDataUrl(logoData) ? logoData : null;
+
+    const buffer = await buildPptx(slides, logoDataUrl);
 
     res.setHeader(
       "Content-Type",
