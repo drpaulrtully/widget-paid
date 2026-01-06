@@ -1,3 +1,4 @@
+<!-- public/widget-paid.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,15 +8,22 @@
 
   <style>
     * { box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; margin: 0; padding: 12px; background: #fff; }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 12px;
+      background: #f6f7fb;
+    }
 
     .wrap {
       max-width: 920px;
       margin: 0 auto;
-      border: 1px solid #e6e6e6;
-      border-radius: 14px;
-      padding: 14px;
+      border: 1px solid #e7e7ee;
+      border-radius: 16px;
+      padding: 16px;
       background: #fff;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
     }
 
     .topbar {
@@ -23,19 +31,37 @@
       align-items: flex-start;
       justify-content: space-between;
       gap: 12px;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #f0f0f4;
     }
 
-    .title { margin: 0; font-size: 18px; font-weight: 800; }
-    .meta { margin: 4px 0 0 0; font-size: 12px; color: #666; }
-    .usage { text-align: right; font-size: 12px; color: #444; white-space: nowrap; }
+    .title { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: 0.1px; }
+    .meta  { margin: 6px 0 0 0; font-size: 12px; color: #667085; line-height: 1.35; }
+
+    .usage {
+      text-align: right;
+      font-size: 12px;
+      color: #344054;
+      white-space: nowrap;
+      border: 1px solid #e7e7ee;
+      border-radius: 999px;
+      padding: 8px 10px;
+      background: #fbfbfe;
+    }
     .usage b { font-weight: 800; }
 
-    label { display: block; font-size: 12px; color: #555; margin: 10px 0 6px; }
+    label {
+      display: block;
+      font-size: 12px;
+      color: #475467;
+      margin: 12px 0 6px;
+      font-weight: 700;
+    }
 
     select, textarea {
       width: 100%;
-      border: 1px solid #ddd;
+      border: 1px solid #dfe1ea;
       border-radius: 12px;
       padding: 10px 12px;
       font-size: 14px;
@@ -43,12 +69,14 @@
       outline: none;
     }
 
+    select:hover, textarea:hover { border-color: #cfd3e2; }
+
     select:focus, textarea:focus {
       border-color: #6f2dbd;
-      box-shadow: 0 0 0 3px rgba(111,45,189,0.12);
+      box-shadow: 0 0 0 3px rgba(111,45,189,0.14);
     }
 
-    textarea { resize: vertical; min-height: 84px; line-height: 1.4; }
+    textarea { resize: vertical; min-height: 92px; line-height: 1.45; }
 
     .row { display: grid; grid-template-columns: 1fr; gap: 10px; }
     @media (min-width: 760px) { .row-2 { grid-template-columns: 1fr 1fr; } }
@@ -56,18 +84,20 @@
     .chip-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
 
     .chip {
-      border: 1px solid #ddd;
+      border: 1px solid #dfe1ea;
       background: #fff;
       border-radius: 999px;
-      padding: 8px 10px;
+      padding: 8px 12px;
       font-size: 13px;
       cursor: pointer;
       user-select: none;
       white-space: nowrap;
+      transition: background 120ms ease, border-color 120ms ease, transform 60ms ease;
     }
 
-    .chip:hover { background: #f6f6f6; }
-    .chip.selected { border-color: #6f2dbd; background: rgba(111,45,189,0.10); font-weight: 700; }
+    .chip:hover { background: #f6f7fb; border-color: #cfd3e2; }
+    .chip:active { transform: translateY(1px); }
+    .chip.selected { border-color: #6f2dbd; background: rgba(111,45,189,0.10); font-weight: 800; }
 
     .lens-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
 
@@ -75,41 +105,46 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      border: 1px solid #ddd;
+      border: 1px solid #e7e7ee;
       border-radius: 12px;
-      padding: 8px 10px;
+      padding: 9px 10px;
       font-size: 13px;
       background: #fff;
     }
 
     .lens input { transform: scale(1.05); }
 
-    .actions { display: flex; gap: 10px; margin-top: 10px; align-items: center; flex-wrap: wrap; }
+    .actions { display: flex; gap: 10px; margin-top: 12px; align-items: center; flex-wrap: wrap; }
 
     .btn {
-      border: 1px solid #ddd;
+      border: 1px solid #dfe1ea;
       border-radius: 12px;
       padding: 10px 14px;
       font-size: 14px;
       cursor: pointer;
       background: #fff;
+      transition: transform 60ms ease, opacity 120ms ease, background 120ms ease;
     }
 
-    .btn-primary { background: #6f2dbd; color: #fff; border-color: #6f2dbd; }
-    .btn-primary:hover { opacity: 0.92; }
+    .btn:hover { background: #f6f7fb; }
+    .btn:active { transform: translateY(1px); }
     .btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-    #chat { margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee; }
+    .btn-primary { background: #6f2dbd; color: #fff; border-color: #6f2dbd; }
+    .btn-primary:hover { opacity: 0.94; background: #6f2dbd; }
 
-    .msg { margin: 16px 0; line-height: 1.5; padding-bottom: 12px; border-bottom: 1px solid #eee; }
+    #chat { margin-top: 14px; padding-top: 14px; border-top: 1px solid #f0f0f4; }
+
+    .msg { margin: 16px 0; line-height: 1.55; padding-bottom: 12px; border-bottom: 1px solid #f0f0f4; }
     .msg:last-child { border-bottom: none; }
 
     .ai-pack {
-      border: 1px solid #eee;
-      border-radius: 14px;
+      border: 1px solid #eef0f6;
+      border-radius: 16px;
       padding: 12px;
       background: #fff;
       margin-top: 10px;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
     }
 
     .ai-pack-title {
@@ -117,39 +152,41 @@
       align-items: center;
       justify-content: space-between;
       gap: 10px;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
 
-    .ai-pack-title b { font-weight: 800; }
+    .ai-pack-title b { font-weight: 900; color: #101828; }
     .ai-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
     .mini-btn {
-      border: 1px solid #ddd;
+      border: 1px solid #dfe1ea;
       border-radius: 10px;
-      padding: 6px 10px;
+      padding: 7px 10px;
       font-size: 12px;
       cursor: pointer;
       background: #fff;
     }
 
-    .save-btn { background: #3a3a3a; color: #fff; border-color: #3a3a3a; }
-    .save-btn:hover { background: #d9d9d9; color: #000; border-color: #d9d9d9; }
+    .mini-btn:hover { background: #f6f7fb; }
 
-    .copy-btn:hover { background: #f2f2f2; }
+    .save-btn { background: #3a3a3a; color: #fff; border-color: #3a3a3a; }
+    .save-btn:hover { background: #2e2e2e; color: #fff; border-color: #2e2e2e; }
+
+    .copy-btn:hover { background: #f6f7fb; }
 
     .word-btn { background: #111; color: #fff; border-color: #111; }
-    .word-btn:hover { opacity: 0.9; }
+    .word-btn:hover { opacity: 0.92; }
 
     .ppt-btn { background: #0a0a0a; color: #fff; border-color: #0a0a0a; }
-    .ppt-btn:hover { opacity: 0.9; }
+    .ppt-btn:hover { opacity: 0.92; }
 
-    .ai-content { margin-top: 4px; }
-    .ai-h { display: block; font-weight: 800; margin: 10px 0 6px 0; }
+    .ai-content { margin-top: 4px; color: #101828; }
+    .ai-h { display: block; font-weight: 900; margin: 12px 0 6px 0; }
     .ai-gap { height: 8px; }
 
-    .micro { font-size: 11px; color: #666; margin-top: 4px; line-height: 1.25; }
-    .micro-inline { font-size: 11px; color: #666; margin-left: 6px; line-height: 1.25; }
-    .note { font-size: 12px; color: #666; margin-top: 10px; }
+    .micro { font-size: 11px; color: #667085; margin-top: 6px; line-height: 1.3; }
+    .micro-inline { font-size: 11px; color: #667085; margin-left: 6px; line-height: 1.25; }
+    .note { font-size: 12px; color: #667085; margin-top: 12px; }
   </style>
 </head>
 
@@ -169,6 +206,7 @@
       <div>
         <label for="subject">Subject</label>
         <select id="subject">
+          <option>Art &amp; Design</option>
           <option>Biology</option>
           <option>Business</option>
           <option>Chemistry</option>
@@ -182,8 +220,8 @@
           <option>History</option>
           <option>Maths</option>
           <option>Motor Vehicle</option>
-          <option>Public Services</option>
           <option>Psychology</option>
+          <option>Public Services</option>
           <option>Sociology</option>
           <option>Special Educational Needs</option>
           <option>Travel &amp; Tourism</option>
