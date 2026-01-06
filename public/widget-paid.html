@@ -1,538 +1,449 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>FEthink Lesson Designer</title>
+  <title>FEthink – Lesson Designer (Paid)</title>
+
   <style>
     * { box-sizing: border-box; }
-    body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:#fff; color:#111; }
-    .wrap { max-width: 980px; margin: 0 auto; padding: 18px; }
-    .card { border:1px solid #eee; border-radius:14px; padding:16px; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,0.04); }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 12px; background: #fff; }
 
-    .title { display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:10px; }
-    .title h1 { font-size:18px; margin:0; font-weight:900; letter-spacing:0.2px; }
-    .tier-pill { font-size:12px; color:#fff; background:#6F2DBD; padding:6px 10px; border-radius:999px; font-weight:800; }
+    .wrap {
+      max-width: 920px;
+      margin: 0 auto;
+      border: 1px solid #e6e6e6;
+      border-radius: 14px;
+      padding: 14px;
+      background: #fff;
+    }
 
-    .row { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
-    @media (max-width: 820px) { .row { grid-template-columns: 1fr; } }
+    .topbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
 
-    label { display:block; font-size:12px; color:#555; margin-bottom:6px; font-weight:800; }
+    .title { margin: 0; font-size: 18px; font-weight: 800; }
+    .meta { margin: 4px 0 0 0; font-size: 12px; color: #666; }
+    .usage { text-align: right; font-size: 12px; color: #444; white-space: nowrap; }
+    .usage b { font-weight: 800; }
+
+    label { display: block; font-size: 12px; color: #555; margin: 10px 0 6px; }
 
     select, textarea {
-      width:100%;
-      border:1px solid #ddd;
-      border-radius:12px;
-      padding:10px 12px;
-      font-size:14px;
-      outline:none;
-      background:#fff;
+      width: 100%;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 14px;
+      background: #fff;
+      outline: none;
     }
-    select:focus, textarea:focus { border-color:#6F2DBD; box-shadow:0 0 0 3px rgba(111,45,189,0.12); }
 
-    textarea { min-height: 92px; resize: vertical; line-height: 1.35; }
-
-    /* Activity buttons */
-    .activity-grid { display:flex; flex-wrap:wrap; gap:8px; margin-top:6px; }
-    .act-btn {
-      border:1px solid #ddd;
-      background:#fafafa;
-      border-radius:999px;
-      padding:8px 10px;
-      font-size:12px;
-      cursor:pointer;
-      user-select:none;
-      position: relative;
+    select:focus, textarea:focus {
+      border-color: #6f2dbd;
+      box-shadow: 0 0 0 3px rgba(111,45,189,0.12);
     }
-    .act-btn:hover { border-color:#bbb; }
-    .act-btn.active { background: rgba(111,45,189,0.10); border-color:#6F2DBD; color:#2b1252; font-weight:900; }
 
-    /* Simple tooltip (micro line) */
-    .act-btn[data-tip]:hover::after{
-      content: attr(data-tip);
-      position: absolute;
-      left: 0;
-      top: calc(100% + 8px);
-      z-index: 10;
-      width: min(320px, 70vw);
-      background: #111;
-      color: #fff;
+    textarea { resize: vertical; min-height: 84px; line-height: 1.4; }
+
+    .row { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    @media (min-width: 760px) { .row-2 { grid-template-columns: 1fr 1fr; } }
+
+    .chip-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+
+    .chip {
+      border: 1px solid #ddd;
+      background: #fff;
+      border-radius: 999px;
       padding: 8px 10px;
+      font-size: 13px;
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .chip:hover { background: #f6f6f6; }
+    .chip.selected { border-color: #6f2dbd; background: rgba(111,45,189,0.10); font-weight: 700; }
+
+    .lens-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+
+    .lens {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 8px 10px;
+      font-size: 13px;
+      background: #fff;
+    }
+
+    .lens input { transform: scale(1.05); }
+
+    .actions { display: flex; gap: 10px; margin-top: 10px; align-items: center; flex-wrap: wrap; }
+
+    .btn {
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 14px;
+      cursor: pointer;
+      background: #fff;
+    }
+
+    .btn-primary { background: #6f2dbd; color: #fff; border-color: #6f2dbd; }
+    .btn-primary:hover { opacity: 0.92; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    #chat { margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee; }
+
+    .msg { margin: 16px 0; line-height: 1.5; padding-bottom: 12px; border-bottom: 1px solid #eee; }
+    .msg:last-child { border-bottom: none; }
+
+    .ai-pack {
+      border: 1px solid #eee;
+      border-radius: 14px;
+      padding: 12px;
+      background: #fff;
+      margin-top: 10px;
+    }
+
+    .ai-pack-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .ai-pack-title b { font-weight: 800; }
+    .ai-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .mini-btn {
+      border: 1px solid #ddd;
       border-radius: 10px;
+      padding: 6px 10px;
       font-size: 12px;
-      font-weight: 700;
-      line-height: 1.25;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.18);
-      white-space: normal;
-    }
-    .act-btn[data-tip]:hover::before{
-      content:"";
-      position:absolute;
-      left: 18px;
-      top: calc(100% + 2px);
-      border: 6px solid transparent;
-      border-bottom-color:#111;
+      cursor: pointer;
+      background: #fff;
     }
 
-    /* Modes */
-    .mode-wrap { margin-top:10px; }
-    .mode-grid { display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; }
-    @media (max-width: 820px) { .mode-grid { grid-template-columns: 1fr; } }
-    .mode-btn { border:1px solid #ddd; background:#fff; border-radius:14px; padding:12px; cursor:pointer; text-align:left; }
-    .mode-btn:hover { border-color:#bbb; }
-    .mode-btn.active { border-color:#6F2DBD; box-shadow:0 0 0 3px rgba(111,45,189,0.12); }
-    .mode-name { font-weight:900; font-size:13px; margin:0 0 6px 0; display:flex; gap:8px; align-items:center; }
-    .mode-sub { font-size:12px; color:#666; margin:0; line-height:1.25; }
-    .mode-tag { font-size:11px; background:#f2f2f2; border-radius:999px; padding:2px 8px; font-weight:900; color:#333; }
+    .save-btn { background: #3a3a3a; color: #fff; border-color: #3a3a3a; }
+    .save-btn:hover { background: #d9d9d9; color: #000; border-color: #d9d9d9; }
 
-    /* Lenses */
-    .lens-wrap { margin-top:12px; }
-    .lens-grid { display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
-    @media (max-width: 820px) { .lens-grid { grid-template-columns: 1fr; } }
-    .lens { border:1px solid #eee; border-radius:12px; padding:10px; background:#fafafa; display:flex; align-items:flex-start; gap:10px; }
-    .lens input { margin-top:2px; }
-    .lens b { font-size:12px; }
-    .lens small { display:block; color:#666; margin-top:4px; line-height:1.25; }
+    .copy-btn:hover { background: #f2f2f2; }
 
-    /* Actions */
-    .actions { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:12px; }
-    .btn { border:1px solid #ddd; background:#fff; border-radius:12px; padding:10px 12px; font-weight:900; cursor:pointer; font-size:13px; }
-    .btn:hover { border-color:#bbb; }
-    .btn-primary { background:#6F2DBD; border-color:#6F2DBD; color:#fff; }
-    .btn-primary:hover { filter: brightness(0.98); }
-    .btn-muted { background:#f6f6f6; }
+    .word-btn { background: #111; color: #fff; border-color: #111; }
+    .word-btn:hover { opacity: 0.9; }
 
-    /* Presentation row */
-    .present-row { display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-top:10px; padding-top:10px; border-top:1px solid #eee; }
-    .present-row .field { display:flex; align-items:center; gap:10px; font-size:12px; color:#555; font-weight:900; }
-    .present-row select { width:auto; padding:8px 10px; border-radius:10px; font-size:12px; }
-    #logoStatus { font-size:12px; color:#666; font-weight:800; }
+    .ppt-btn { background: #0a0a0a; color: #fff; border-color: #0a0a0a; }
+    .ppt-btn:hover { opacity: 0.9; }
 
-    /* Usage */
-    .usage { margin-top:10px; font-size:12px; color:#666; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-    .bar { width:200px; height:8px; border-radius:999px; background:#eee; overflow:hidden; }
-    .bar > div { height:100%; width:0%; background:#6F2DBD; }
+    .ai-content { margin-top: 4px; }
+    .ai-h { display: block; font-weight: 800; margin: 10px 0 6px 0; }
+    .ai-gap { height: 8px; }
 
-    /* Chat */
-    #chat { margin-top:14px; }
-    .msg { margin:16px 0; line-height:1.5; padding-bottom:12px; border-bottom:1px solid #eee; }
-    .msg:last-child { border-bottom:none; }
-    .ai-header { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:8px; }
-    .ai-actions { display:flex; gap:8px; flex-wrap:wrap; }
-
-    .mini-btn { border:1px solid #ddd; background:#fff; border-radius:10px; padding:6px 10px; font-size:12px; cursor:pointer; font-weight:900; }
-    .mini-btn:hover { border-color:#bbb; }
-    .save-btn { background:#2f2f2f; color:#fff; border-color:#2f2f2f; }
-    .save-btn:hover { background:#d8d8d8; color:#000; border-color:#d8d8d8; }
-    .ppt-btn { background:#0a0a0a; color:#fff; border-color:#0a0a0a; }
-    .ppt-btn:hover { opacity:0.9; }
-
-    /* Reply formatting */
-    .ai-content { font-size:14px; }
-    .ai-h { font-weight:900; margin:10px 0 6px 0; }
-    .ai-gap { height:8px; }
+    .micro { font-size: 11px; color: #666; margin-top: 4px; line-height: 1.25; }
+    .micro-inline { font-size: 11px; color: #666; margin-left: 6px; line-height: 1.25; }
+    .note { font-size: 12px; color: #666; margin-top: 10px; }
   </style>
 </head>
 
 <body>
   <div class="wrap">
-    <div class="card">
-      <div class="title">
-        <h1>Lesson Designer</h1>
-        <div class="tier-pill" id="tierPill">EXPLORER</div>
+    <div class="topbar">
+      <div>
+        <h1 class="title">FEthink – Lesson Designer</h1>
+        <p class="meta">Explorer assistant with activity buttons, packs, quality lenses & artefact outputs</p>
       </div>
-
-      <div class="row">
-        <div>
-          <label for="subject">Subject</label>
-          <select id="subject"></select>
-        </div>
-
-        <div>
-          <label>Activity type (choose one)</label>
-          <div class="activity-grid" id="activityGrid"></div>
-          <div style="font-size:12px;color:#666;margin-top:6px;">
-            Selected: <b id="activitySelected">None</b>
-          </div>
-        </div>
-      </div>
-
-      <div class="mode-wrap">
-        <label>Output mode</label>
-        <div class="mode-grid" id="modeGrid"></div>
-      </div>
-
-      <div class="lens-wrap">
-        <label>Quality lenses (optional)</label>
-        <div class="lens-grid" id="lensGrid"></div>
-      </div>
-
-      <div style="margin-top:12px;">
-        <label for="input">Your request</label>
-        <textarea id="input" placeholder="Type what you want the Lesson Designer to produce…"></textarea>
-      </div>
-
-      <div class="actions">
-        <button class="btn btn-primary" id="sendBtn">Send</button>
-        <button class="btn btn-muted" id="clearBtn">Clear</button>
-      </div>
-
-      <div class="present-row">
-        <div class="field">
-          Slide theme:
-          <select id="pptTheme">
-            <option value="light" selected>Light</option>
-            <option value="dark">Dark</option>
-          </select>
-        </div>
-
-        <div class="field">
-          School logo:
-          <input id="logoInput" type="file" accept="image/png,image/jpeg" />
-          <span id="logoStatus">No logo uploaded</span>
-        </div>
-      </div>
-
       <div class="usage">
-        <span>Usage: <b id="usedCount">0</b>/<b id="limitCount">0</b></span>
-        <div class="bar" aria-hidden="true"><div id="usageBar"></div></div>
-        <span id="usageNote"></span>
+        Today: <b><span id="used-count">0</span></b> / <span id="limit-count">—</span>
+      </div>
+    </div>
+
+    <div class="row row-2">
+      <div>
+        <label for="subject">Subject</label>
+        <select id="subject">
+          <option>Biology</option>
+          <option>Business</option>
+          <option>Chemistry</option>
+          <option>Construction</option>
+          <option>Employability</option>
+          <option>Engineering</option>
+          <option>English</option>
+          <option>Environmental Science</option>
+          <option>Hair &amp; Beauty</option>
+          <option>Health &amp; Social Care</option>
+          <option>History</option>
+          <option>Maths</option>
+          <option>Motor Vehicle</option>
+          <option>Public Services</option>
+          <option>Psychology</option>
+          <option>Sociology</option>
+          <option>Special Educational Needs</option>
+          <option>Travel &amp; Tourism</option>
+        </select>
       </div>
 
-      <div id="chat"></div>
+      <div>
+        <label>Activity type (choose one)</label>
+        <div class="chip-grid" id="activityChips"></div>
+        <div class="micro" id="activityMicro"></div>
+      </div>
+    </div>
+
+    <label>Output pack (choose one)</label>
+    <div class="chip-grid" id="packChips"></div>
+    <div class="micro" id="packMicro"></div>
+
+    <label>Quality lenses (optional but recommended)</label>
+    <div class="lens-row">
+      <label class="lens">
+        <input type="checkbox" id="lens-send">
+        SEND / EAL scaffolding
+        <span class="micro-inline">— scaffolds + glossary + sentence starters</span>
+      </label>
+
+      <label class="lens">
+        <input type="checkbox" id="lens-assess">
+        Assessment alignment
+        <span class="micro-inline">— success criteria + checkpoints</span>
+      </label>
+
+      <label class="lens">
+        <input type="checkbox" id="lens-cog">
+        Cognitive load clarity
+        <span class="micro-inline">— chunking + reduced overload</span>
+      </label>
+
+      <label class="lens">
+        <input type="checkbox" id="lens-access">
+        Plain language &amp; accessibility
+        <span class="micro-inline">— readable formatting + shorter sentences</span>
+      </label>
+    </div>
+
+    <label for="input">What do you want to generate?</label>
+    <textarea id="input" placeholder="Example: Generate materials for a lesson on social class and education. Include a starter, main tasks, differentiation and a 5-minute exit ticket."></textarea>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="sendBtn">Send</button>
+      <button class="btn" id="presetBtn">Use activity preset</button>
+      <button class="btn" id="clearBtn">Clear</button>
+    </div>
+
+    <div id="chat"></div>
+
+    <div class="note">
+      This widget reads tier + token from the iframe URL (e.g. <b>?tier=explorer&amp;token=...</b>).
     </div>
   </div>
 
   <script>
-    // Query-string first (required for Payhip iframe)
-    function readQuery() {
-      const p = new URLSearchParams(window.location.search || "");
-      return { tier: (p.get("tier") || "").trim(), token: (p.get("token") || "").trim() };
+    const params = new URLSearchParams(window.location.search);
+    const tier = params.get("tier") || "explorer";
+    const token = params.get("token") || "";
+
+    const activities = [
+      "Full lesson","10-minute tasks","Assessment Task","Blended Learning","CPD activity","Field trip",
+      "Group Activity","Icebreaker","Learning game","Lesson Closer","Lesson Plan","Presentation slides",
+      "Practice Tasks","Progress review","Questioning","Research Project","Revision Support","Scheme of Work","Theory Class"
+    ];
+
+    const activityDescriptions = {
+      "Full lesson":"A complete session build: outcomes → teaching sequence → tasks → differentiation → checks.",
+      "10-minute tasks":"Short, focused tasks with quick checks and answers.",
+      "Assessment Task":"A full assessment task brief (student-facing) with marking guidance.",
+      "Blended Learning":"Online + in-class + follow-up structure.",
+      "CPD activity":"Staff CPD session plan with outcomes and action planning.",
+      "Field trip":"Pre / during / post visit learning plan.",
+      "Group Activity":"Structured collaborative task with roles and accountability.",
+      "Icebreaker":"Fast starter activity with debrief prompts.",
+      "Learning game":"Rules-based learning game with differentiation.",
+      "Lesson Closer":"Plenary options + exit ticket.",
+      "Lesson Plan":"Standard lesson plan structure and timings.",
+      "Presentation slides":"Slides-only output (copy-ready) with speaker notes.",
+      "Practice Tasks":"Three-level practice set with answers and common errors.",
+      "Progress review":"Review conversation script + targets and next steps.",
+      "Questioning":"Tiered questioning set including hinge questions.",
+      "Research Project":"Project brief, milestones, timeline and criteria.",
+      "Revision Support":"Knowledge organiser + retrieval quiz + misconceptions.",
+      "Scheme of Work":"4-week mini SOW with sequencing and assessment point.",
+      "Theory Class":"Chunked instruction + guided practice + independent application."
+    };
+
+    const activitySpecs = {
+      "Full lesson":`
+You must create a complete, end-to-end lesson build. Include:
+- A clear topic focus and level/assumed prior knowledge
+- Learning outcomes (3–5, measurable)
+- Starter (5–10 mins) with exact instructions
+- Main learning sequence with at least 2 core learning tasks
+- Guided practice and independent practice
+- Differentiation (SEND/EAL and Stretch & Challenge)
+- Check for understanding during lesson (hinge questions / mini checkpoint)
+- Lesson closer + exit ticket
+- Resources list and teacher notes
+`.trim(),
+      "Lesson Plan":`Deliver a full lesson plan with timings, differentiation, checks for understanding and resources.`.trim()
+      // (Other activity specs omitted here because your existing prompt already enforces structure via packs)
+    };
+
+    function getPresetPrompt(subject, activity) {
+      if (activity === "Full lesson") {
+        return `Create a FULL LESSON for ${subject}.
+- Audience: FE mixed ability with SEND/EAL scaffolds + stretch & challenge
+- Duration: 60 minutes
+- Include AfL checkpoints, hinge questions, exit ticket
+- Provide step-by-step teacher instructions and expected learner outputs.`;
+      }
+      return `Generate a ${activity} for ${subject}. Make it specific and classroom-ready.`;
     }
-    const q = readQuery();
-    const tier = (q.tier || window.FETHINK_TIER || "explorer").toString().toLowerCase();
-    const token = (q.token || window.FETHINK_TOKEN || "").toString().trim();
 
-    document.getElementById("tierPill").textContent = tier.toUpperCase();
+    const packs = ["Standard output","Teacher Pack","Assessment & Marking Pack"];
+    const packDescriptions = {
+      "Standard output":"Fast structured support for the selected activity.",
+      "Teacher Pack":"Premium artefacts: outcomes + activity task + slides + handout + checks + teacher notes.",
+      "Assessment & Marking Pack":"Premium artefacts: brief + rubric + exemplars + feedback bank + marking workflow."
+    };
 
-    const subjectEl = document.getElementById("subject");
-    const activityGrid = document.getElementById("activityGrid");
-    const activitySelectedEl = document.getElementById("activitySelected");
-    const modeGrid = document.getElementById("modeGrid");
-    const lensGrid = document.getElementById("lensGrid");
+    const activityChips = document.getElementById("activityChips");
+    const packChips = document.getElementById("packChips");
+    const activityMicro = document.getElementById("activityMicro");
+    const packMicro = document.getElementById("packMicro");
+
+    let selectedActivity = activities[0];
+    let selectedPack = packs[0];
+
+    function renderActivityChips() {
+      activityChips.innerHTML = "";
+      activities.forEach(a => {
+        const btn = document.createElement("div");
+        btn.className = "chip" + (a === selectedActivity ? " selected" : "");
+        btn.textContent = a;
+        btn.onclick = () => { selectedActivity = a; renderActivityChips(); };
+        activityChips.appendChild(btn);
+      });
+      activityMicro.textContent = activityDescriptions[selectedActivity] || "";
+    }
+
+    function renderPackChips() {
+      packChips.innerHTML = "";
+      packs.forEach(p => {
+        const btn = document.createElement("div");
+        btn.className = "chip" + (p === selectedPack ? " selected" : "");
+        btn.textContent = p;
+        btn.onclick = () => { selectedPack = p; renderPackChips(); };
+        packChips.appendChild(btn);
+      });
+      packMicro.textContent = packDescriptions[selectedPack] || "";
+    }
+
+    renderActivityChips();
+    renderPackChips();
+
     const input = document.getElementById("input");
     const chat = document.getElementById("chat");
+    const sendBtn = document.getElementById("sendBtn");
+    const presetBtn = document.getElementById("presetBtn");
+    const clearBtn = document.getElementById("clearBtn");
 
-    const usedCount = document.getElementById("usedCount");
-    const limitCount = document.getElementById("limitCount");
-    const usageBar = document.getElementById("usageBar");
-    const usageNote = document.getElementById("usageNote");
-
-    // PPT options
-    let logoDataUrl = null;
-
-    const subjects = [
-      "Art & Design","Biology","Business","Chemistry","Construction","Engineering","English","Employability",
-      "Environmental Science","Hair & Beauty","Health & Social Care","History","Maths","Motor Vehicle",
-      "Public Services","Psychology","Sociology","Special Educational Needs","Travel & Tourism"
-    ].sort((a,b)=>a.localeCompare(b));
-
-    // Activities (A–Z) + micro tooltips
-    const activities = [
-      { name:"10-minute tasks", tip:"Three tight micro-activities you can drop into any lesson (10 mins each)." },
-      { name:"Assessment Task", tip:"A ready-to-run assessment brief with criteria, mark scheme and misconceptions." },
-      { name:"Blended Learning", tip:"Online + classroom phases with clear student instructions and checks for learning." },
-      { name:"CPD Activity", tip:"A short staff CPD session plan with facilitation steps and reflection prompts." },
-      { name:"Field Trip", tip:"Trip plan: objectives, itinerary, learning tasks, follow-up assessment and logistics prompts." },
-      { name:"Full Lesson", tip:"A complete lesson package: outcomes, plan, slides w/ notes, handout + assessment exit task." },
-      { name:"Group Activity", tip:"Structured group task with roles, resources, timings and accountability." },
-      { name:"Icebreaker", tip:"A topic-linked starter that primes key concepts (not generic)." },
-      { name:"Learning Game", tip:"A classroom-safe game with rules, resources and learning checks." },
-      { name:"Lesson Closer", tip:"A purposeful plenary: synthesis + reflection + exit check." },
-      { name:"Lesson Plan", tip:"A full timed lesson plan with teacher prompts and differentiation." },
-      { name:"Practice Tasks", tip:"Practice set (easy→hard) with answers, scaffolds and extensions." },
-      { name:"Presentation Slides", tip:"A PowerPoint-ready slide sequence with speaker notes." },
-      { name:"Progress Review", tip:"A progress review template: evidence prompts, targets and next steps." },
-      { name:"Questioning", tip:"A questioning plan incl. hinge questions and misconception checks." },
-      { name:"Research Project", tip:"Project brief with milestones, sources guidance and rubric." },
-      { name:"Revision Support", tip:"Revision pack with retrieval, model answers and spacing schedule." },
-      { name:"Scheme of Work", tip:"A 4-lesson mini scheme: sequencing, retrieval and assessment points." },
-      { name:"Theory Class", tip:"Theory-heavy session: explanations, examples, checks and practice." }
-    ].sort((a,b)=>a.name.localeCompare(b.name));
-
-    const modes = [
-      { key:"standard", name:"Standard output", tag:"Fast", sub:"One high-quality teaching resource aligned to your activity." },
-      { key:"teacher_pack", name:"Teacher pack", tag:"Artefacts", sub:"Outcomes + slides (with notes) + handout + assessment materials." },
-      { key:"assessment_pack", name:"Assessment & marking pack", tag:"Rigorous", sub:"Assessment + rubric + mark scheme + feedback bank + moderation notes." }
-    ];
-
-    const lenses = [
-      { key:"accessibility", title:"Accessibility & inclusion", desc:"Chunking, scaffolds, SEND-friendly options, clear instructions." },
-      { key:"challenge", title:"Stretch & challenge", desc:"Higher-order questions, extensions, deeper conceptual prompts." },
-      { key:"assessment", title:"Assessment quality", desc:"Hinge questions, misconceptions, success criteria, validity checks." },
-      { key:"practicality", title:"Practical delivery", desc:"Timings, routines, resources, differentiation, realistic workload." }
-    ];
-
-    let selectedActivity = "";
-    let selectedMode = "standard";
-    const selectedLenses = new Set();
-
-    // Logo upload
-    const logoInput = document.getElementById("logoInput");
-    const logoStatus = document.getElementById("logoStatus");
-    if (logoInput) {
-      logoInput.addEventListener("change", () => {
-        const file = logoInput.files && logoInput.files[0];
-        if (!file) { logoDataUrl = null; logoStatus.textContent = "No logo uploaded"; return; }
-        const reader = new FileReader();
-        reader.onload = () => { logoDataUrl = reader.result; logoStatus.textContent = `Logo loaded: ${file.name}`; };
-        reader.readAsDataURL(file);
-      });
-    }
-
-    function fillSubjects() {
-      subjectEl.innerHTML = "";
-      for (const s of subjects) {
-        const opt = document.createElement("option");
-        opt.value = s; opt.textContent = s;
-        subjectEl.appendChild(opt);
-      }
-      subjectEl.value = "Sociology";
-    }
-
-    function fillActivities() {
-      activityGrid.innerHTML = "";
-      activities.forEach(a => {
-        const b = document.createElement("button");
-        b.type = "button";
-        b.className = "act-btn";
-        b.textContent = a.name;
-        b.setAttribute("data-tip", a.tip);
-        b.onclick = () => {
-          selectedActivity = a.name;
-          [...activityGrid.querySelectorAll(".act-btn")].forEach(x => x.classList.remove("active"));
-          b.classList.add("active");
-          activitySelectedEl.textContent = a.name;
-        };
-        activityGrid.appendChild(b);
-      });
-
-      const def = "Lesson Plan";
-      const btns = [...activityGrid.querySelectorAll(".act-btn")];
-      (btns.find(x => x.textContent === def) || btns[0]).click();
-    }
-
-    function fillModes() {
-      modeGrid.innerHTML = "";
-      modes.forEach(m => {
-        const d = document.createElement("div");
-        d.className = "mode-btn";
-        d.innerHTML = `
-          <div class="mode-name">${m.name} <span class="mode-tag">${m.tag}</span></div>
-          <p class="mode-sub">${m.sub}</p>
-        `;
-        d.onclick = () => {
-          selectedMode = m.key;
-          [...modeGrid.querySelectorAll(".mode-btn")].forEach(x => x.classList.remove("active"));
-          d.classList.add("active");
-        };
-        modeGrid.appendChild(d);
-      });
-      modeGrid.querySelectorAll(".mode-btn")[0].classList.add("active");
-    }
-
-    function fillLenses() {
-      lensGrid.innerHTML = "";
-      lenses.forEach(l => {
-        const wrap = document.createElement("div");
-        wrap.className = "lens";
-        wrap.innerHTML = `
-          <input type="checkbox" id="lens_${l.key}" />
-          <div><b>${l.title}</b><small>${l.desc}</small></div>
-        `;
-        const cb = wrap.querySelector("input");
-        cb.onchange = () => cb.checked ? selectedLenses.add(l.key) : selectedLenses.delete(l.key);
-        lensGrid.appendChild(wrap);
-      });
-    }
-
-    // Prompt builders
-    function lensesBlock() {
-      if (!selectedLenses.size) return "";
-      const mapping = {
-        accessibility: "Accessibility & inclusion: chunking; plain English; SEND-friendly scaffolds; alternative response modes.",
-        challenge: "Stretch & challenge: higher-order questions; extension; deeper conceptual prompts.",
-        assessment: "Assessment quality: hinge questions; misconceptions; success criteria; valid checks for learning.",
-        practicality: "Practical delivery: realistic timings; minimal prep; routines; resources list."
-      };
-      const lines = [...selectedLenses].map(k => `- ${mapping[k] || k}`);
-      return `QUALITY LENSES (apply):\n${lines.join("\n")}\n`;
-    }
-
-    function modeRules(modeKey) {
-      if (modeKey === "teacher_pack") {
-        return `
-OUTPUT MODE: TEACHER PACK
-You MUST produce these artefacts as distinct sections with headings:
-## 1) Learning Outcomes
-## 2) Teacher Lesson Plan (timed steps)
-## 3) Student Handout (print-ready)
-## 4) Assessment (task + success criteria)
-## 5) Slides (PowerPoint-ready) WITH speaker notes using EXACT format:
-Slide 1: Title
-- bullet
-- bullet
-Speaker notes: ...
-Slide 2: ...
-## 6) Homework / extension
-Rules:
-- Avoid long paragraphs; use bullets.
-- Handout must be visually spaced, student-friendly.
-`;
-      }
-      if (modeKey === "assessment_pack") {
-        return `
-OUTPUT MODE: ASSESSMENT & MARKING PACK
-You MUST produce:
-## 1) Assessment brief
-## 2) Success criteria (student-friendly)
-## 3) Mark scheme / rubric (levels + descriptors)
-## 4) Model exemplar (short but high-quality)
-## 5) Feedback bank (ready-to-use)
-## 6) Misconceptions + fixes
-## 7) Moderation notes
-`;
-      }
-      return `
-OUTPUT MODE: STANDARD
-Produce:
-## Title
-## Purpose (1 sentence)
-## Steps / guidance
-## Differentiation
-## Quick check for understanding
-`;
-    }
-
-    function activityPreset(activity) {
-      // very specific prompts per activity (not generic)
-      const map = Object.fromEntries(activities.map(a => [a.name, a.tip]));
-      return map[activity] || "Create a high-quality teaching resource aligned to the chosen activity type.";
-    }
-
-    function buildPrompt(userQuestion) {
-      const subject = subjectEl.value;
-      const activity = selectedActivity || "Lesson Plan";
-
-      const globalRules = `
-You are FEthink Lesson Designer for UK FE/HE educators.
-GLOBAL RESPONSE RULES:
-- Use clear headings (## or ###)
-- Use bullet points where appropriate
-- Keep language plain and accessible
-- Avoid long paragraphs
-- Make outputs ready to use in teaching
-`;
-
-      return `${globalRules}
-CONTEXT:
-Subject: ${subject}
-Activity type: ${activity}
-
-TASK:
-${activityPreset(activity)}
-
-${lensesBlock()}
-${modeRules(selectedMode)}
-
-USER REQUEST:
-${userQuestion}
-`;
-    }
-
-    // Formatting helpers
-    function escapeHtml(s) {
+    function escapeHTML(s) {
       return (s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
     }
-    function formatReplyToHtml(rawEscaped) {
-      return rawEscaped
-        .replace(/^### (.*)$/gm, `<div class="ai-h">$1</div>`)
-        .replace(/^## (.*)$/gm, `<div class="ai-h">$1</div>`)
-        .replace(/^# (.*)$/gm, `<div class="ai-h">$1</div>`)
-        .replace(/\n{2,}/g, `<div class="ai-gap"></div>`)
+
+    function formatAI(markdownText) {
+      const safe = escapeHTML(markdownText);
+      return safe
+        .replace(/^### (.*)$/gm, '<span class="ai-h">$1</span>')
+        .replace(/^## (.*)$/gm, '<span class="ai-h">$1</span>')
+        .replace(/^# (.*)$/gm, '<span class="ai-h">$1</span>')
+        .replace(/\n\n/g, '<div class="ai-gap"></div>')
         .replace(/\n/g, "<br>");
     }
 
-    function extractSlidesTextFromReply(replyText) {
-      const idx = replyText.search(/^\s*Slide\s+1\b/im);
-      return (idx >= 0) ? replyText.slice(idx).trim() : "";
+    function updateUsage(used, limit) {
+      if (typeof used === "number") document.getElementById("used-count").textContent = used;
+      if (typeof limit === "number") document.getElementById("limit-count").textContent = limit;
     }
 
-    // AI card actions
-    function copyAIResponse(btn) {
-      const msg = btn.closest(".ai-msg");
-      const content = msg.querySelector(".ai-content");
-      navigator.clipboard.writeText(content.innerText || "");
-      btn.textContent = "Copied";
-      setTimeout(()=>btn.textContent="Copy", 900);
+    function copyFromElementText(btn, el) {
+      navigator.clipboard.writeText(el.innerText).then(() => {
+        btn.textContent = "Copied";
+        setTimeout(() => (btn.textContent = "Copy"), 900);
+      });
     }
 
-    function saveAIResponse(btn) {
-      const msg = btn.closest(".ai-msg");
-      const text = msg.querySelector(".ai-content").innerText || "";
-      const blob = new Blob([text], { type:"text/plain;charset=utf-8" });
+    function downloadTextAsFile(filename, text) {
+      const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href = url;
-      a.download = `FEthink-response-${new Date().toISOString().slice(0,10)}.txt`;
+      a.href = url; a.download = filename;
       document.body.appendChild(a); a.click(); a.remove();
       URL.revokeObjectURL(url);
     }
 
-    function downloadWord(btn) {
-      const msg = btn.closest(".ai-msg");
-      const htmlBody = msg.querySelector(".ai-content").innerHTML;
-      const html = `
-        <html><head><meta charset="utf-8"></head>
-        <body style="font-family:Calibri,Arial,sans-serif; line-height:1.4; font-size:12pt;">
-          ${htmlBody}
-        </body></html>
-      `;
-      const blob = new Blob([html], { type:"application/msword" });
+    function downloadWordFromText(filename, plainText) {
+      const html =
+        `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>` +
+        `<pre style="font-family:Calibri,Arial; white-space:pre-wrap; font-size:11pt; line-height:1.35;">${escapeHTML(plainText)}</pre>` +
+        `</body></html>`;
+      const blob = new Blob([html], { type: "application/msword;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href = url;
-      a.download = `FEthink-resource-${new Date().toISOString().slice(0,10)}.doc`;
+      a.href = url; a.download = filename;
       document.body.appendChild(a); a.click(); a.remove();
       URL.revokeObjectURL(url);
     }
 
-    async function downloadPptxFromSlides(btn, rawReplyText, subtitle) {
-      const slidesText = extractSlidesTextFromReply(rawReplyText);
-      if (!slidesText) { alert("No slide section found. Use Teacher pack or Presentation Slides."); return; }
+    function parseArtefacts(rawText) {
+      const text = rawText || "";
+      const re = /\[\[ARTEFACT:\s*([^\]]+)\]\]([\s\S]*?)\[\[\/ARTEFACT\]\]/g;
+      const artefacts = [];
+      let m;
+      while ((m = re.exec(text)) !== null) {
+        const name = (m[1] || "").trim();
+        const content = (m[2] || "").trim();
+        if (name && content) artefacts.push({ name, content });
+      }
+      return artefacts;
+    }
 
+    function safeFileStem(s) {
+      return (s || "artefact").toLowerCase()
+        .replace(/&/g,"and").replace(/[^a-z0-9]+/g,"-")
+        .replace(/(^-|-$)/g,"").slice(0,48);
+    }
+
+    async function downloadPptxFromSlides(btn, slidesText, subtitle) {
       const old = btn.textContent;
       btn.textContent = "Building…";
       btn.disabled = true;
 
       try {
-        const theme = (document.getElementById("pptTheme")?.value || "light");
         const res = await fetch("/pptx", {
-          method:"POST",
-          headers:{ "Content-Type":"application/json" },
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            tier, token,
+            tier,
+            token,
             slidesText,
-            deckTitle: "FEthink – Lesson Slides",
-            subtitle: subtitle || "",
-            theme,
-            logoDataUrl
+            deckTitle: "FEthink – Slides",
+            subtitle
           })
         });
 
         if (!res.ok) {
           let msg = "PPT export failed.";
-          try { const j = await res.json(); msg = j.error || j.reply || msg; } catch {}
+          try {
+            const j = await res.json();
+            if (j && j.error) msg = j.error;
+          } catch {}
           alert(msg);
           return;
         }
@@ -541,8 +452,10 @@ ${userQuestion}
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `FEthink-slides-${new Date().toISOString().slice(0,10)}.pptx`;
-        document.body.appendChild(a); a.click(); a.remove();
+        a.download = `FEthink-slides.pptx`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
         URL.revokeObjectURL(url);
       } finally {
         btn.textContent = old;
@@ -550,121 +463,263 @@ ${userQuestion}
       }
     }
 
-    function renderAIMessage(reply, meta) {
-      const safe = escapeHtml(reply || "");
-      const formatted = formatReplyToHtml(safe);
+    function renderArtefactCard(label, contentText, subtitle) {
+      const formatted = formatAI(contentText);
+      const stem = safeFileStem(label);
 
       const wrapper = document.createElement("div");
-      wrapper.className = "msg ai-msg";
-      wrapper.dataset.raw = reply || "";
+      wrapper.className = "ai-pack";
+      wrapper.dataset.raw = contentText;
 
       const header = document.createElement("div");
-      header.className = "ai-header";
-      header.innerHTML = `<b>AI:</b>`;
+      header.className = "ai-pack-title";
+      header.innerHTML = `<b>${escapeHTML(label)}</b>`;
 
       const actions = document.createElement("div");
       actions.className = "ai-actions";
 
       const copyBtn = document.createElement("button");
-      copyBtn.className = "mini-btn";
+      copyBtn.className = "mini-btn copy-btn";
       copyBtn.textContent = "Copy";
-      copyBtn.onclick = () => copyAIResponse(copyBtn);
 
       const saveBtn = document.createElement("button");
       saveBtn.className = "mini-btn save-btn";
       saveBtn.textContent = "Save";
-      saveBtn.onclick = () => saveAIResponse(saveBtn);
 
       const wordBtn = document.createElement("button");
-      wordBtn.className = "mini-btn";
+      wordBtn.className = "mini-btn word-btn";
       wordBtn.textContent = "Word";
-      wordBtn.onclick = () => downloadWord(wordBtn);
 
       actions.appendChild(copyBtn);
       actions.appendChild(saveBtn);
       actions.appendChild(wordBtn);
 
-      // Show PPT button when Slide 1 exists anywhere in reply (Teacher pack / Presentation Slides)
-      const isSlides = /^\s*Slide\s+1\b/im.test(reply || "");
-      if (isSlides) {
-        const pptBtn = document.createElement("button");
+      // PPT button only for Slides artefact
+      const isSlidesArtefact = /slides/i.test(label);
+      let pptBtn = null;
+      if (isSlidesArtefact) {
+        pptBtn = document.createElement("button");
         pptBtn.className = "mini-btn ppt-btn";
         pptBtn.textContent = "PPT";
-        pptBtn.onclick = () => downloadPptxFromSlides(pptBtn, wrapper.dataset.raw || "", meta || "");
         actions.appendChild(pptBtn);
       }
 
       header.appendChild(actions);
 
-      const content = document.createElement("div");
-      content.className = "ai-content";
-      content.innerHTML = formatted;
+      const body = document.createElement("div");
+      body.className = "ai-content";
+      body.innerHTML = formatted;
+
+      copyBtn.onclick = () => copyFromElementText(copyBtn, body);
+      saveBtn.onclick = () => downloadTextAsFile(`FEthink-${stem}.txt`, body.innerText);
+      wordBtn.onclick = () => downloadWordFromText(`FEthink-${stem}.doc`, body.innerText);
+
+      if (pptBtn) {
+        pptBtn.onclick = () => downloadPptxFromSlides(pptBtn, wrapper.dataset.raw || body.innerText, subtitle);
+      }
 
       wrapper.appendChild(header);
-      wrapper.appendChild(content);
-      chat.appendChild(wrapper);
+      wrapper.appendChild(body);
+      return wrapper;
     }
 
-    function renderUserMessage(text) {
-      const div = document.createElement("div");
-      div.className = "msg";
-      div.innerHTML = `<b>You:</b> ${escapeHtml(text)}`;
-      chat.appendChild(div);
-    }
+    function buildMessage(subject, question, lensText) {
+      const activitySpec = activitySpecs[selectedActivity] || "Follow the selected activity type with appropriate structure.";
 
-    function updateUsageUI(used, limit) {
-      if (typeof used !== "number" || typeof limit !== "number" || limit <= 0) {
-        usedCount.textContent="0"; limitCount.textContent="0"; usageBar.style.width="0%"; usageNote.textContent=""; return;
+      const baseRules = `
+You are FEthink’s Lesson Designer for educators.
+GLOBAL RULES:
+- Be specific to the subject and activity selected (do not produce generic output)
+- Use clear headings and short sections (no long paragraphs)
+- Provide step-by-step classroom-ready instructions
+- Keep language plain and accessible
+`.trim();
+
+      let responseFormat = `
+Response format:
+- Title
+- Purpose (1–2 sentences)
+- Steps / guidance in bullet points
+- Differentiation (SEND/EAL + stretch/challenge)
+- Quick check for understanding
+- Optional extension / variation
+`.trim();
+
+      if (selectedPack === "Teacher Pack") {
+        responseFormat = `
+Return EXACTLY these artefacts using the wrappers shown (do not add extra wrappers):
+
+[[ARTEFACT: Learning outcomes]]
+- 3–5 measurable, student-facing outcomes (Bloom verbs), aligned to the activity.
+[[/ARTEFACT]]
+
+[[ARTEFACT: Activity task]]
+Create the core activity task aligned to the selected activity type, including timings, learner instructions, expected output, and teacher guidance.
+[[/ARTEFACT]]
+
+[[ARTEFACT: Slides (copy-ready)]]
+SLIDES – PROFESSIONAL FORMAT
+For EACH slide include:
+Slide X: <title>
+Layout: ...
+- bullet
+- bullet
+Visual suggestion: ...
+Speaker notes: ...
+Keep to 8–12 slides unless activity is “Presentation slides” (then 8–10).
+[[/ARTEFACT]]
+
+[[ARTEFACT: Student handout (print-ready)]]
+Include plain-language explanation, key terms, short tasks/questions, space for answers/notes.
+[[/ARTEFACT]]
+
+[[ARTEFACT: Checks for understanding]]
+Include an in-lesson checkpoint + exit ticket (3 prompts) + quick marking guidance.
+[[/ARTEFACT]]
+
+[[ARTEFACT: Teacher notes]]
+Misconceptions, differentiation, pacing tips.
+[[/ARTEFACT]]
+`.trim();
       }
-      usedCount.textContent = String(used);
-      limitCount.textContent = String(limit);
-      const pct = Math.max(0, Math.min(100, Math.round((used/limit)*100)));
-      usageBar.style.width = pct + "%";
-      usageNote.textContent = (used >= limit) ? "Limit reached for today." : `${limit-used} remaining today.`;
+
+      if (selectedPack === "Assessment & Marking Pack") {
+        responseFormat = `
+Return EXACTLY these artefacts using the wrappers shown (do not add extra wrappers):
+
+[[ARTEFACT: Assessment learning outcomes]]
+3–5 measurable outcomes.
+[[/ARTEFACT]]
+
+[[ARTEFACT: Student assessment brief]]
+Student-facing brief with instructions and submission format.
+[[/ARTEFACT]]
+
+[[ARTEFACT: Mark scheme / rubric]]
+Criteria + what good looks like + pitfalls.
+[[/ARTEFACT]]
+
+[[ARTEFACT: Exemplars]]
+High exemplar + mid exemplar + short commentary.
+[[/ARTEFACT]]
+
+[[ARTEFACT: Feedback bank (copy/paste)]]
+10 strengths + 10 improvements + 10 next steps.
+[[/ARTEFACT]]
+
+[[ARTEFACT: Marking workflow (teacher guide)]]
+Fast marking process + moderation + checklist.
+[[/ARTEFACT]]
+
+[[ARTEFACT: Student improvement tasks (DIRT)]]
+3 short improvement tasks.
+[[/ARTEFACT]]
+`.trim();
+      }
+
+      return `
+${baseRules}
+
+Context:
+Subject: ${subject}
+Activity: ${selectedActivity}
+Output pack: ${selectedPack}
+Quality lenses: ${lensText}
+
+ACTIVITY REQUIREMENTS:
+${activitySpec}
+
+User request:
+${question}
+
+${responseFormat}
+`.trim();
     }
 
-    document.getElementById("sendBtn").onclick = async () => {
-      const qText = (input.value || "").trim();
-      if (!qText) return;
+    async function send() {
+      const subject = document.getElementById("subject").value;
+      const question = input.value.trim();
+      if (!question) return;
 
-      const subject = subjectEl.value;
-      const activity = selectedActivity || "Lesson Plan";
-      const subtitle = `${subject} • ${activity}`;
+      const lenses = [];
+      if (document.getElementById("lens-send").checked) lenses.push("SEND/EAL scaffolding");
+      if (document.getElementById("lens-assess").checked) lenses.push("Assessment alignment");
+      if (document.getElementById("lens-cog").checked) lenses.push("Cognitive load clarity");
+      if (document.getElementById("lens-access").checked) lenses.push("Plain language & accessibility");
+      const lensText = lenses.length ? lenses.join(", ") : "None selected";
 
-      renderUserMessage(qText);
+      const message = buildMessage(subject, question, lensText);
+      const subtitle = `Subject: ${subject} • Activity: ${selectedActivity} • Pack: ${selectedPack}`;
 
-      const prompt = buildPrompt(qText);
+      chat.innerHTML += `<div class="msg"><b>You:</b> ${escapeHTML(question)}</div>`;
+      input.value = "";
+      sendBtn.disabled = true;
+      presetBtn.disabled = true;
 
       try {
         const res = await fetch("/ask", {
-          method:"POST",
-          headers:{ "Content-Type":"application/json" },
-          body: JSON.stringify({ message: prompt, tier, token })
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message, tier, token })
         });
 
         const data = await res.json();
-        if (typeof data.used === "number" && typeof data.limit === "number") updateUsageUI(data.used, data.limit);
+        if (typeof data.used === "number" && typeof data.limit === "number") updateUsage(data.used, data.limit);
 
-        renderAIMessage(data.reply || "Temporary error. Please try again shortly.", subtitle);
+        const reply = data.reply || "";
+        const artefacts = parseArtefacts(reply);
+
+        if (artefacts.length > 0) {
+          const container = document.createElement("div");
+          container.className = "msg";
+
+          const header = document.createElement("div");
+          header.innerHTML = `<b>AI:</b> ${escapeHTML(selectedPack)} (${escapeHTML(selectedActivity)})`;
+          header.style.marginBottom = "8px";
+          container.appendChild(header);
+
+          artefacts.forEach(a => container.appendChild(renderArtefactCard(a.name, a.content, subtitle)));
+          chat.appendChild(container);
+        } else {
+          const formatted = formatAI(reply);
+          const wrapper = document.createElement("div");
+          wrapper.className = "msg ai-msg";
+          wrapper.innerHTML = `
+            <div class="ai-pack-title">
+              <b>AI:</b>
+              <div class="ai-actions">
+                <button class="mini-btn copy-btn">Copy</button>
+                <button class="mini-btn save-btn">Save</button>
+                <button class="mini-btn word-btn">Word</button>
+              </div>
+            </div>
+            <div class="ai-content">${formatted}</div>
+          `;
+
+          const body = wrapper.querySelector(".ai-content");
+          const [copyBtn, saveBtn, wordBtn] = wrapper.querySelectorAll("button");
+          copyBtn.onclick = () => copyFromElementText(copyBtn, body);
+          saveBtn.onclick = () => downloadTextAsFile("FEthink-response.txt", body.innerText);
+          wordBtn.onclick = () => downloadWordFromText("FEthink-response.doc", body.innerText);
+          chat.appendChild(wrapper);
+        }
       } catch {
-        renderAIMessage("Temporary error. Please try again shortly.", subtitle);
+        chat.innerHTML += `<div class="msg"><b>AI:</b> Temporary error. Please try again shortly.</div>`;
+      } finally {
+        sendBtn.disabled = false;
+        presetBtn.disabled = false;
       }
-    };
+    }
 
-    document.getElementById("clearBtn").onclick = () => {
-      input.value = "";
-      chat.innerHTML = "";
-      updateUsageUI(0,0);
-    };
+    presetBtn.addEventListener("click", () => {
+      const subject = document.getElementById("subject").value;
+      input.value = getPresetPrompt(subject, selectedActivity);
+      input.focus();
+    });
 
-    // Init
-    fillSubjects();
-    fillActivities();
-    fillModes();
-    fillLenses();
-    updateUsageUI(0,0);
-
-    console.log("Paid widget loaded:", { tier, token: token ? "(present)" : "(missing)" });
+    sendBtn.addEventListener("click", send);
+    input.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } });
+    clearBtn.addEventListener("click", () => { chat.innerHTML = ""; });
   </script>
 </body>
 </html>
