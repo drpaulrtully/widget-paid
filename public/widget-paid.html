@@ -53,12 +53,7 @@
     .row { display: grid; grid-template-columns: 1fr; gap: 10px; }
     @media (min-width: 760px) { .row-2 { grid-template-columns: 1fr 1fr; } }
 
-    .chip-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 6px;
-    }
+    .chip-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
 
     .chip {
       border: 1px solid #ddd;
@@ -72,18 +67,9 @@
     }
 
     .chip:hover { background: #f6f6f6; }
-    .chip.selected {
-      border-color: #6f2dbd;
-      background: rgba(111,45,189,0.10);
-      font-weight: 700;
-    }
+    .chip.selected { border-color: #6f2dbd; background: rgba(111,45,189,0.10); font-weight: 700; }
 
-    .lens-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 6px;
-    }
+    .lens-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
 
     .lens {
       display: flex;
@@ -115,15 +101,9 @@
 
     #chat { margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee; }
 
-    .msg {
-      margin: 16px 0;
-      line-height: 1.5;
-      padding-bottom: 12px;
-      border-bottom: 1px solid #eee;
-    }
+    .msg { margin: 16px 0; line-height: 1.5; padding-bottom: 12px; border-bottom: 1px solid #eee; }
     .msg:last-child { border-bottom: none; }
 
-    /* AI artefact cards */
     .ai-pack {
       border: 1px solid #eee;
       border-radius: 14px;
@@ -141,7 +121,6 @@
     }
 
     .ai-pack-title b { font-weight: 800; }
-
     .ai-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
     .mini-btn {
@@ -161,26 +140,15 @@
     .word-btn { background: #111; color: #fff; border-color: #111; }
     .word-btn:hover { opacity: 0.9; }
 
-    .ai-content { margin-top: 4px; }
+    .ppt-btn { background: #0a0a0a; color: #fff; border-color: #0a0a0a; }
+    .ppt-btn:hover { opacity: 0.9; }
 
-    /* Formatting */
+    .ai-content { margin-top: 4px; }
     .ai-h { display: block; font-weight: 800; margin: 10px 0 6px 0; }
     .ai-gap { height: 8px; }
 
-    /* Micro helper text (small, unobtrusive) */
-    .micro {
-      font-size: 11px;
-      color: #666;
-      margin-top: 4px;
-      line-height: 1.25;
-    }
-    .micro-inline {
-      font-size: 11px;
-      color: #666;
-      margin-left: 6px;
-      line-height: 1.25;
-    }
-
+    .micro { font-size: 11px; color: #666; margin-top: 4px; line-height: 1.25; }
+    .micro-inline { font-size: 11px; color: #666; margin-left: 6px; line-height: 1.25; }
     .note { font-size: 12px; color: #666; margin-top: 10px; }
   </style>
 </head>
@@ -190,7 +158,7 @@
     <div class="topbar">
       <div>
         <h1 class="title">FEthink – Lesson Designer</h1>
-        <p class="meta">Explorer / Pro assistant with activity buttons, packs, quality lenses & artefact outputs</p>
+        <p class="meta">Explorer assistant with activity buttons, packs, quality lenses & artefact outputs</p>
       </div>
       <div class="usage">
         Today: <b><span id="used-count">0</span></b> / <span id="limit-count">—</span>
@@ -282,51 +250,35 @@
     const token = params.get("token") || "";
 
     const activities = [
-      "Full lesson",
-      "10-minute tasks",
-      "Assessment Task",
-      "Blended Learning",
-      "CPD activity",
-      "Field trip",
-      "Group Activity",
-      "Icebreaker",
-      "Learning game",
-      "Lesson Closer",
-      "Lesson Plan",
-      "Presentation slides",
-      "Practice Tasks",
-      "Progress review",
-      "Questioning",
-      "Research Project",
-      "Revision Support",
-      "Scheme of Work",
-      "Theory Class"
+      "Full lesson","10-minute tasks","Assessment Task","Blended Learning","CPD activity","Field trip",
+      "Group Activity","Icebreaker","Learning game","Lesson Closer","Lesson Plan","Presentation slides",
+      "Practice Tasks","Progress review","Questioning","Research Project","Revision Support","Scheme of Work","Theory Class"
     ];
 
     const activityDescriptions = {
-      "Full lesson": "A complete session build: outcomes → teaching sequence → tasks → differentiation → checks.",
-      "10-minute tasks": "Short, focused tasks with quick checks and answers.",
-      "Assessment Task": "A full assessment task brief (student-facing) with marking guidance.",
-      "Blended Learning": "Online + in-class + follow-up structure.",
-      "CPD activity": "Staff CPD session plan with outcomes and action planning.",
-      "Field trip": "Pre / during / post visit learning plan.",
-      "Group Activity": "Structured collaborative task with roles and accountability.",
-      "Icebreaker": "Fast starter activity with debrief prompts.",
-      "Learning game": "Rules-based learning game with differentiation.",
-      "Lesson Closer": "Plenary options + exit ticket.",
-      "Lesson Plan": "Standard lesson plan structure and timings.",
-      "Presentation slides": "Slides-only output (copy-ready) with speaker notes.",
-      "Practice Tasks": "Three-level practice set with answers and common errors.",
-      "Progress review": "Review conversation script + targets and next steps.",
-      "Questioning": "Tiered questioning set including hinge questions.",
-      "Research Project": "Project brief, milestones, timeline and criteria.",
-      "Revision Support": "Knowledge organiser + retrieval quiz + misconceptions.",
-      "Scheme of Work": "4-week mini SOW with sequencing and assessment point.",
-      "Theory Class": "Chunked instruction + guided practice + independent application."
+      "Full lesson":"A complete session build: outcomes → teaching sequence → tasks → differentiation → checks.",
+      "10-minute tasks":"Short, focused tasks with quick checks and answers.",
+      "Assessment Task":"A full assessment task brief (student-facing) with marking guidance.",
+      "Blended Learning":"Online + in-class + follow-up structure.",
+      "CPD activity":"Staff CPD session plan with outcomes and action planning.",
+      "Field trip":"Pre / during / post visit learning plan.",
+      "Group Activity":"Structured collaborative task with roles and accountability.",
+      "Icebreaker":"Fast starter activity with debrief prompts.",
+      "Learning game":"Rules-based learning game with differentiation.",
+      "Lesson Closer":"Plenary options + exit ticket.",
+      "Lesson Plan":"Standard lesson plan structure and timings.",
+      "Presentation slides":"Slides-only output (copy-ready) with speaker notes.",
+      "Practice Tasks":"Three-level practice set with answers and common errors.",
+      "Progress review":"Review conversation script + targets and next steps.",
+      "Questioning":"Tiered questioning set including hinge questions.",
+      "Research Project":"Project brief, milestones, timeline and criteria.",
+      "Revision Support":"Knowledge organiser + retrieval quiz + misconceptions.",
+      "Scheme of Work":"4-week mini SOW with sequencing and assessment point.",
+      "Theory Class":"Chunked instruction + guided practice + independent application."
     };
 
     const activitySpecs = {
-      "Full lesson": `
+      "Full lesson":`
 You must create a complete, end-to-end lesson build. Include:
 - A clear topic focus and level/assumed prior knowledge
 - Learning outcomes (3–5, measurable)
@@ -338,171 +290,26 @@ You must create a complete, end-to-end lesson build. Include:
 - Lesson closer + exit ticket
 - Resources list and teacher notes
 `.trim(),
-      "Lesson Plan": `
-Deliver a full lesson plan with:
-- Timings for each phase
-- Teacher talk vs student task clarity
-- Materials/resources list
-- Differentiation and checks for understanding
-`.trim(),
-      "Scheme of Work": `
-Deliver a mini scheme of work (4 weeks) with:
-- Weekly focus and sequencing
-- Core knowledge and skills each week
-- Homework / independent study suggestions
-- Assessment point(s) and a review week
-`.trim(),
-      "Assessment Task": `
-Deliver an assessment-ready task with:
-- Student brief and instructions
-- Success criteria
-- Marking guidance / rubric outline
-- Model answer or exemplar outline
-`.trim(),
-      "Blended Learning": `
-Deliver a blended plan with:
-- Online pre-task (10–15 mins)
-- In-class active learning task
-- Post-task reflection or quiz
-- Clear tech/tools assumptions (keep generic)
-`.trim(),
-      "Questioning": `
-Deliver a questioning set with:
-- 10 questions from recall → analysis
-- 2 hinge questions
-- Misconceptions to probe
-- Suggested follow-ups based on common answers
-`.trim(),
-      "Group Activity": `
-Deliver a structured group task with:
-- Group roles
-- Step-by-step instructions
-- Expected outputs (what students produce)
-- Accountability check (how teacher verifies participation)
-`.trim(),
-      "Revision Support": `
-Deliver a revision resource with:
-- Key knowledge organiser bullets
-- Retrieval quiz (10 questions) with answers
-- 3 common misconceptions
-- A 10-minute recap routine
-`.trim(),
-      "Theory Class": `
-Deliver a theory lesson sequence with:
-- Direct instruction chunking
-- Guided practice
-- Independent application
-- Short assessment checkpoint
-`.trim(),
-      "Icebreaker": `
-Deliver a fast icebreaker with:
-- Setup (1 minute)
-- Activity steps (5–8 minutes)
-- Debrief questions (2–3)
-- Variation for shy learners
-`.trim(),
-      "Lesson Closer": `
-Deliver a lesson closer with:
-- Purpose (1 sentence)
-- Two closing activity choices (teacher picks one)
-- Exit ticket (3 prompts)
-- Teacher script (2–4 lines)
-`.trim(),
-      "Practice Tasks": `
-Deliver 3 practice tasks:
-- Task 1 (easy) + answers
-- Task 2 (medium) + answers
-- Task 3 (challenge) + answers
-Include common errors and fixes.
-`.trim(),
-      "Research Project": `
-Deliver a structured research project brief with:
-- Research question
-- Milestones and timeline
-- Sources guidance (types, not specific links)
-- Assessment criteria
-`.trim(),
-      "10-minute tasks": `
-Deliver 3 independent 10-minute tasks:
-For each:
-- Task + instructions
-- Expected student output
-- Quick check answer key
-`.trim(),
-      "Field trip": `
-Deliver a field trip learning plan with:
-- Pre-visit preparation
-- On-visit tasks (observations/questions)
-- Post-visit learning check or assessment
-- Risk/behaviour considerations (brief)
-`.trim(),
-      "Progress review": `
-Deliver a progress review structure with:
-- Learner self-review prompts
-- Teacher checklist
-- Next-step target setting
-- 5-minute script for the conversation
-`.trim(),
-      "Presentation slides": `
-Deliver slide content ONLY (no handout) with:
-- Slide-by-slide titles and bullets
-- Speaker notes
-Keep to 8–10 slides max.
-`.trim(),
-      "Learning game": `
-Deliver a classroom learning game with:
-- Objective
-- Rules
-- Setup time (max 5 mins)
-- Scoring/win conditions
-- Differentiation variation
-`.trim(),
-      "CPD activity": `
-Deliver a CPD session plan for staff with:
-- Outcomes for staff
-- Agenda and timings (45–60 mins)
-- Activity steps
-- Reflection and action planning
-`.trim()
+      "Lesson Plan":`Deliver a full lesson plan with timings, differentiation, checks for understanding and resources.`.trim()
+      // (Other activity specs omitted here because your existing prompt already enforces structure via packs)
     };
 
     function getPresetPrompt(subject, activity) {
       if (activity === "Full lesson") {
         return `Create a FULL LESSON for ${subject}.
-
-Context / constraints:
-- Audience: FE learners (mixed ability), include SEND/EAL scaffolds and stretch & challenge.
-- Duration: 60 minutes (adjust if needed but keep it realistic for FE).
-- Teaching style: active learning, clear instructions, low cognitive load.
-- Include assessment-for-learning checkpoints.
-
-Must include:
-- Lesson title + topic focus
-- 3–5 measurable learning outcomes
-- Starter (5–10 mins) with exact instructions and expected learner output
-- Main sequence with at least 2 core learning tasks (step-by-step)
-- Guided practice + independent practice
-- Differentiation: SEND/EAL + stretch & challenge
-- Check for understanding during the lesson (include hinge questions + what to do with answers)
-- Lesson closer + exit ticket
-- Resources list (generic, no external links required)
-- Teacher notes: misconceptions, pacing tips, what to look for in student work
-
-Also: keep everything ready-to-use in a classroom (no long essays).`;
+- Audience: FE mixed ability with SEND/EAL scaffolds + stretch & challenge
+- Duration: 60 minutes
+- Include AfL checkpoints, hinge questions, exit ticket
+- Provide step-by-step teacher instructions and expected learner outputs.`;
       }
-      return `Generate a ${activity} for ${subject}. Make it specific, classroom-ready, and include clear steps, timings where appropriate, and differentiation.`;
+      return `Generate a ${activity} for ${subject}. Make it specific and classroom-ready.`;
     }
 
-    const packs = [
-      "Standard output",
-      "Teacher Pack",
-      "Assessment & Marking Pack"
-    ];
-
+    const packs = ["Standard output","Teacher Pack","Assessment & Marking Pack"];
     const packDescriptions = {
-      "Standard output": "Fast structured support for the selected activity.",
-      "Teacher Pack": "Premium artefacts: outcomes + activity task + slides + handout + checks + teacher notes.",
-      "Assessment & Marking Pack": "Premium artefacts: brief + rubric + exemplars + feedback bank + marking workflow."
+      "Standard output":"Fast structured support for the selected activity.",
+      "Teacher Pack":"Premium artefacts: outcomes + activity task + slides + handout + checks + teacher notes.",
+      "Assessment & Marking Pack":"Premium artefacts: brief + rubric + exemplars + feedback bank + marking workflow."
     };
 
     const activityChips = document.getElementById("activityChips");
@@ -519,13 +326,10 @@ Also: keep everything ready-to-use in a classroom (no long essays).`;
         const btn = document.createElement("div");
         btn.className = "chip" + (a === selectedActivity ? " selected" : "");
         btn.textContent = a;
-        btn.onclick = () => {
-          selectedActivity = a;
-          renderActivityChips();
-        };
+        btn.onclick = () => { selectedActivity = a; renderActivityChips(); };
         activityChips.appendChild(btn);
       });
-      if (activityMicro) activityMicro.textContent = activityDescriptions[selectedActivity] || "";
+      activityMicro.textContent = activityDescriptions[selectedActivity] || "";
     }
 
     function renderPackChips() {
@@ -534,13 +338,10 @@ Also: keep everything ready-to-use in a classroom (no long essays).`;
         const btn = document.createElement("div");
         btn.className = "chip" + (p === selectedPack ? " selected" : "");
         btn.textContent = p;
-        btn.onclick = () => {
-          selectedPack = p;
-          renderPackChips();
-        };
+        btn.onclick = () => { selectedPack = p; renderPackChips(); };
         packChips.appendChild(btn);
       });
-      if (packMicro) packMicro.textContent = packDescriptions[selectedPack] || "";
+      packMicro.textContent = packDescriptions[selectedPack] || "";
     }
 
     renderActivityChips();
@@ -553,10 +354,7 @@ Also: keep everything ready-to-use in a classroom (no long essays).`;
     const clearBtn = document.getElementById("clearBtn");
 
     function escapeHTML(s) {
-      return (s || "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
+      return (s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
     }
 
     function formatAI(markdownText) {
@@ -585,210 +383,21 @@ Also: keep everything ready-to-use in a classroom (no long essays).`;
       const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click(); a.remove();
       URL.revokeObjectURL(url);
     }
 
-    // --- Word export: convert raw artefact text into styled Word-friendly HTML ---
-    function looksLikeTitle(line) {
-      const l = (line || "").trim();
-      if (!l) return false;
-      if (l.length > 72) return false;
-      // Strong signals:
-      if (/^SLIDES\b/i.test(l)) return true;
-      if (/^LEARNING OUTCOMES\b/i.test(l)) return true;
-      if (/^STUDENT HANDOUT\b/i.test(l)) return true;
-      if (/^CHECKS? FOR UNDERSTANDING\b/i.test(l)) return true;
-      if (/^TEACHER NOTES\b/i.test(l)) return true;
-      if (/^ASSESSMENT\b/i.test(l)) return true;
-      if (/^MARK SCHEME\b/i.test(l)) return true;
-      if (/^RUBRIC\b/i.test(l)) return true;
-      if (/^EXEMPLARS?\b/i.test(l)) return true;
-      if (/^FEEDBACK BANK\b/i.test(l)) return true;
-      // All-caps short line
-      if (l === l.toUpperCase() && /[A-Z]/.test(l) && l.length <= 40) return true;
-      return false;
-    }
-
-    function isSubhead(line) {
-      const l = (line || "").trim();
-      if (!l) return false;
-      if (l.length > 80) return false;
-      if (/^Slide\s+\d+\b/i.test(l)) return true;
-      if (/^Layout:\b/i.test(l)) return true;
-      if (/^Title:\b/i.test(l)) return true;
-      if (/^Purpose\b/i.test(l)) return true;
-      if (/^Resources?\b/i.test(l)) return true;
-      if (/^Visual suggestion\b/i.test(l)) return true;
-      if (/^Speaker notes\b/i.test(l)) return true;
-      if (/^Key terms\b/i.test(l)) return true;
-      if (/^Success criteria\b/i.test(l)) return true;
-      if (/^Common misconceptions\b/i.test(l)) return true;
-      if (/^Teacher notes\b/i.test(l)) return true;
-      if (/^Differentiation\b/i.test(l)) return true;
-      if (/^Exit ticket\b/i.test(l)) return true;
-      if (/^Checkpoint\b/i.test(l)) return true;
-      if (/:$/.test(l) && l.length <= 48) return true;
-      return false;
-    }
-
-    function toWordHtmlDocument(docTitle, subtitle, rawText) {
-      const lines = (rawText || "").replace(/\r\n/g, "\n").split("\n");
-
-      // Build HTML blocks
-      const out = [];
-      let inUl = false;
-      let inOl = false;
-      let inBox = false;
-
-      function closeLists() {
-        if (inUl) { out.push("</ul>"); inUl = false; }
-        if (inOl) { out.push("</ol>"); inOl = false; }
-      }
-      function closeBox() {
-        if (inBox) { closeLists(); out.push("</div>"); inBox = false; }
-      }
-
-      function openBox(kindLabel) {
-        closeBox();
-        inBox = true;
-        const label = kindLabel ? `<div class="box-title">${escapeHTML(kindLabel)}</div>` : "";
-        out.push(`<div class="box">${label}`);
-      }
-
-      // If we see “Key terms” or “Visual suggestion” or “Speaker notes”, use a box
-      const boxTriggers = [
-        { re: /^Key terms\b/i, label: "Key terms" },
-        { re: /^Visual suggestion\b/i, label: "Visual suggestion" },
-        { re: /^Speaker notes\b/i, label: "Speaker notes" },
-        { re: /^Teacher notes\b/i, label: "Teacher notes" },
-        { re: /^Common misconceptions\b/i, label: "Common misconceptions" }
-      ];
-
-      for (let i = 0; i < lines.length; i++) {
-        const raw = lines[i] || "";
-        const line = raw.trim();
-
-        // Blank line closes boxes/lists and adds spacing
-        if (!line) {
-          closeLists();
-          closeBox();
-          out.push(`<div class="sp"></div>`);
-          continue;
-        }
-
-        // Trigger boxes
-        const trig = boxTriggers.find(t => t.re.test(line));
-        if (trig) {
-          // Allow “Key terms:” same line content after colon
-          const parts = line.split(":");
-          openBox(trig.label);
-
-          if (parts.length > 1 && parts.slice(1).join(":").trim()) {
-            out.push(`<p>${escapeHTML(parts.slice(1).join(":").trim())}</p>`);
-          }
-          continue;
-        }
-
-        // Headings
-        if (looksLikeTitle(line)) {
-          closeLists();
-          closeBox();
-          out.push(`<h2>${escapeHTML(line)}</h2>`);
-          continue;
-        }
-
-        if (isSubhead(line)) {
-          closeLists();
-          // Keep inside a box if we are in one, otherwise normal subhead
-          out.push(`<h3>${escapeHTML(line.replace(/:$/, ""))}</h3>`);
-          continue;
-        }
-
-        // Bullets
-        if (/^[-•*]\s+/.test(line)) {
-          if (inOl) { out.push("</ol>"); inOl = false; }
-          if (!inUl) { out.push("<ul>"); inUl = true; }
-          out.push(`<li>${escapeHTML(line.replace(/^[-•*]\s+/, ""))}</li>`);
-          continue;
-        }
-
-        // Numbered list
-        if (/^\d+\.\s+/.test(line)) {
-          if (inUl) { out.push("</ul>"); inUl = false; }
-          if (!inOl) { out.push("<ol>"); inOl = true; }
-          out.push(`<li>${escapeHTML(line.replace(/^\d+\.\s+/, ""))}</li>`);
-          continue;
-        }
-
-        // Default paragraph
-        closeLists();
-        out.push(`<p>${escapeHTML(line)}</p>`);
-      }
-
-      // Close any open structures
-      closeLists();
-      closeBox();
-
-      // Word-friendly HTML document
+    function downloadWordFromText(filename, plainText) {
       const html =
-`<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<title>${escapeHTML(docTitle || "FEthink Artefact")}</title>
-<style>
-  /* Word-compatible styling (simple, no fancy CSS) */
-  body { font-family: Calibri, Aptos, Arial, sans-serif; font-size: 11pt; line-height: 1.35; color: #111; }
-  h1 { font-size: 18pt; margin: 0 0 6pt 0; font-weight: 700; }
-  .sub { margin: 0 0 12pt 0; font-size: 10pt; color: #555; }
-  h2 { font-size: 14pt; margin: 14pt 0 6pt 0; font-weight: 700; }
-  h3 { font-size: 11.5pt; margin: 10pt 0 4pt 0; font-weight: 700; }
-  p { margin: 0 0 6pt 0; }
-  ul, ol { margin: 0 0 8pt 18pt; padding: 0; }
-  li { margin: 0 0 4pt 0; }
-  .sp { height: 6pt; }
-  .hr { border-top: 1px solid #d9d9d9; margin: 10pt 0; }
-  .box {
-    border: 1px solid #e1e1e1;
-    background: #f6f6f6;
-    padding: 10pt;
-    margin: 8pt 0;
-    border-radius: 6pt;
-  }
-  .box-title { font-weight: 700; margin: 0 0 6pt 0; }
-  .metaRow {
-    font-size: 9.5pt;
-    color: #444;
-    margin: 0 0 10pt 0;
-  }
-</style>
-</head>
-<body>
-  <h1>${escapeHTML(docTitle || "FEthink Lesson Designer")}</h1>
-  <div class="sub">${escapeHTML(subtitle || "")}</div>
-  <div class="hr"></div>
-  ${out.join("\n")}
-</body>
-</html>`;
-
-      return html;
-    }
-
-    function downloadWordStyled(filename, docTitle, subtitle, rawText) {
-      const html = toWordHtmlDocument(docTitle, subtitle, rawText);
+        `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>` +
+        `<pre style="font-family:Calibri,Arial; white-space:pre-wrap; font-size:11pt; line-height:1.35;">${escapeHTML(plainText)}</pre>` +
+        `</body></html>`;
       const blob = new Blob([html], { type: "application/msword;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click(); a.remove();
       URL.revokeObjectURL(url);
     }
 
@@ -796,33 +405,71 @@ Also: keep everything ready-to-use in a classroom (no long essays).`;
       const text = rawText || "";
       const re = /\[\[ARTEFACT:\s*([^\]]+)\]\]([\s\S]*?)\[\[\/ARTEFACT\]\]/g;
       const artefacts = [];
-      let match;
-      while ((match = re.exec(text)) !== null) {
-        const name = (match[1] || "").trim();
-        const content = (match[2] || "").trim();
+      let m;
+      while ((m = re.exec(text)) !== null) {
+        const name = (m[1] || "").trim();
+        const content = (m[2] || "").trim();
         if (name && content) artefacts.push({ name, content });
       }
       return artefacts;
     }
 
     function safeFileStem(s) {
-      return (s || "artefact")
-        .toLowerCase()
-        .replace(/&/g, "and")
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/(^-|-$)/g, "")
-        .slice(0, 48);
+      return (s || "artefact").toLowerCase()
+        .replace(/&/g,"and").replace(/[^a-z0-9]+/g,"-")
+        .replace(/(^-|-$)/g,"").slice(0,48);
     }
 
-    function renderArtefactCard(label, contentText, contextSubtitle) {
+    async function downloadPptxFromSlides(btn, slidesText, subtitle) {
+      const old = btn.textContent;
+      btn.textContent = "Building…";
+      btn.disabled = true;
+
+      try {
+        const res = await fetch("/pptx", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            tier,
+            token,
+            slidesText,
+            deckTitle: "FEthink – Slides",
+            subtitle
+          })
+        });
+
+        if (!res.ok) {
+          let msg = "PPT export failed.";
+          try {
+            const j = await res.json();
+            if (j && j.error) msg = j.error;
+          } catch {}
+          alert(msg);
+          return;
+        }
+
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `FEthink-slides.pptx`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      } finally {
+        btn.textContent = old;
+        btn.disabled = false;
+      }
+    }
+
+    function renderArtefactCard(label, contentText, subtitle) {
       const formatted = formatAI(contentText);
       const stem = safeFileStem(label);
 
       const wrapper = document.createElement("div");
       wrapper.className = "ai-pack";
-      wrapper.dataset.raw = contentText; // store raw artefact text for Word export
-      wrapper.dataset.label = label;
-      wrapper.dataset.subtitle = contextSubtitle || "";
+      wrapper.dataset.raw = contentText;
 
       const header = document.createElement("div");
       header.className = "ai-pack-title";
@@ -847,6 +494,16 @@ Also: keep everything ready-to-use in a classroom (no long essays).`;
       actions.appendChild(saveBtn);
       actions.appendChild(wordBtn);
 
+      // PPT button only for Slides artefact
+      const isSlidesArtefact = /slides/i.test(label);
+      let pptBtn = null;
+      if (isSlidesArtefact) {
+        pptBtn = document.createElement("button");
+        pptBtn.className = "mini-btn ppt-btn";
+        pptBtn.textContent = "PPT";
+        actions.appendChild(pptBtn);
+      }
+
       header.appendChild(actions);
 
       const body = document.createElement("div");
@@ -855,16 +512,14 @@ Also: keep everything ready-to-use in a classroom (no long essays).`;
 
       copyBtn.onclick = () => copyFromElementText(copyBtn, body);
       saveBtn.onclick = () => downloadTextAsFile(`FEthink-${stem}.txt`, body.innerText);
+      wordBtn.onclick = () => downloadWordFromText(`FEthink-${stem}.doc`, body.innerText);
 
-      wordBtn.onclick = () => {
-        const raw = wrapper.dataset.raw || body.innerText;
-        const subtitle = wrapper.dataset.subtitle || "";
-        downloadWordStyled(`FEthink-${stem}.doc`, `FEthink – ${label}`, subtitle, raw);
-      };
+      if (pptBtn) {
+        pptBtn.onclick = () => downloadPptxFromSlides(pptBtn, wrapper.dataset.raw || body.innerText, subtitle);
+      }
 
       wrapper.appendChild(header);
       wrapper.appendChild(body);
-
       return wrapper;
     }
 
@@ -877,7 +532,6 @@ GLOBAL RULES:
 - Be specific to the subject and activity selected (do not produce generic output)
 - Use clear headings and short sections (no long paragraphs)
 - Provide step-by-step classroom-ready instructions
-- Avoid vague statements; include examples where useful
 - Keep language plain and accessible
 `.trim();
 
@@ -900,43 +554,31 @@ Return EXACTLY these artefacts using the wrappers shown (do not add extra wrappe
 [[/ARTEFACT]]
 
 [[ARTEFACT: Activity task]]
-Create the core activity task aligned to the selected activity type, including:
-- Timings
-- Exact learner instructions
-- Expected learner output (what they will produce)
-- Teacher guidance (what to look for)
+Create the core activity task aligned to the selected activity type, including timings, learner instructions, expected output, and teacher guidance.
 [[/ARTEFACT]]
 
 [[ARTEFACT: Slides (copy-ready)]]
 SLIDES – PROFESSIONAL FORMAT
 For EACH slide include:
-- Slide number + title
-- Layout (e.g., Title + Content, Two-column, Diagram slide)
-- Slide bullets (max 4–5)
-- Visual suggestion (icon/diagram/photo idea)
-- Speaker notes (teacher-only)
+Slide X: <title>
+Layout: ...
+- bullet
+- bullet
+Visual suggestion: ...
+Speaker notes: ...
 Keep to 8–12 slides unless activity is “Presentation slides” (then 8–10).
 [[/ARTEFACT]]
 
 [[ARTEFACT: Student handout (print-ready)]]
-Include:
-- Plain-language explanation
-- Key terms box
-- Short tasks/questions
-- Space for answers/notes
+Include plain-language explanation, key terms, short tasks/questions, space for answers/notes.
 [[/ARTEFACT]]
 
 [[ARTEFACT: Checks for understanding]]
-Include:
-- In-lesson checkpoint (hinge questions or mini task) + what to do with responses
-- Exit ticket (3 prompts) + quick marking guidance
+Include an in-lesson checkpoint + exit ticket (3 prompts) + quick marking guidance.
 [[/ARTEFACT]]
 
 [[ARTEFACT: Teacher notes]]
-Include:
-- Likely misconceptions
-- Differentiation: SEND/EAL scaffolds + stretch/challenge
-- Pacing tips and classroom management notes for this activity
+Misconceptions, differentiation, pacing tips.
 [[/ARTEFACT]]
 `.trim();
       }
@@ -946,51 +588,31 @@ Include:
 Return EXACTLY these artefacts using the wrappers shown (do not add extra wrappers):
 
 [[ARTEFACT: Assessment learning outcomes]]
-State 3–5 measurable outcomes that the assessment is designed to measure.
+3–5 measurable outcomes.
 [[/ARTEFACT]]
 
 [[ARTEFACT: Student assessment brief]]
-Student-facing brief including:
-- Context and purpose
-- Task instructions
-- What to submit / output format
-- Time guidance
-- Academic integrity / expectations (short)
+Student-facing brief with instructions and submission format.
 [[/ARTEFACT]]
 
 [[ARTEFACT: Mark scheme / rubric]]
-Provide a clear rubric with levels/bands or points:
-- Criteria
-- What “good” looks like
-- Common pitfalls
+Criteria + what good looks like + pitfalls.
 [[/ARTEFACT]]
 
 [[ARTEFACT: Exemplars]]
-Provide:
-- One high-quality exemplar response
-- One mid-level exemplar response
-- Brief commentary explaining why each sits at that level
+High exemplar + mid exemplar + short commentary.
 [[/ARTEFACT]]
 
 [[ARTEFACT: Feedback bank (copy/paste)]]
-Provide:
-- Strength statements (10)
-- Improvement statements (10)
-- Next-step targets (10)
-Write them as reusable marking comments.
+10 strengths + 10 improvements + 10 next steps.
 [[/ARTEFACT]]
 
 [[ARTEFACT: Marking workflow (teacher guide)]]
-Provide:
-- A fast marking process (steps)
-- How to moderate / standardise
-- A simple checklist for consistency
+Fast marking process + moderation + checklist.
 [[/ARTEFACT]]
 
 [[ARTEFACT: Student improvement tasks (DIRT)]]
-Provide 3 short improvement tasks students do after feedback:
-- Task instructions
-- What success looks like
+3 short improvement tasks.
 [[/ARTEFACT]]
 `.trim();
       }
@@ -1004,7 +626,7 @@ Activity: ${selectedActivity}
 Output pack: ${selectedPack}
 Quality lenses: ${lensText}
 
-ACTIVITY REQUIREMENTS (must follow):
+ACTIVITY REQUIREMENTS:
 ${activitySpec}
 
 User request:
@@ -1027,13 +649,12 @@ ${responseFormat}
       const lensText = lenses.length ? lenses.join(", ") : "None selected";
 
       const message = buildMessage(subject, question, lensText);
+      const subtitle = `Subject: ${subject} • Activity: ${selectedActivity} • Pack: ${selectedPack}`;
 
       chat.innerHTML += `<div class="msg"><b>You:</b> ${escapeHTML(question)}</div>`;
       input.value = "";
       sendBtn.disabled = true;
       presetBtn.disabled = true;
-
-      const subtitle = `Subject: ${subject} • Activity: ${selectedActivity} • Pack: ${selectedPack}`;
 
       try {
         const res = await fetch("/ask", {
@@ -1043,10 +664,7 @@ ${responseFormat}
         });
 
         const data = await res.json();
-
-        if (typeof data.used === "number" && typeof data.limit === "number") {
-          updateUsage(data.used, data.limit);
-        }
+        if (typeof data.used === "number" && typeof data.limit === "number") updateUsage(data.used, data.limit);
 
         const reply = data.reply || "";
         const artefacts = parseArtefacts(reply);
@@ -1060,17 +678,12 @@ ${responseFormat}
           header.style.marginBottom = "8px";
           container.appendChild(header);
 
-          artefacts.forEach(a => {
-            container.appendChild(renderArtefactCard(a.name, a.content, subtitle));
-          });
-
+          artefacts.forEach(a => container.appendChild(renderArtefactCard(a.name, a.content, subtitle)));
           chat.appendChild(container);
         } else {
           const formatted = formatAI(reply);
-
           const wrapper = document.createElement("div");
           wrapper.className = "msg ai-msg";
-
           wrapper.innerHTML = `
             <div class="ai-pack-title">
               <b>AI:</b>
@@ -1085,14 +698,12 @@ ${responseFormat}
 
           const body = wrapper.querySelector(".ai-content");
           const [copyBtn, saveBtn, wordBtn] = wrapper.querySelectorAll("button");
-
           copyBtn.onclick = () => copyFromElementText(copyBtn, body);
           saveBtn.onclick = () => downloadTextAsFile("FEthink-response.txt", body.innerText);
-          wordBtn.onclick = () => downloadWordStyled("FEthink-response.doc", "FEthink – Lesson Designer", subtitle, reply);
-
+          wordBtn.onclick = () => downloadWordFromText("FEthink-response.doc", body.innerText);
           chat.appendChild(wrapper);
         }
-      } catch (e) {
+      } catch {
         chat.innerHTML += `<div class="msg"><b>AI:</b> Temporary error. Please try again shortly.</div>`;
       } finally {
         sendBtn.disabled = false;
@@ -1107,11 +718,7 @@ ${responseFormat}
     });
 
     sendBtn.addEventListener("click", send);
-
-    input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
-    });
-
+    input.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } });
     clearBtn.addEventListener("click", () => { chat.innerHTML = ""; });
   </script>
 </body>

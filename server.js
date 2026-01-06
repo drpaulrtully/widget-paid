@@ -1,16 +1,17 @@
 // server.js (ESM) — FEthink Lesson Designer (Paid)
-// - Serves public/widget-paid.html reliably at multiple routes
+// - Serves public/widget-paid.html reliably
 // - /ask enforces tier token + daily limits + basic rate limiting
-// - Returns { reply, used, limit } for the on-screen counter
+// - /pptx builds a real .pptx from the Slides artefact (premium export)
 
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
 import OpenAI from "openai";
 import crypto from "crypto";
+import PptxGenJS from "pptxgenjs";
 
 const app = express();
-app.use(express.json({ limit: "1mb" }));
+app.use(express.json({ limit: "2mb" }));
 
 // -------------------- Paths --------------------
 const __filename = fileURLToPath(import.meta.url);
@@ -19,33 +20,31 @@ const PUBLIC_DIR = path.join(__dirname, "public");
 
 // -------------------- OpenAI --------------------
 const OPENAI_API_KEY = (process.env.OPENAI_API_KEY || "").trim();
-if (!OPENAI_API_KEY) {
-  console.error("ERROR: Missing OPENAI_API_KEY in environment.");
-}
+if (!OPENAI_API_KEY) console.error("ERROR: Missing OPENAI_API_KEY in environment.");
 const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
 
 // -------------------- Config --------------------
-// Explorer access token (set in Render → Environment)
 const WIDGET_TOKEN_EXPLORER = (process.env.WIDGET_TOKEN_EXPLORER || "").trim();
-
-// Daily limits (defaults)
 const EXPLORER_DAILY_LIMIT = Number(process.env.EXPLORER_DAILY_LIMIT || 50);
 
-// Optional origin allow-list for POST /ask (comma-separated)
+// Optional origin allow-list for POST routes (comma-separated)
 // Example: https://fethink.co.uk,https://payhip.com,https://*.payhip.com
 const ALLOWED_ORIGINS_RAW = (process.env.ALLOWED_ORIGINS || "").trim();
 
 // Basic rate limiting (in-memory)
-const RATE_WINDOW_MS = Number(process.env.RATE_WINDOW_MS || 60_000); // 1 min
-const RATE_MAX_REQ = Number(process.env.RATE_MAX_REQ || 30); // per IP per window
+const RATE_WINDOW_MS = Number(process.env.RATE_WINDOW_MS || 60_000);
+const RATE_MAX_REQ = Number(process.env.RATE_MAX_REQ || 30);
 
-// Prompt length cap (simple abuse protection)
+// Prompt length cap
 const MAX_MESSAGE_CHARS = Number(process.env.MAX_MESSAGE_CHARS || 8000);
 
+// PPTX limits
+const MAX_PPTX_INPUT_CHARS = Number(process.env.MAX_PPTX_INPUT_CHARS || 20000);
+const PPTX_MAX_SLIDES = Number(process.env.PPTX_MAX_SLIDES || 20);
+
 // -------------------- In-memory stores --------------------
-// NOTE: These reset on deploy/restart. For stronger persistence, use Redis/DB later.
-const dailyUsage = new Map(); // key: YYYY-MM-DD::clientId -> count
-const rateBuckets = new Map(); // key: ip -> { windowStart, count }
+const dailyUsage = new Map(); // YYYY-MM-DD::clientId -> count
+const rateBuckets = new Map(); // ip -> { windowStart, count }
 
 // -------------------- Helpers --------------------
 function utcDayKey() {
@@ -58,13 +57,10 @@ function utcDayKey() {
 
 function getClientIp(req) {
   const xf = (req.headers["x-forwarded-for"] || "").toString();
-  const ip = xf.split(",")[0].trim() || req.socket.remoteAddress || "unknown";
-  return ip;
+  return xf.split(",")[0].trim() || req.socket.remoteAddress || "unknown";
 }
 
 function getClientId(req) {
-  // Best-effort identifier for daily counting. Not perfect, but works well for MVP.
-  // We hash to keep keys small and avoid storing full UA strings.
   const ip = getClientIp(req);
   const ua = (req.headers["user-agent"] || "").toString().slice(0, 120);
   const raw = `${ip}::${ua}`;
@@ -84,38 +80,27 @@ function bumpUsage(clientId) {
 }
 
 function isAllowedExplorer(token) {
-  if (!WIDGET_TOKEN_EXPLORER) return false; // fail closed if env missing
+  if (!WIDGET_TOKEN_EXPLORER) return false;
   return (token || "").trim() === WIDGET_TOKEN_EXPLORER;
 }
 
-// --- Origin checks (optional, controlled by env) ---
+// ---- Origin checks (optional) ----
 function parseAllowedOrigins(raw) {
   if (!raw) return [];
-  return raw
-    .split(",")
-    .map(s => s.trim())
-    .filter(Boolean);
+  return raw.split(",").map(s => s.trim()).filter(Boolean);
 }
-
 const ALLOWED_ORIGINS = parseAllowedOrigins(ALLOWED_ORIGINS_RAW);
 
 function originAllowed(originOrReferer) {
-  if (!ALLOWED_ORIGINS.length) return true; // disabled
+  if (!ALLOWED_ORIGINS.length) return true;
   if (!originOrReferer) return false;
 
-  // Normalize to just the origin portion if a full URL is given.
   let url;
-  try {
-    url = new URL(originOrReferer);
-  } catch {
-    return false;
-  }
+  try { url = new URL(originOrReferer); } catch { return false; }
   const origin = url.origin;
 
-  // Support exact match and simple wildcard subdomain match like https://*.payhip.com
   return ALLOWED_ORIGINS.some(allowed => {
     if (allowed.includes("*.")) {
-      // Example allowed: https://*.payhip.com
       const [scheme, rest] = allowed.split("://");
       if (!rest) return false;
       const domain = rest.replace("*.", "");
@@ -125,7 +110,7 @@ function originAllowed(originOrReferer) {
   });
 }
 
-// --- Rate limiting (very basic) ---
+// ---- Rate limiting ----
 function rateLimitCheck(req) {
   const ip = getClientIp(req);
   const now = Date.now();
@@ -137,7 +122,6 @@ function rateLimitCheck(req) {
   }
 
   if (now - bucket.windowStart > RATE_WINDOW_MS) {
-    // new window
     bucket.windowStart = now;
     bucket.count = 1;
     rateBuckets.set(ip, bucket);
@@ -147,10 +131,7 @@ function rateLimitCheck(req) {
   bucket.count += 1;
   rateBuckets.set(ip, bucket);
 
-  if (bucket.count > RATE_MAX_REQ) {
-    return { ok: false };
-  }
-
+  if (bucket.count > RATE_MAX_REQ) return { ok: false };
   return { ok: true };
 }
 
@@ -160,17 +141,142 @@ app.use(express.static(PUBLIC_DIR, { extensions: ["html"] }));
 function sendWidgetPaid(req, res) {
   res.sendFile(path.join(PUBLIC_DIR, "widget-paid.html"));
 }
-
-// Serve widget reliably (prevents “Not found” in embeds)
 app.get("/", sendWidgetPaid);
 app.get("/widget-paid.html", sendWidgetPaid);
 app.get("/widget-paid", sendWidgetPaid);
 app.get("/widget-paid/", sendWidgetPaid);
 
-// -------------------- API --------------------
+// -------------------- PPTX builder --------------------
+function splitSlidesFromText(raw) {
+  // Expects sections like:
+  // Slide 1 + title (or "Slide 1: Title")
+  // bullets with "- ..."
+  // speaker notes lines (optional)
+  const text = (raw || "").replace(/\r\n/g, "\n").trim();
+
+  // Find slide headers
+  const lines = text.split("\n");
+  const starts = [];
+  for (let i = 0; i < lines.length; i++) {
+    if (/^\s*Slide\s+\d+\b/i.test(lines[i])) starts.push(i);
+  }
+  if (!starts.length) return [];
+
+  const slides = [];
+  for (let s = 0; s < starts.length; s++) {
+    const start = starts[s];
+    const end = s === starts.length - 1 ? lines.length : starts[s + 1];
+
+    const block = lines.slice(start, end).map(l => l.trimEnd());
+    const header = block[0].trim();
+
+    // Title inference
+    let title = header
+      .replace(/^\s*Slide\s+\d+\s*[:\-]?\s*/i, "")
+      .trim();
+    if (!title) title = `Slide ${s + 1}`;
+
+    const bullets = [];
+    const notes = [];
+
+    for (let i = 1; i < block.length; i++) {
+      const line = block[i].trim();
+      if (!line) continue;
+
+      // If line looks like "Speaker notes:" treat subsequent lines as notes
+      if (/^Speaker notes\b/i.test(line)) {
+        const after = line.split(":").slice(1).join(":").trim();
+        if (after) notes.push(after);
+        continue;
+      }
+
+      // bullets
+      if (/^[-•*]\s+/.test(line)) {
+        bullets.push(line.replace(/^[-•*]\s+/, "").trim());
+        continue;
+      }
+
+      // If it looks like "Layout:" or "Visual suggestion:" put into notes
+      if (/^(Layout|Visual suggestion|Visual|Notes?)\s*:/i.test(line)) {
+        notes.push(line);
+        continue;
+      }
+
+      // Otherwise treat as bullet-like content
+      bullets.push(line);
+    }
+
+    slides.push({ title, bullets, notes: notes.join("\n") });
+  }
+
+  return slides.slice(0, PPTX_MAX_SLIDES);
+}
+
+async function buildPptxBuffer({ deckTitle, subtitle, slides }) {
+  const pptx = new PptxGenJS();
+  pptx.layout = "LAYOUT_WIDE";
+  pptx.author = "FEthink";
+  pptx.company = "FEthink";
+  pptx.subject = "Lesson Designer – Slides Export";
+
+  const fontBody = "Calibri";
+  const fontTitle = "Calibri";
+
+  // Title slide
+  {
+    const slide = pptx.addSlide();
+    slide.addText(deckTitle || "FEthink – Slides", {
+      x: 0.6, y: 1.2, w: 12.2, h: 0.8,
+      fontFace: fontTitle, fontSize: 36, bold: true, color: "111111"
+    });
+    if (subtitle) {
+      slide.addText(subtitle, {
+        x: 0.6, y: 2.2, w: 12.2, h: 0.6,
+        fontFace: fontBody, fontSize: 16, color: "444444"
+      });
+    }
+    slide.addText("Generated by FEthink Lesson Designer", {
+      x: 0.6, y: 6.6, w: 12.2, h: 0.4,
+      fontFace: fontBody, fontSize: 12, color: "666666"
+    });
+  }
+
+  // Content slides
+  for (const s of slides) {
+    const slide = pptx.addSlide();
+
+    // Title
+    slide.addText(s.title || "Slide", {
+      x: 0.6, y: 0.5, w: 12.2, h: 0.6,
+      fontFace: fontTitle, fontSize: 28, bold: true, color: "111111"
+    });
+
+    // Bullets
+    const bulletText = (s.bullets || []).slice(0, 10).map(b => `• ${b}`).join("\n");
+    slide.addText(bulletText || " ", {
+      x: 0.9, y: 1.4, w: 11.6, h: 4.8,
+      fontFace: fontBody, fontSize: 18, color: "111111",
+      valign: "top"
+    });
+
+    // Notes / footer (small)
+    const notesText = (s.notes || "").trim();
+    if (notesText) {
+      slide.addText(notesText, {
+        x: 0.9, y: 6.3, w: 11.6, h: 0.9,
+        fontFace: fontBody, fontSize: 10, color: "555555"
+      });
+    }
+  }
+
+  // Generate buffer
+  const buf = await pptx.write("nodebuffer");
+  return buf;
+}
+
+// -------------------- API: /ask --------------------
 app.post("/ask", async (req, res) => {
   try {
-    // Optional origin/referrer enforcement
     const origin = (req.headers.origin || "").toString();
     const referer = (req.headers.referer || "").toString();
     const originOrReferer = origin || referer;
@@ -183,7 +289,6 @@ app.post("/ask", async (req, res) => {
       });
     }
 
-    // Rate limit
     const rl = rateLimitCheck(req);
     if (!rl.ok) {
       return res.status(429).json({
@@ -212,7 +317,6 @@ app.post("/ask", async (req, res) => {
       });
     }
 
-    // ---- Tier gate: Explorer (you said Pro later) ----
     if ((tier || "").toLowerCase() === "explorer") {
       if (!isAllowedExplorer(token)) {
         return res.json({
@@ -230,17 +334,10 @@ app.post("/ask", async (req, res) => {
           limit: EXPLORER_DAILY_LIMIT
         });
       }
-    } else {
-      // If you want to restrict non-explorer calls:
-      // return res.json({ reply: "Unsupported tier.", used: null, limit: EXPLORER_DAILY_LIMIT });
-      // For now, default to Explorer rules if tier missing:
-      // (Your widget should pass tier=explorer.)
     }
 
-    // Count only after passing access + limit checks
     const usedNow = bumpUsage(clientId);
 
-    // OpenAI call
     const response = await openai.responses.create({
       model: "gpt-4o-mini",
       input: message
@@ -258,6 +355,69 @@ app.post("/ask", async (req, res) => {
       used: null,
       limit: EXPLORER_DAILY_LIMIT
     });
+  }
+});
+
+// -------------------- API: /pptx --------------------
+app.post("/pptx", async (req, res) => {
+  try {
+    const origin = (req.headers.origin || "").toString();
+    const referer = (req.headers.referer || "").toString();
+    const originOrReferer = origin || referer;
+
+    if (!originAllowed(originOrReferer)) {
+      return res.status(403).json({ error: "Access blocked." });
+    }
+
+    const rl = rateLimitCheck(req);
+    if (!rl.ok) {
+      return res.status(429).json({ error: "Rate limit. Please slow down." });
+    }
+
+    const { tier, token, slidesText, deckTitle, subtitle } = req.body || {};
+    const clientId = getClientId(req);
+
+    if ((tier || "").toLowerCase() === "explorer") {
+      if (!isAllowedExplorer(token)) {
+        return res.status(403).json({ error: "Access check failed." });
+      }
+      const used = readUsage(clientId);
+      if (used >= EXPLORER_DAILY_LIMIT) {
+        return res.status(403).json({ error: "Daily limit reached." });
+      }
+    }
+
+    if (!slidesText || typeof slidesText !== "string" || !slidesText.trim()) {
+      return res.status(400).json({ error: "Missing slidesText." });
+    }
+
+    if (slidesText.length > MAX_PPTX_INPUT_CHARS) {
+      return res.status(400).json({ error: "Slides text is too long for PPT export." });
+    }
+
+    const slides = splitSlidesFromText(slidesText);
+    if (!slides.length) {
+      return res.status(400).json({
+        error: "Could not detect slide structure. Ensure the artefact includes lines like “Slide 1 …”"
+      });
+    }
+
+    const buf = await buildPptxBuffer({
+      deckTitle: deckTitle || "FEthink – Slides",
+      subtitle: subtitle || "",
+      slides
+    });
+
+    const filename = `FEthink-slides-${utcDayKey()}.pptx`;
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+    );
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    return res.send(buf);
+  } catch (err) {
+    console.error("PPTX ERROR:", err);
+    return res.status(500).json({ error: "Failed to generate PPTX. Check server logs." });
   }
 });
 
