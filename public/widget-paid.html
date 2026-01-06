@@ -277,14 +277,10 @@
   </div>
 
   <script>
-    // Read tier/token from query string
     const params = new URLSearchParams(window.location.search);
     const tier = params.get("tier") || "explorer";
     const token = params.get("token") || "";
 
-    // ----------------------------
-    // Activity buttons (include Full lesson)
-    // ----------------------------
     const activities = [
       "Full lesson",
       "10-minute tasks",
@@ -307,7 +303,6 @@
       "Theory Class"
     ];
 
-    // Micro descriptions for activities (small, non-disruptive)
     const activityDescriptions = {
       "Full lesson": "A complete session build: outcomes → teaching sequence → tasks → differentiation → checks.",
       "10-minute tasks": "Short, focused tasks with quick checks and answers.",
@@ -330,7 +325,6 @@
       "Theory Class": "Chunked instruction + guided practice + independent application."
     };
 
-    // Force distinct outputs by activity (specific requirements per button)
     const activitySpecs = {
       "Full lesson": `
 You must create a complete, end-to-end lesson build. Include:
@@ -344,7 +338,6 @@ You must create a complete, end-to-end lesson build. Include:
 - Lesson closer + exit ticket
 - Resources list and teacher notes
 `.trim(),
-
       "Lesson Plan": `
 Deliver a full lesson plan with:
 - Timings for each phase
@@ -352,7 +345,6 @@ Deliver a full lesson plan with:
 - Materials/resources list
 - Differentiation and checks for understanding
 `.trim(),
-
       "Scheme of Work": `
 Deliver a mini scheme of work (4 weeks) with:
 - Weekly focus and sequencing
@@ -360,7 +352,6 @@ Deliver a mini scheme of work (4 weeks) with:
 - Homework / independent study suggestions
 - Assessment point(s) and a review week
 `.trim(),
-
       "Assessment Task": `
 Deliver an assessment-ready task with:
 - Student brief and instructions
@@ -368,7 +359,6 @@ Deliver an assessment-ready task with:
 - Marking guidance / rubric outline
 - Model answer or exemplar outline
 `.trim(),
-
       "Blended Learning": `
 Deliver a blended plan with:
 - Online pre-task (10–15 mins)
@@ -376,7 +366,6 @@ Deliver a blended plan with:
 - Post-task reflection or quiz
 - Clear tech/tools assumptions (keep generic)
 `.trim(),
-
       "Questioning": `
 Deliver a questioning set with:
 - 10 questions from recall → analysis
@@ -384,7 +373,6 @@ Deliver a questioning set with:
 - Misconceptions to probe
 - Suggested follow-ups based on common answers
 `.trim(),
-
       "Group Activity": `
 Deliver a structured group task with:
 - Group roles
@@ -392,7 +380,6 @@ Deliver a structured group task with:
 - Expected outputs (what students produce)
 - Accountability check (how teacher verifies participation)
 `.trim(),
-
       "Revision Support": `
 Deliver a revision resource with:
 - Key knowledge organiser bullets
@@ -400,7 +387,6 @@ Deliver a revision resource with:
 - 3 common misconceptions
 - A 10-minute recap routine
 `.trim(),
-
       "Theory Class": `
 Deliver a theory lesson sequence with:
 - Direct instruction chunking
@@ -408,7 +394,6 @@ Deliver a theory lesson sequence with:
 - Independent application
 - Short assessment checkpoint
 `.trim(),
-
       "Icebreaker": `
 Deliver a fast icebreaker with:
 - Setup (1 minute)
@@ -416,7 +401,6 @@ Deliver a fast icebreaker with:
 - Debrief questions (2–3)
 - Variation for shy learners
 `.trim(),
-
       "Lesson Closer": `
 Deliver a lesson closer with:
 - Purpose (1 sentence)
@@ -424,7 +408,6 @@ Deliver a lesson closer with:
 - Exit ticket (3 prompts)
 - Teacher script (2–4 lines)
 `.trim(),
-
       "Practice Tasks": `
 Deliver 3 practice tasks:
 - Task 1 (easy) + answers
@@ -432,7 +415,6 @@ Deliver 3 practice tasks:
 - Task 3 (challenge) + answers
 Include common errors and fixes.
 `.trim(),
-
       "Research Project": `
 Deliver a structured research project brief with:
 - Research question
@@ -440,7 +422,6 @@ Deliver a structured research project brief with:
 - Sources guidance (types, not specific links)
 - Assessment criteria
 `.trim(),
-
       "10-minute tasks": `
 Deliver 3 independent 10-minute tasks:
 For each:
@@ -448,7 +429,6 @@ For each:
 - Expected student output
 - Quick check answer key
 `.trim(),
-
       "Field trip": `
 Deliver a field trip learning plan with:
 - Pre-visit preparation
@@ -456,7 +436,6 @@ Deliver a field trip learning plan with:
 - Post-visit learning check or assessment
 - Risk/behaviour considerations (brief)
 `.trim(),
-
       "Progress review": `
 Deliver a progress review structure with:
 - Learner self-review prompts
@@ -464,14 +443,12 @@ Deliver a progress review structure with:
 - Next-step target setting
 - 5-minute script for the conversation
 `.trim(),
-
       "Presentation slides": `
 Deliver slide content ONLY (no handout) with:
 - Slide-by-slide titles and bullets
 - Speaker notes
 Keep to 8–10 slides max.
 `.trim(),
-
       "Learning game": `
 Deliver a classroom learning game with:
 - Objective
@@ -480,7 +457,6 @@ Deliver a classroom learning game with:
 - Scoring/win conditions
 - Differentiation variation
 `.trim(),
-
       "CPD activity": `
 Deliver a CPD session plan for staff with:
 - Outcomes for staff
@@ -490,9 +466,7 @@ Deliver a CPD session plan for staff with:
 `.trim()
     };
 
-    // Preset prompts: clicking “Use activity preset” fills the text box with a detailed prompt
     function getPresetPrompt(subject, activity) {
-      // We keep this detailed only for Full lesson as requested; others stay concise so teachers can customise quickly.
       if (activity === "Full lesson") {
         return `Create a FULL LESSON for ${subject}.
 
@@ -516,14 +490,9 @@ Must include:
 
 Also: keep everything ready-to-use in a classroom (no long essays).`;
       }
-
-      // Default preset for other activities
       return `Generate a ${activity} for ${subject}. Make it specific, classroom-ready, and include clear steps, timings where appropriate, and differentiation.`;
     }
 
-    // ----------------------------
-    // Output packs
-    // ----------------------------
     const packs = [
       "Standard output",
       "Teacher Pack",
@@ -536,9 +505,6 @@ Also: keep everything ready-to-use in a classroom (no long essays).`;
       "Assessment & Marking Pack": "Premium artefacts: brief + rubric + exemplars + feedback bank + marking workflow."
     };
 
-    // ----------------------------
-    // UI state
-    // ----------------------------
     const activityChips = document.getElementById("activityChips");
     const packChips = document.getElementById("packChips");
     const activityMicro = document.getElementById("activityMicro");
@@ -559,7 +525,6 @@ Also: keep everything ready-to-use in a classroom (no long essays).`;
         };
         activityChips.appendChild(btn);
       });
-
       if (activityMicro) activityMicro.textContent = activityDescriptions[selectedActivity] || "";
     }
 
@@ -575,7 +540,6 @@ Also: keep everything ready-to-use in a classroom (no long essays).`;
         };
         packChips.appendChild(btn);
       });
-
       if (packMicro) packMicro.textContent = packDescriptions[selectedPack] || "";
     }
 
@@ -588,9 +552,6 @@ Also: keep everything ready-to-use in a classroom (no long essays).`;
     const presetBtn = document.getElementById("presetBtn");
     const clearBtn = document.getElementById("clearBtn");
 
-    // ----------------------------
-    // Helpers
-    // ----------------------------
     function escapeHTML(s) {
       return (s || "")
         .replace(/&/g, "&amp;")
@@ -632,12 +593,194 @@ Also: keep everything ready-to-use in a classroom (no long essays).`;
       URL.revokeObjectURL(url);
     }
 
-    function downloadWordFromText(filename, plainText) {
-      const html =
-        `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>` +
-        `<pre style="font-family:Arial; white-space:pre-wrap;">${escapeHTML(plainText)}</pre>` +
-        `</body></html>`;
+    // --- Word export: convert raw artefact text into styled Word-friendly HTML ---
+    function looksLikeTitle(line) {
+      const l = (line || "").trim();
+      if (!l) return false;
+      if (l.length > 72) return false;
+      // Strong signals:
+      if (/^SLIDES\b/i.test(l)) return true;
+      if (/^LEARNING OUTCOMES\b/i.test(l)) return true;
+      if (/^STUDENT HANDOUT\b/i.test(l)) return true;
+      if (/^CHECKS? FOR UNDERSTANDING\b/i.test(l)) return true;
+      if (/^TEACHER NOTES\b/i.test(l)) return true;
+      if (/^ASSESSMENT\b/i.test(l)) return true;
+      if (/^MARK SCHEME\b/i.test(l)) return true;
+      if (/^RUBRIC\b/i.test(l)) return true;
+      if (/^EXEMPLARS?\b/i.test(l)) return true;
+      if (/^FEEDBACK BANK\b/i.test(l)) return true;
+      // All-caps short line
+      if (l === l.toUpperCase() && /[A-Z]/.test(l) && l.length <= 40) return true;
+      return false;
+    }
 
+    function isSubhead(line) {
+      const l = (line || "").trim();
+      if (!l) return false;
+      if (l.length > 80) return false;
+      if (/^Slide\s+\d+\b/i.test(l)) return true;
+      if (/^Layout:\b/i.test(l)) return true;
+      if (/^Title:\b/i.test(l)) return true;
+      if (/^Purpose\b/i.test(l)) return true;
+      if (/^Resources?\b/i.test(l)) return true;
+      if (/^Visual suggestion\b/i.test(l)) return true;
+      if (/^Speaker notes\b/i.test(l)) return true;
+      if (/^Key terms\b/i.test(l)) return true;
+      if (/^Success criteria\b/i.test(l)) return true;
+      if (/^Common misconceptions\b/i.test(l)) return true;
+      if (/^Teacher notes\b/i.test(l)) return true;
+      if (/^Differentiation\b/i.test(l)) return true;
+      if (/^Exit ticket\b/i.test(l)) return true;
+      if (/^Checkpoint\b/i.test(l)) return true;
+      if (/:$/.test(l) && l.length <= 48) return true;
+      return false;
+    }
+
+    function toWordHtmlDocument(docTitle, subtitle, rawText) {
+      const lines = (rawText || "").replace(/\r\n/g, "\n").split("\n");
+
+      // Build HTML blocks
+      const out = [];
+      let inUl = false;
+      let inOl = false;
+      let inBox = false;
+
+      function closeLists() {
+        if (inUl) { out.push("</ul>"); inUl = false; }
+        if (inOl) { out.push("</ol>"); inOl = false; }
+      }
+      function closeBox() {
+        if (inBox) { closeLists(); out.push("</div>"); inBox = false; }
+      }
+
+      function openBox(kindLabel) {
+        closeBox();
+        inBox = true;
+        const label = kindLabel ? `<div class="box-title">${escapeHTML(kindLabel)}</div>` : "";
+        out.push(`<div class="box">${label}`);
+      }
+
+      // If we see “Key terms” or “Visual suggestion” or “Speaker notes”, use a box
+      const boxTriggers = [
+        { re: /^Key terms\b/i, label: "Key terms" },
+        { re: /^Visual suggestion\b/i, label: "Visual suggestion" },
+        { re: /^Speaker notes\b/i, label: "Speaker notes" },
+        { re: /^Teacher notes\b/i, label: "Teacher notes" },
+        { re: /^Common misconceptions\b/i, label: "Common misconceptions" }
+      ];
+
+      for (let i = 0; i < lines.length; i++) {
+        const raw = lines[i] || "";
+        const line = raw.trim();
+
+        // Blank line closes boxes/lists and adds spacing
+        if (!line) {
+          closeLists();
+          closeBox();
+          out.push(`<div class="sp"></div>`);
+          continue;
+        }
+
+        // Trigger boxes
+        const trig = boxTriggers.find(t => t.re.test(line));
+        if (trig) {
+          // Allow “Key terms:” same line content after colon
+          const parts = line.split(":");
+          openBox(trig.label);
+
+          if (parts.length > 1 && parts.slice(1).join(":").trim()) {
+            out.push(`<p>${escapeHTML(parts.slice(1).join(":").trim())}</p>`);
+          }
+          continue;
+        }
+
+        // Headings
+        if (looksLikeTitle(line)) {
+          closeLists();
+          closeBox();
+          out.push(`<h2>${escapeHTML(line)}</h2>`);
+          continue;
+        }
+
+        if (isSubhead(line)) {
+          closeLists();
+          // Keep inside a box if we are in one, otherwise normal subhead
+          out.push(`<h3>${escapeHTML(line.replace(/:$/, ""))}</h3>`);
+          continue;
+        }
+
+        // Bullets
+        if (/^[-•*]\s+/.test(line)) {
+          if (inOl) { out.push("</ol>"); inOl = false; }
+          if (!inUl) { out.push("<ul>"); inUl = true; }
+          out.push(`<li>${escapeHTML(line.replace(/^[-•*]\s+/, ""))}</li>`);
+          continue;
+        }
+
+        // Numbered list
+        if (/^\d+\.\s+/.test(line)) {
+          if (inUl) { out.push("</ul>"); inUl = false; }
+          if (!inOl) { out.push("<ol>"); inOl = true; }
+          out.push(`<li>${escapeHTML(line.replace(/^\d+\.\s+/, ""))}</li>`);
+          continue;
+        }
+
+        // Default paragraph
+        closeLists();
+        out.push(`<p>${escapeHTML(line)}</p>`);
+      }
+
+      // Close any open structures
+      closeLists();
+      closeBox();
+
+      // Word-friendly HTML document
+      const html =
+`<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>${escapeHTML(docTitle || "FEthink Artefact")}</title>
+<style>
+  /* Word-compatible styling (simple, no fancy CSS) */
+  body { font-family: Calibri, Aptos, Arial, sans-serif; font-size: 11pt; line-height: 1.35; color: #111; }
+  h1 { font-size: 18pt; margin: 0 0 6pt 0; font-weight: 700; }
+  .sub { margin: 0 0 12pt 0; font-size: 10pt; color: #555; }
+  h2 { font-size: 14pt; margin: 14pt 0 6pt 0; font-weight: 700; }
+  h3 { font-size: 11.5pt; margin: 10pt 0 4pt 0; font-weight: 700; }
+  p { margin: 0 0 6pt 0; }
+  ul, ol { margin: 0 0 8pt 18pt; padding: 0; }
+  li { margin: 0 0 4pt 0; }
+  .sp { height: 6pt; }
+  .hr { border-top: 1px solid #d9d9d9; margin: 10pt 0; }
+  .box {
+    border: 1px solid #e1e1e1;
+    background: #f6f6f6;
+    padding: 10pt;
+    margin: 8pt 0;
+    border-radius: 6pt;
+  }
+  .box-title { font-weight: 700; margin: 0 0 6pt 0; }
+  .metaRow {
+    font-size: 9.5pt;
+    color: #444;
+    margin: 0 0 10pt 0;
+  }
+</style>
+</head>
+<body>
+  <h1>${escapeHTML(docTitle || "FEthink Lesson Designer")}</h1>
+  <div class="sub">${escapeHTML(subtitle || "")}</div>
+  <div class="hr"></div>
+  ${out.join("\n")}
+</body>
+</html>`;
+
+      return html;
+    }
+
+    function downloadWordStyled(filename, docTitle, subtitle, rawText) {
+      const html = toWordHtmlDocument(docTitle, subtitle, rawText);
       const blob = new Blob([html], { type: "application/msword;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -649,8 +792,6 @@ Also: keep everything ready-to-use in a classroom (no long essays).`;
       URL.revokeObjectURL(url);
     }
 
-    // Parse artefacts from AI output using wrappers:
-    // [[ARTEFACT: NAME]] ... [[/ARTEFACT]]
     function parseArtefacts(rawText) {
       const text = rawText || "";
       const re = /\[\[ARTEFACT:\s*([^\]]+)\]\]([\s\S]*?)\[\[\/ARTEFACT\]\]/g;
@@ -673,12 +814,15 @@ Also: keep everything ready-to-use in a classroom (no long essays).`;
         .slice(0, 48);
     }
 
-    function renderArtefactCard(label, contentText) {
+    function renderArtefactCard(label, contentText, contextSubtitle) {
       const formatted = formatAI(contentText);
       const stem = safeFileStem(label);
 
       const wrapper = document.createElement("div");
       wrapper.className = "ai-pack";
+      wrapper.dataset.raw = contentText; // store raw artefact text for Word export
+      wrapper.dataset.label = label;
+      wrapper.dataset.subtitle = contextSubtitle || "";
 
       const header = document.createElement("div");
       header.className = "ai-pack-title";
@@ -709,10 +853,14 @@ Also: keep everything ready-to-use in a classroom (no long essays).`;
       body.className = "ai-content";
       body.innerHTML = formatted;
 
-      // Bind buttons
       copyBtn.onclick = () => copyFromElementText(copyBtn, body);
       saveBtn.onclick = () => downloadTextAsFile(`FEthink-${stem}.txt`, body.innerText);
-      wordBtn.onclick = () => downloadWordFromText(`FEthink-${stem}.doc`, body.innerText);
+
+      wordBtn.onclick = () => {
+        const raw = wrapper.dataset.raw || body.innerText;
+        const subtitle = wrapper.dataset.subtitle || "";
+        downloadWordStyled(`FEthink-${stem}.doc`, `FEthink – ${label}`, subtitle, raw);
+      };
 
       wrapper.appendChild(header);
       wrapper.appendChild(body);
@@ -720,13 +868,9 @@ Also: keep everything ready-to-use in a classroom (no long essays).`;
       return wrapper;
     }
 
-    // ----------------------------
-    // Build message for server (premium artefacts)
-    // ----------------------------
     function buildMessage(subject, question, lensText) {
       const activitySpec = activitySpecs[selectedActivity] || "Follow the selected activity type with appropriate structure.";
 
-      // Base instruction: keep it usable, no fluff
       const baseRules = `
 You are FEthink’s Lesson Designer for educators.
 GLOBAL RULES:
@@ -737,7 +881,6 @@ GLOBAL RULES:
 - Keep language plain and accessible
 `.trim();
 
-      // STANDARD output stays as single structured response (no artefact wrappers needed)
       let responseFormat = `
 Response format:
 - Title
@@ -748,7 +891,6 @@ Response format:
 - Optional extension / variation
 `.trim();
 
-      // TEACHER PACK: premium artefacts (must be wrapped so the UI can split them)
       if (selectedPack === "Teacher Pack") {
         responseFormat = `
 Return EXACTLY these artefacts using the wrappers shown (do not add extra wrappers):
@@ -799,7 +941,6 @@ Include:
 `.trim();
       }
 
-      // ASSESSMENT & MARKING PACK: more artefacts (premium)
       if (selectedPack === "Assessment & Marking Pack") {
         responseFormat = `
 Return EXACTLY these artefacts using the wrappers shown (do not add extra wrappers):
@@ -873,9 +1014,6 @@ ${responseFormat}
 `.trim();
     }
 
-    // ----------------------------
-    // Main send
-    // ----------------------------
     async function send() {
       const subject = document.getElementById("subject").value;
       const question = input.value.trim();
@@ -890,11 +1028,12 @@ ${responseFormat}
 
       const message = buildMessage(subject, question, lensText);
 
-      // User line
       chat.innerHTML += `<div class="msg"><b>You:</b> ${escapeHTML(question)}</div>`;
       input.value = "";
       sendBtn.disabled = true;
       presetBtn.disabled = true;
+
+      const subtitle = `Subject: ${subject} • Activity: ${selectedActivity} • Pack: ${selectedPack}`;
 
       try {
         const res = await fetch("/ask", {
@@ -912,24 +1051,21 @@ ${responseFormat}
         const reply = data.reply || "";
         const artefacts = parseArtefacts(reply);
 
-        // If artefacts exist, render as separate cards (premium feel)
         if (artefacts.length > 0) {
           const container = document.createElement("div");
           container.className = "msg";
 
-          // A small header for the pack
           const header = document.createElement("div");
           header.innerHTML = `<b>AI:</b> ${escapeHTML(selectedPack)} (${escapeHTML(selectedActivity)})`;
           header.style.marginBottom = "8px";
           container.appendChild(header);
 
           artefacts.forEach(a => {
-            container.appendChild(renderArtefactCard(a.name, a.content));
+            container.appendChild(renderArtefactCard(a.name, a.content, subtitle));
           });
 
           chat.appendChild(container);
         } else {
-          // Fallback (standard single response)
           const formatted = formatAI(reply);
 
           const wrapper = document.createElement("div");
@@ -952,7 +1088,7 @@ ${responseFormat}
 
           copyBtn.onclick = () => copyFromElementText(copyBtn, body);
           saveBtn.onclick = () => downloadTextAsFile("FEthink-response.txt", body.innerText);
-          wordBtn.onclick = () => downloadWordFromText("FEthink-response.doc", body.innerText);
+          wordBtn.onclick = () => downloadWordStyled("FEthink-response.doc", "FEthink – Lesson Designer", subtitle, reply);
 
           chat.appendChild(wrapper);
         }
@@ -964,22 +1100,18 @@ ${responseFormat}
       }
     }
 
-    // Preset button fills input
     presetBtn.addEventListener("click", () => {
       const subject = document.getElementById("subject").value;
       input.value = getPresetPrompt(subject, selectedActivity);
       input.focus();
     });
 
-    // Send button
     sendBtn.addEventListener("click", send);
 
-    // Enter to send, Shift+Enter for newline
     input.addEventListener("keydown", (e) => {
       if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
     });
 
-    // Clear
     clearBtn.addEventListener("click", () => { chat.innerHTML = ""; });
   </script>
 </body>
