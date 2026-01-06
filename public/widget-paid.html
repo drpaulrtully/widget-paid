@@ -13,12 +13,7 @@
       color: #111;
     }
 
-    .wrap {
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 18px;
-    }
-
+    .wrap { max-width: 980px; margin: 0 auto; padding: 18px; }
     .card {
       border: 1px solid #eee;
       border-radius: 14px;
@@ -27,304 +22,183 @@
       box-shadow: 0 1px 2px rgba(0,0,0,0.04);
     }
 
-    .title {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-    .title h1 {
-      font-size: 18px;
-      margin: 0;
-      font-weight: 800;
-      letter-spacing: 0.2px;
-    }
-    .tier-pill {
-      font-size: 12px;
-      color: #fff;
-      background: #6F2DBD;
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-weight: 700;
-    }
+    .title { display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:10px; }
+    .title h1 { font-size: 18px; margin: 0; font-weight: 800; letter-spacing: 0.2px; }
+    .tier-pill { font-size:12px; color:#fff; background:#6F2DBD; padding:6px 10px; border-radius:999px; font-weight:700; }
 
-    .row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-top: 10px;
-    }
-    @media (max-width: 820px) {
-      .row { grid-template-columns: 1fr; }
-    }
+    .row { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
+    @media (max-width: 820px) { .row { grid-template-columns: 1fr; } }
 
-    label {
-      display: block;
-      font-size: 12px;
-      color: #555;
-      margin-bottom: 6px;
-      font-weight: 700;
-    }
+    label { display:block; font-size:12px; color:#555; margin-bottom:6px; font-weight:700; }
 
     select, textarea, input[type="text"] {
-      width: 100%;
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      padding: 10px 12px;
-      font-size: 14px;
-      outline: none;
-      background: #fff;
+      width:100%;
+      border:1px solid #ddd;
+      border-radius:12px;
+      padding:10px 12px;
+      font-size:14px;
+      outline:none;
+      background:#fff;
     }
     select:focus, textarea:focus, input[type="text"]:focus {
-      border-color: #6F2DBD;
-      box-shadow: 0 0 0 3px rgba(111,45,189,0.12);
+      border-color:#6F2DBD;
+      box-shadow:0 0 0 3px rgba(111,45,189,0.12);
     }
 
-    textarea {
-      min-height: 88px; /* ~3 lines */
-      resize: vertical;
-      line-height: 1.35;
-    }
+    textarea { min-height: 88px; resize: vertical; line-height: 1.35; }
 
     /* Activity buttons */
-    .activity-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 6px;
-    }
+    .activity-grid { display:flex; flex-wrap:wrap; gap:8px; margin-top:6px; }
     .act-btn {
-      border: 1px solid #ddd;
-      background: #fafafa;
-      border-radius: 999px;
-      padding: 8px 10px;
-      font-size: 12px;
-      cursor: pointer;
-      user-select: none;
+      border:1px solid #ddd;
+      background:#fafafa;
+      border-radius:999px;
+      padding:8px 10px;
+      font-size:12px;
+      cursor:pointer;
+      user-select:none;
     }
-    .act-btn:hover { border-color: #bbb; }
+    .act-btn:hover { border-color:#bbb; }
     .act-btn.active {
       background: rgba(111,45,189,0.10);
-      border-color: #6F2DBD;
-      color: #2b1252;
-      font-weight: 800;
+      border-color:#6F2DBD;
+      color:#2b1252;
+      font-weight:800;
     }
 
     /* Mode buttons */
-    .mode-wrap { margin-top: 10px; }
-    .mode-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 10px;
-    }
-    @media (max-width: 820px) {
-      .mode-grid { grid-template-columns: 1fr; }
-    }
+    .mode-wrap { margin-top:10px; }
+    .mode-grid { display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; }
+    @media (max-width: 820px) { .mode-grid { grid-template-columns: 1fr; } }
+
     .mode-btn {
-      border: 1px solid #ddd;
-      background: #fff;
-      border-radius: 14px;
-      padding: 12px;
-      cursor: pointer;
-      text-align: left;
+      border:1px solid #ddd;
+      background:#fff;
+      border-radius:14px;
+      padding:12px;
+      cursor:pointer;
+      text-align:left;
     }
-    .mode-btn:hover { border-color: #bbb; }
-    .mode-btn.active {
-      border-color: #6F2DBD;
-      box-shadow: 0 0 0 3px rgba(111,45,189,0.12);
-    }
-    .mode-name {
-      font-weight: 900;
-      font-size: 13px;
-      margin: 0 0 6px 0;
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-    .mode-sub {
-      font-size: 12px;
-      color: #666;
-      margin: 0;
-      line-height: 1.25;
-    }
-    .mode-tag {
-      font-size: 11px;
-      background: #f2f2f2;
-      border-radius: 999px;
-      padding: 2px 8px;
-      font-weight: 800;
-      color: #333;
-    }
+    .mode-btn:hover { border-color:#bbb; }
+    .mode-btn.active { border-color:#6F2DBD; box-shadow:0 0 0 3px rgba(111,45,189,0.12); }
+    .mode-name { font-weight:900; font-size:13px; margin:0 0 6px 0; display:flex; gap:8px; align-items:center; }
+    .mode-sub { font-size:12px; color:#666; margin:0; line-height:1.25; }
+    .mode-tag { font-size:11px; background:#f2f2f2; border-radius:999px; padding:2px 8px; font-weight:800; color:#333; }
 
     /* Quality lenses */
-    .lens-wrap { margin-top: 12px; }
-    .lens-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-    @media (max-width: 820px) {
-      .lens-grid { grid-template-columns: 1fr; }
-    }
-    .lens {
-      border: 1px solid #eee;
-      border-radius: 12px;
-      padding: 10px;
-      background: #fafafa;
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-    }
-    .lens input { margin-top: 2px; }
-    .lens b { font-size: 12px; }
-    .lens small { display: block; color: #666; margin-top: 4px; line-height: 1.25; }
+    .lens-wrap { margin-top:12px; }
+    .lens-grid { display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+    @media (max-width: 820px) { .lens-grid { grid-template-columns: 1fr; } }
 
-    /* Actions row */
-    .actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items: center;
-      margin-top: 12px;
+    .lens {
+      border:1px solid #eee;
+      border-radius:12px;
+      padding:10px;
+      background:#fafafa;
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
     }
+    .lens input { margin-top:2px; }
+    .lens b { font-size:12px; }
+    .lens small { display:block; color:#666; margin-top:4px; line-height:1.25; }
+
+    /* Actions */
+    .actions { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:12px; }
     .btn {
-      border: 1px solid #ddd;
-      background: #fff;
-      border-radius: 12px;
-      padding: 10px 12px;
-      font-weight: 800;
-      cursor: pointer;
-      font-size: 13px;
+      border:1px solid #ddd;
+      background:#fff;
+      border-radius:12px;
+      padding:10px 12px;
+      font-weight:800;
+      cursor:pointer;
+      font-size:13px;
     }
-    .btn:hover { border-color: #bbb; }
-    .btn-primary {
-      background: #6F2DBD;
-      border-color: #6F2DBD;
-      color: #fff;
-    }
+    .btn:hover { border-color:#bbb; }
+    .btn-primary { background:#6F2DBD; border-color:#6F2DBD; color:#fff; }
     .btn-primary:hover { filter: brightness(0.98); }
-    .btn-muted {
-      background: #f6f6f6;
+    .btn-muted { background:#f6f6f6; }
+
+    /* Presentation options row */
+    .present-row {
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-top:10px;
+      padding-top:10px;
+      border-top:1px solid #eee;
     }
+    .present-row .field {
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-size:12px;
+      color:#555;
+      font-weight:800;
+    }
+    .present-row select {
+      width:auto;
+      padding:8px 10px;
+      border-radius:10px;
+      font-size:12px;
+    }
+    .present-row input[type="file"] { font-size:12px; }
+    #logoStatus { font-size:12px; color:#666; font-weight:700; }
 
     /* Usage */
     .usage {
-      margin-top: 10px;
-      font-size: 12px;
-      color: #666;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
+      margin-top:10px;
+      font-size:12px;
+      color:#666;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
     }
-    .bar {
-      width: 200px;
-      height: 8px;
-      border-radius: 999px;
-      background: #eee;
-      overflow: hidden;
-    }
-    .bar > div {
-      height: 100%;
-      width: 0%;
-      background: #6F2DBD;
-    }
+    .bar { width:200px; height:8px; border-radius:999px; background:#eee; overflow:hidden; }
+    .bar > div { height:100%; width:0%; background:#6F2DBD; }
 
-    /* Chat output */
-    #chat {
-      margin-top: 14px;
-    }
-
+    /* Chat */
+    #chat { margin-top:14px; }
     .msg {
-      margin: 16px 0;
-      line-height: 1.5;
-      padding-bottom: 12px;
-      border-bottom: 1px solid #eee;
+      margin:16px 0;
+      line-height:1.5;
+      padding-bottom:12px;
+      border-bottom:1px solid #eee;
     }
-    .msg:last-child { border-bottom: none; }
-
-    .user-line b, .ai-header b { color: #333; }
+    .msg:last-child { border-bottom:none; }
 
     .ai-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 8px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      margin-bottom:8px;
     }
-    .ai-actions {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
+    .ai-actions { display:flex; gap:8px; flex-wrap:wrap; }
 
     .mini-btn {
-      border: 1px solid #ddd;
-      background: #fff;
-      border-radius: 10px;
-      padding: 6px 10px;
-      font-size: 12px;
-      cursor: pointer;
-      font-weight: 800;
+      border:1px solid #ddd;
+      background:#fff;
+      border-radius:10px;
+      padding:6px 10px;
+      font-size:12px;
+      cursor:pointer;
+      font-weight:800;
     }
-    .mini-btn:hover { border-color: #bbb; }
+    .mini-btn:hover { border-color:#bbb; }
 
-    .save-btn {
-      background: #2f2f2f;
-      color: #fff;
-      border-color: #2f2f2f;
-    }
-    .save-btn:hover {
-      background: #d8d8d8;
-      color: #000;
-      border-color: #d8d8d8;
-    }
+    .save-btn { background:#2f2f2f; color:#fff; border-color:#2f2f2f; }
+    .save-btn:hover { background:#d8d8d8; color:#000; border-color:#d8d8d8; }
 
-    .ppt-btn {
-      background: #0a0a0a;
-      color: #fff;
-      border-color: #0a0a0a;
-    }
-    .ppt-btn:hover { opacity: 0.9; }
+    .ppt-btn { background:#0a0a0a; color:#fff; border-color:#0a0a0a; }
+    .ppt-btn:hover { opacity:0.9; }
 
     /* Reply formatting */
-    .ai-content { font-size: 14px; }
-    .ai-h { font-weight: 900; margin: 10px 0 6px 0; }
-    .ai-gap { height: 8px; }
-
-    /* Presentation options row (theme + logo) */
-    .present-row {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      align-items: center;
-      margin-top: 10px;
-      padding-top: 10px;
-      border-top: 1px solid #eee;
-    }
-    .present-row .field {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 12px;
-      color: #555;
-      font-weight: 800;
-    }
-    .present-row select {
-      width: auto;
-      padding: 8px 10px;
-      border-radius: 10px;
-      font-size: 12px;
-    }
-    .present-row input[type="file"] {
-      font-size: 12px;
-    }
-    #logoStatus {
-      font-size: 12px;
-      color: #666;
-      font-weight: 700;
-    }
+    .ai-content { font-size:14px; }
+    .ai-h { font-weight:900; margin:10px 0 6px 0; }
+    .ai-gap { height:8px; }
   </style>
 </head>
 
@@ -371,7 +245,6 @@
         <button class="btn btn-muted" id="clearBtn">Clear</button>
       </div>
 
-      <!-- Presentation options -->
       <div class="present-row">
         <div class="field">
           Slide theme:
@@ -399,11 +272,21 @@
   </div>
 
   <script>
-    // -------------------- Tier + token from Payhip embed --------------------
-    const tier = (window.FETHINK_TIER || "explorer").toString().toLowerCase();
-    const token = (window.FETHINK_TOKEN || "").toString().trim();
+    // ---------- IMPORTANT: iframe token handling ----------
+    // Payhip scripts do NOT pass into an iframe. So we must read ?tier=...&token=... from the iframe URL.
+    function readQuery() {
+      const p = new URLSearchParams(window.location.search || "");
+      return {
+        tier: (p.get("tier") || "").trim(),
+        token: (p.get("token") || "").trim()
+      };
+    }
 
-    // UI labels
+    const q = readQuery();
+    const tier = (q.tier || window.FETHINK_TIER || "explorer").toString().toLowerCase();
+    const token = (q.token || window.FETHINK_TOKEN || "").toString().trim();
+
+    // UI tier pill
     const tierPill = document.getElementById("tierPill");
     tierPill.textContent = tier.toUpperCase();
 
@@ -421,7 +304,7 @@
     const usageBar = document.getElementById("usageBar");
     const usageNote = document.getElementById("usageNote");
 
-    // -------------------- Lists (Subjects A–Z) --------------------
+    // -------------------- Lists --------------------
     const subjects = [
       "Art & Design",
       "Biology",
@@ -432,8 +315,8 @@
       "English",
       "Employability",
       "Environmental Science",
-      "Health & Social Care",
       "Hair & Beauty",
+      "Health & Social Care",
       "History",
       "Maths",
       "Motor Vehicle",
@@ -444,14 +327,13 @@
       "Travel & Tourism"
     ].sort((a,b)=>a.localeCompare(b));
 
-    // Activities as buttons (A–Z)
-    // Includes Full Lesson + your set + new additions (field trip, progress review, presentation slides, learning game, cpd activity)
     const activities = [
       "10-minute tasks",
       "Assessment Task",
       "Blended Learning",
       "CPD Activity",
       "Field Trip",
+      "Full Lesson",
       "Group Activity",
       "Icebreaker",
       "Learning Game",
@@ -464,54 +346,20 @@
       "Research Project",
       "Revision Support",
       "Scheme of Work",
-      "Theory Class",
-      "Full Lesson"
+      "Theory Class"
     ].sort((a,b)=>a.localeCompare(b));
 
-    // Modes
     const modes = [
-      {
-        key: "standard",
-        name: "Standard output",
-        tag: "Fast",
-        sub: "One high-quality teaching resource based on your subject + activity."
-      },
-      {
-        key: "teacher_pack",
-        name: "Teacher pack",
-        tag: "Artefacts",
-        sub: "Outputs learning outcomes + slides + handout + assessment materials (ready to use)."
-      },
-      {
-        key: "assessment_pack",
-        name: "Assessment & marking pack",
-        tag: "Rigorous",
-        sub: "Assessment tasks + success criteria + mark scheme + feedback bank + moderation notes."
-      }
+      { key:"standard", name:"Standard output", tag:"Fast", sub:"One high-quality teaching resource based on subject + activity." },
+      { key:"teacher_pack", name:"Teacher pack", tag:"Artefacts", sub:"Outcomes + slides + handout + assessment materials (ready to use)." },
+      { key:"assessment_pack", name:"Assessment & marking pack", tag:"Rigorous", sub:"Assessment + rubric + mark scheme + feedback bank + moderation notes." }
     ];
 
-    // Quality lenses (4)
     const lenses = [
-      {
-        key: "accessibility",
-        title: "Accessibility & inclusion",
-        desc: "Adjusts reading level, chunking, scaffolds, SEND-friendly options, and clear instructions."
-      },
-      {
-        key: "challenge",
-        title: "Stretch & challenge",
-        desc: "Adds higher-order thinking, extension prompts, and deeper conceptual questions."
-      },
-      {
-        key: "assessment",
-        title: "Assessment quality",
-        desc: "Tightens success criteria, checks validity, adds retrieval/hinge questions and misconceptions."
-      },
-      {
-        key: "practicality",
-        title: "Practical classroom delivery",
-        desc: "Ensures timing, resources, routines, differentiation, and realistic teacher workload."
-      }
+      { key:"accessibility", title:"Accessibility & inclusion", desc:"Chunking, scaffolds, SEND-friendly options, clear instructions." },
+      { key:"challenge", title:"Stretch & challenge", desc:"Higher-order thinking, extensions, deeper conceptual prompts." },
+      { key:"assessment", title:"Assessment quality", desc:"Hinge questions, misconceptions, success criteria, validity checks." },
+      { key:"practicality", title:"Practical delivery", desc:"Timings, routines, resources, differentiation, realistic workload." }
     ];
 
     // -------------------- State --------------------
@@ -522,7 +370,7 @@
     // PPT options
     let logoDataUrl = null;
 
-    // -------------------- Populate subjects --------------------
+    // -------------------- Populate UI --------------------
     function fillSubjects() {
       subjectEl.innerHTML = "";
       for (const s of subjects) {
@@ -531,11 +379,9 @@
         opt.textContent = s;
         subjectEl.appendChild(opt);
       }
-      // Default
       subjectEl.value = "Sociology";
     }
 
-    // -------------------- Activity buttons --------------------
     function fillActivities() {
       activityGrid.innerHTML = "";
       activities.forEach(a => {
@@ -552,14 +398,13 @@
         activityGrid.appendChild(b);
       });
 
-      // pick a sensible default
+      // default
       const defaultAct = "Lesson Plan";
       const btns = [...activityGrid.querySelectorAll(".act-btn")];
       const found = btns.find(x => x.textContent === defaultAct) || btns[0];
       found.click();
     }
 
-    // -------------------- Modes --------------------
     function fillModes() {
       modeGrid.innerHTML = "";
       modes.forEach(m => {
@@ -576,11 +421,9 @@
         };
         modeGrid.appendChild(d);
       });
-      // default
       modeGrid.querySelectorAll(".mode-btn")[0].classList.add("active");
     }
 
-    // -------------------- Lenses --------------------
     function fillLenses() {
       lensGrid.innerHTML = "";
       lenses.forEach(l => {
@@ -602,7 +445,7 @@
       });
     }
 
-    // -------------------- Logo upload handling --------------------
+    // -------------------- Logo upload --------------------
     const logoInput = document.getElementById("logoInput");
     const logoStatus = document.getElementById("logoStatus");
 
@@ -616,36 +459,35 @@
         }
         const reader = new FileReader();
         reader.onload = () => {
-          logoDataUrl = reader.result; // data:image/png;base64,...
+          logoDataUrl = reader.result;
           logoStatus.textContent = `Logo loaded: ${file.name}`;
         };
         reader.readAsDataURL(file);
       });
     }
 
-    // -------------------- Prompt builders --------------------
+    // -------------------- Prompt logic --------------------
     function activityPreset(activity) {
-      // Ensures activities lead to genuinely different outputs
       const presets = {
-        "Lesson Plan": "Create a complete lesson plan with timings, teacher script prompts, and differentiation.",
-        "Scheme of Work": "Create a mini scheme of work (4 lessons) with sequencing, retrieval and assessment points.",
-        "Assessment Task": "Create an assessment task with success criteria, mark scheme and common misconceptions.",
-        "Blended Learning": "Design a blended lesson with online + classroom phases and clear instructions for students.",
-        "Questioning": "Create a questioning plan: hinge questions, cold-call prompts, and misconception checks.",
+        "Lesson Plan": "Create a complete lesson plan with timings, teacher prompts, and differentiation.",
+        "Scheme of Work": "Create a mini scheme of work (4 lessons) with sequencing, retrieval, and assessment points.",
+        "Assessment Task": "Create an assessment task with success criteria, mark scheme and misconceptions.",
+        "Blended Learning": "Design a blended lesson with online + classroom phases and clear instructions.",
+        "Questioning": "Create a questioning plan with hinge questions and misconception checks.",
         "Group Activity": "Design a structured group activity with roles, resources, and accountability checks.",
-        "Revision Support": "Create a revision pack: retrieval questions, model answers, and spacing schedule.",
-        "Theory Class": "Design a theory-heavy session with explanations, examples, checks for understanding and practice.",
-        "Icebreaker": "Create a quick icebreaker linked to the topic (not generic), with steps and timings.",
+        "Revision Support": "Create a revision pack with retrieval questions, model answers and spacing schedule.",
+        "Theory Class": "Design a theory session with explanations, examples, checks for understanding and practice.",
+        "Icebreaker": "Create a topic-linked icebreaker with steps and timings (not generic).",
         "Lesson Closer": "Create a purposeful lesson closer with reflection, synthesis and an exit-check.",
-        "Practice Tasks": "Create a set of practice tasks (easy→hard), including answers and scaffolds.",
+        "Practice Tasks": "Create practice tasks (easy→hard) including answers and scaffolds.",
         "Research Project": "Design a research project brief with milestones, sources guidance and rubric.",
-        "10-minute tasks": "Create 3 x 10-minute micro-activities that work mid-lesson, each with steps + outputs.",
-        "Field Trip": "Create a field trip plan: objectives, itinerary, risk considerations, tasks and follow-up assessment.",
-        "Progress Review": "Create a progress review activity: evidence prompts, targets, and a short action plan template.",
+        "10-minute tasks": "Create 3 x 10-minute micro-activities, each with steps + outputs.",
+        "Field Trip": "Create a field trip plan: objectives, itinerary, tasks, follow-up assessment.",
+        "Progress Review": "Create a progress review: evidence prompts, targets, action plan template.",
         "Presentation Slides": "Create a slide deck outline with slide-by-slide content and speaker notes.",
-        "Learning Game": "Create a learning game (classroom-safe) with rules, resources and learning checks.",
-        "CPD Activity": "Create a CPD activity for staff: objectives, facilitation steps, materials and reflection prompts.",
-        "Full Lesson": "Create a full lesson package: outcomes, lesson plan, slides outline with speaker notes, handout, and assessment exit task."
+        "Learning Game": "Create a learning game with rules, resources and learning checks.",
+        "CPD Activity": "Create a CPD activity for staff: objectives, facilitation steps, materials and reflection.",
+        "Full Lesson": "Create a full lesson package: outcomes, lesson plan, slides with speaker notes, handout, assessment exit task."
       };
       return presets[activity] || "Create a high-quality teaching resource aligned to the chosen activity type.";
     }
@@ -653,17 +495,16 @@
     function lensesBlock() {
       if (!selectedLenses.size) return "";
       const mapping = {
-        accessibility: "Accessibility & inclusion: chunk instructions; plain English; SEND-friendly scaffolds; alternative ways to respond.",
-        challenge: "Stretch & challenge: add higher-order questions; extension; deepen conceptual understanding.",
-        assessment: "Assessment quality: hinge questions; misconceptions; clear success criteria; valid checks for learning.",
-        practicality: "Practical delivery: realistic timings; minimal prep; classroom management steps; resources list."
+        accessibility: "Accessibility & inclusion: chunking; plain English; SEND-friendly scaffolds; alternative response modes.",
+        challenge: "Stretch & challenge: higher-order questions; extension; deeper conceptual prompts.",
+        assessment: "Assessment quality: hinge questions; misconceptions; success criteria; valid checks for learning.",
+        practicality: "Practical delivery: realistic timings; minimal prep; routines; resources list."
       };
       const lines = [...selectedLenses].map(k => `- ${mapping[k] || k}`);
       return `QUALITY LENSES (apply):\n${lines.join("\n")}\n`;
     }
 
     function modeRules(modeKey) {
-      // These ensure Teacher Pack and Assessment Pack produce genuinely different, premium artefacts.
       if (modeKey === "teacher_pack") {
         return `
 OUTPUT MODE: TEACHER PACK
@@ -680,12 +521,10 @@ You MUST produce these sections, clearly separated:
    Slide 2: ...
 6) Homework / extension
 Rules:
-- Keep language FE/HE appropriate and practical.
 - Avoid long paragraphs; use headings and bullets.
 - Make the handout visually spaced (short blocks, clear headings).
 `;
       }
-
       if (modeKey === "assessment_pack") {
         return `
 OUTPUT MODE: ASSESSMENT & MARKING PACK
@@ -693,19 +532,15 @@ You MUST produce these sections:
 1) Assessment task (clear brief)
 2) Success criteria (student-friendly)
 3) Mark scheme / rubric (levels + descriptors)
-4) Model answer or exemplars (short but high-quality)
+4) Model answer or exemplars
 5) Feedback bank (ready-to-use phrases)
 6) Misconceptions + how to address them
-7) Moderation notes (fairness, bias checks, consistency)
-Rules:
-- Keep language plain but rigorous.
-- Make it easy to copy into a VLE or print.
+7) Moderation notes (fairness, bias, consistency)
 `;
       }
-
       return `
 OUTPUT MODE: STANDARD
-Produce one strong resource aligned to the activity type, with:
+Produce:
 - Title
 - Purpose (1 sentence)
 - Steps / guidance (bullets)
@@ -719,7 +554,6 @@ Produce one strong resource aligned to the activity type, with:
       const activity = selectedActivity || "Lesson Plan";
       const preset = activityPreset(activity);
 
-      // System-style rules (kept out of student view; used only for AI)
       const globalRules = `
 You are FEthink Lesson Designer for UK FE/HE educators.
 GLOBAL RESPONSE RULES:
@@ -757,9 +591,8 @@ ${userQuestion}
         .replace(/>/g, "&gt;");
     }
 
-    function formatReplyToHtml(raw) {
-      // raw is already escaped
-      return raw
+    function formatReplyToHtml(rawEscaped) {
+      return rawEscaped
         .replace(/^### (.*)$/gm, `<div class="ai-h">$1</div>`)
         .replace(/^## (.*)$/gm, `<div class="ai-h">$1</div>`)
         .replace(/^# (.*)$/gm, `<div class="ai-h">$1</div>`)
@@ -767,16 +600,13 @@ ${userQuestion}
         .replace(/\n/g, "<br>");
     }
 
-    // -------------------- Artefact detection (Slides for PPT) --------------------
     function extractSlidesTextFromReply(replyText) {
-      // Try to locate slide structure "Slide 1:" onward.
       const idx = replyText.search(/^\s*Slide\s+1\b/im);
       if (idx >= 0) return replyText.slice(idx).trim();
-      // fallback: if no explicit slides, still pass whole text (server will reject if it can't parse)
       return replyText.trim();
     }
 
-    // -------------------- Buttons actions on AI card --------------------
+    // -------------------- AI card actions --------------------
     function copyAIResponse(btn) {
       const msg = btn.closest(".ai-msg");
       const content = msg.querySelector(".ai-content");
@@ -804,7 +634,6 @@ ${userQuestion}
     function downloadWord(btn) {
       const msg = btn.closest(".ai-msg");
       const content = msg.querySelector(".ai-content");
-      // Basic Word-compatible HTML .doc export
       const html = `
         <html><head><meta charset="utf-8"></head>
         <body style="font-family:Calibri,Arial,sans-serif; line-height:1.4;">
@@ -888,7 +717,7 @@ ${userQuestion}
       actions.className = "ai-actions";
 
       const copyBtn = document.createElement("button");
-      copyBtn.className = "mini-btn copy-btn";
+      copyBtn.className = "mini-btn";
       copyBtn.textContent = "Copy";
       copyBtn.onclick = () => copyAIResponse(copyBtn);
 
@@ -898,7 +727,7 @@ ${userQuestion}
       saveBtn.onclick = () => saveAIResponse(saveBtn);
 
       const wordBtn = document.createElement("button");
-      wordBtn.className = "mini-btn word-btn";
+      wordBtn.className = "mini-btn";
       wordBtn.textContent = "Word";
       wordBtn.onclick = () => downloadWord(wordBtn);
 
@@ -906,7 +735,6 @@ ${userQuestion}
       actions.appendChild(saveBtn);
       actions.appendChild(wordBtn);
 
-      // PPT only when the reply contains slides
       const isSlides = /^\s*Slide\s+1\b/im.test(reply || "");
       if (isSlides) {
         const pptBtn = document.createElement("button");
@@ -930,7 +758,7 @@ ${userQuestion}
 
     function renderUserMessage(text) {
       const div = document.createElement("div");
-      div.className = "msg user-line";
+      div.className = "msg";
       div.innerHTML = `<b>You:</b> ${escapeHtml(text)}`;
       chat.appendChild(div);
     }
@@ -944,33 +772,27 @@ ${userQuestion}
         usageNote.textContent = "";
         return;
       }
-
       usedCount.textContent = String(used);
       limitCount.textContent = String(limit);
 
       const pct = Math.max(0, Math.min(100, Math.round((used / limit) * 100)));
       usageBar.style.width = pct + "%";
 
-      if (used >= limit) {
-        usageNote.textContent = "Limit reached for today.";
-      } else {
-        usageNote.textContent = `${limit - used} remaining today.`;
-      }
+      usageNote.textContent = (used >= limit) ? "Limit reached for today." : `${limit - used} remaining today.`;
     }
 
     // -------------------- Send / Clear --------------------
     document.getElementById("sendBtn").onclick = async () => {
-      const q = (input.value || "").trim();
-      if (!q) return;
+      const qText = (input.value || "").trim();
+      if (!qText) return;
 
       const subject = subjectEl.value;
       const activity = selectedActivity || "Lesson Plan";
       const subtitle = `${subject} • ${activity}`;
 
-      // Show user question plainly (not the hidden prompt)
-      renderUserMessage(q);
+      renderUserMessage(qText);
 
-      const prompt = buildPrompt(q);
+      const prompt = buildPrompt(qText);
 
       try {
         const res = await fetch("/ask", {
@@ -1008,6 +830,9 @@ ${userQuestion}
     fillModes();
     fillLenses();
     updateUsageUI(0, 0);
+
+    // Debug visibility (optional): remove later if you want
+    console.log("Widget tier/token:", { tier, token: token ? "(present)" : "(missing)" });
   </script>
 </body>
 </html>
